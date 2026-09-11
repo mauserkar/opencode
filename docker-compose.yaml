@@ -28,6 +28,8 @@ services:
       - $HOME/.config/opencode/command:/home/ubuntu/.config/opencode/command
       - $HOME/.config/opencode/skills:/home/ubuntu/.config/opencode/skills
       - $HOME/.config/opencode/opencode.jsonc:/home/ubuntu/.config/opencode/opencode.jsonc
+      # Per-profile config (work | personal) selected via OPENCODE_PROFILE
+      - $HOME/.config/opencode/profiles:/home/ubuntu/.config/opencode/profiles
       # OpenCode Persistent storage
       # Home dir keeps plugin cache, Go/Python tooling and OpenCode data/state writable
       - opencode-home:/home/ubuntu
@@ -37,6 +39,7 @@ services:
       - /tmp:size=256m
     environment:
       - TZ=UTC
+      - OPENCODE_CONFIG=/home/ubuntu/.config/opencode/profiles/${OPENCODE_PROFILE:-personal}/opencode.jsonc
       - OPENCODE_SERVER_USERNAME=${OPENCODE_SERVER_USERNAME}
       - OPENCODE_SERVER_PASSWORD=${OPENCODE_SERVER_PASSWORD}
     healthcheck:

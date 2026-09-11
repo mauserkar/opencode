@@ -9,7 +9,8 @@ Personal [OpenCode](https://opencode.ai) configuration plus a reproducible Docke
 ├── agents/              # Agent definitions (primary and subagents)
 ├── command/             # Custom slash commands
 ├── skills/              # Reusable skills
-├── opencode.jsonc       # OpenCode configuration
+├── opencode.jsonc       # OpenCode configuration (base)
+├── profiles/            # Work/personal config profiles (one opencode.jsonc each)
 ├── Dockerfile           # Devbox image
 ├── docker-compose.yaml  # Container orchestration
 ├── .env.example         # Environment variable template
@@ -91,6 +92,24 @@ merge ──▶ archive                            (integration)
 - Automatic compaction with pruning (`reserved: 10000`).
 - Tool output limits: 500 lines / 20000 bytes.
 
+## Profiles (`profiles/`)
+
+Separate **work** and **personal** configurations, each an `opencode.jsonc` that is **merged on top of** the base config (so it only needs the overrides, e.g. `model`/`small_model`):
+
+```
+profiles/
+├── work/opencode.jsonc
+└── personal/opencode.jsonc
+```
+
+Select one with the `OPENCODE_CONFIG` environment variable:
+
+```bash
+export OPENCODE_CONFIG=~/.config/opencode/profiles/work/opencode.jsonc
+```
+
+In the Docker devbox, set `OPENCODE_PROFILE` (`work` or `personal`) in `.env`; the compose file wires it to `OPENCODE_CONFIG` automatically.
+
 ## Docker Devbox
 
 Image based on `ubuntu:24.04` with the tooling required for the workflow:
@@ -105,7 +124,7 @@ Image based on `ubuntu:24.04` with the tooling required for the workflow:
 `docker-compose.yaml` mounts:
 
 - the working repo at `/workspace/${REPO_NAME}` (`REPO_NAME` is required; the stack fails fast if unset),
-- `agents/`, `command/`, `skills/`, and `opencode.jsonc` as configuration,
+- `agents/`, `command/`, `skills/`, `opencode.jsonc`, and `profiles/` as configuration,
 - persistent volumes for the home directory (plugin cache, tooling, OpenCode data/state) and the workspace (so git worktrees can be created as siblings of the repo).
 
 The container runs `opencode serve` on port `4096` (mapped to the host), with a healthcheck and hardening: non-root `ubuntu` user, `read_only` root filesystem (with writable volumes for home and workspace plus a `/tmp` tmpfs), `cap_drop: ALL`, `no-new-privileges`, `pids_limit`, and configurable `mem_limit`/`cpus`.
@@ -125,6 +144,7 @@ docker compose up -d --build
 | Variable | Description |
 | ---------- | ------------- |
 | `REPO_NAME` | Name of the repo to mount (`$HOME/repos/<REPO_NAME>`). |
+| `OPENCODE_PROFILE` | Config profile to load: `work` or `personal` (default: `personal`). |
 | `OPENCODE_HOST_PORT` | Host port to expose the server on. |
 | `OPENCODE_SERVER_USERNAME` | Username to authenticate with the server. |
 | `OPENCODE_SERVER_PASSWORD` | Password to authenticate with the server. |

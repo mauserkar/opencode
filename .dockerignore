@@ -11,6 +11,7 @@ package-lock.json
 .env
 .env.*
 !.env.example
+profiles/work/opencode.json*
 
 # Docs / compose / image definition (not needed in build context)
 *.md

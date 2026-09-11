@@ -1,0 +1,46 @@
+{
+  // Work profile — activate with:
+  //   export OPENCODE_CONFIG=~/.config/opencode/profiles/work/opencode.jsonc
+  // Merged on top of the global config (~/.config/opencode/opencode.jsonc),
+  // so only include the settings that differ for work.
+  "$schema": "https://opencode.ai/config.json",
+  // Default model for any agent not listed under "agent" below.
+  "model": "PROVIDER/work-model-id",
+  "small_model": "PROVIDER/work-small-model-id",
+  // Per-agent model overrides (format: provider/model-id)
+  "agent": {
+    "architect": {
+      "model": "PROVIDER/work-architect-model-id"
+    },
+    "unattended": {
+      "model": "PROVIDER/work-unattended-model-id"
+    },
+    "explorer": {
+      "model": "PROVIDER/work-explorer-model-id"
+    },
+    "researcher": {
+      "model": "PROVIDER/work-researcher-model-id"
+    },
+    "spec_author": {
+      "model": "PROVIDER/work-spec-author-model-id"
+    },
+    "developer": {
+      "model": "PROVIDER/work-developer-model-id"
+    },
+    "tester": {
+      "model": "PROVIDER/work-tester-model-id"
+    },
+    "reviewer": {
+      "model": "PROVIDER/work-reviewer-model-id"
+    },
+    "security_reviewer": {
+      "model": "PROVIDER/work-security-reviewer-model-id"
+    },
+    "bug_hunter": {
+      "model": "PROVIDER/work-bug-hunter-model-id"
+    },
+    "resolver": {
+      "model": "PROVIDER/work-resolver-model-id"
+    }
+  }
+}

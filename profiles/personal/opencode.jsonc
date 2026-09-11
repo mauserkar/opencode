@@ -1,0 +1,44 @@
+{
+  // Personal profile — activate with:
+  //   export OPENCODE_CONFIG=~/.config/opencode/profiles/personal/opencode.jsonc
+  // Merged on top of the global config (~/.config/opencode/opencode.jsonc),
+  // so only include the settings that differ for personal use.
+  "$schema": "https://opencode.ai/config.json",
+  "model": "deepseek/deepseek-v4-pro",
+  "small_model": "deepseek/deepseek-v4-flash",
+  "agent": {
+    "architect": {
+      "model": "deepseek/deepseek-v4-flash"
+    },
+    "unattended": {
+      "model": "deepseek/deepseek-v4-flash"
+    },
+    "explorer": {
+      "model": "opencode/nemotron-3.5-lightning-free"
+    },
+    "researcher": {
+      "model": "opencode/muse-spark-1.3-contributor-free"
+    },
+    "spec_author": {
+      "model": "opencode/muse-spark-1.3-contributor-free"
+    },
+    "developer": {
+      "model": "nvidia/qwen/qwen3-coder-480b-a35b-instruct"
+    },
+    "tester": {
+      "model": "nvidia/meta/muse-glimmer-30b"
+    },
+    "reviewer": {
+      "model": "opencode/nemotron-3-ultra-free"
+    },
+    "security_reviewer": {
+      "model": "opencode/nemotron-3-ultra-free"
+    },
+    "bug_hunter": {
+      "model": "opencode/nemotron-3-ultra-free"
+    },
+    "resolver": {
+      "model": "opencode/nemotron-3.5-lightning-free"
+    }
+  }
+}

@@ -3,3 +3,4 @@ package.json
 package-lock.json
 bun.lock
 .env
+profiles/work/opencode.json*
