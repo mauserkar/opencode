@@ -1,25 +1,27 @@
 FROM ubuntu:24.04
 
+ARG TARGETARCH=amd64
+
 ARG GO_VERSION=1.27.1
 ARG NODE_MAJOR=20
 ARG OPENCODE_VERSION=1.18.27
 ARG OPENSPEC_VERSION=1.12.0
 ARG OPENTOFU_VERSION=1.12.6
 ARG PYTHON_VERSION=3.14
-ARG TARGETARCH=amd64
+ARG YQ_VERSION=v4.53.6
 
 LABEL org.opencontainers.image.title="opencode-devbox" \
-      org.opencontainers.image.description="Dev environment: Go, OpenTofu, Node.js, Python, OpenCode, OpenSpec"
+      org.opencontainers.image.description="Dev environment: Go, OpenTofu, Node.js, Python, OpenCode, OpenSpec" \
+      org.opencontainers.image.version="${OPENCODE_VERSION}"
 
 ENV DEBIAN_FRONTEND=noninteractive
-ENV USER=ubuntu
 ENV HOME=/home/ubuntu
 ENV GO_VERSION=${GO_VERSION}
 ENV OPENCODE_VERSION=${OPENCODE_VERSION}
 ENV GOPATH=${HOME}/go
 ENV PATH=/usr/local/go/bin:${GOPATH}/bin:${PATH}
 
-# Repos base + PPA deadsnakes Python + tools cli
+# Repos base + PPA Python + tools cli
 RUN apt-get update && apt-get install -y --no-install-recommends \
     ca-certificates \
     curl \
@@ -32,7 +34,6 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     jq \
     less \
     lsb-release \
-    nano \
     net-tools \
     ripgrep \
     software-properties-common \
@@ -49,10 +50,15 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && rm -rf /var/lib/apt/lists/*
 
 # yq
-RUN wget https://github.com/mikefarah/yq/releases/latest/download/yq_linux_${TARGETARCH:-amd64} -O /usr/bin/yq \
-    && chmod +x /usr/bin/yq
+RUN cd /tmp \
+    && wget -q "https://github.com/mikefarah/yq/releases/download/${YQ_VERSION}/yq_linux_${TARGETARCH}" -O yq \
+    && wget -q "https://github.com/mikefarah/yq/releases/download/${YQ_VERSION}/checksums" -O checksums \
+    && EXPECTED=$(grep "^yq_linux_${TARGETARCH}  " checksums | awk '{print $19}') \
+    && echo "${EXPECTED}  yq" | sha256sum -c - \
+    && install -m 0755 yq /usr/bin/yq \
+    && rm -f yq checksums
 
-# Python 3.14 and pip
+# Python and pip
 RUN curl -sS https://bootstrap.pypa.io/get-pip.py | python${PYTHON_VERSION} \
     && update-alternatives --install /usr/bin/python3 python3 /usr/bin/python${PYTHON_VERSION} 1 \
     && update-alternatives --install /usr/bin/python python /usr/bin/python${PYTHON_VERSION} 1
@@ -68,12 +74,13 @@ RUN mkdir -p /etc/apt/keyrings \
     && rm -rf /var/lib/apt/lists/* \
     && npm install -g opencode-ai@${OPENCODE_VERSION} @fission-ai/openspec@${OPENSPEC_VERSION}
 
-# Go
-RUN curl -fSL \
-        -o /tmp/go.tar.gz \
-        "https://go.dev/dl/go${GO_VERSION}.linux-${TARGETARCH:-amd64}.tar.gz" \
+# Golang
+RUN curl -fSL -o /tmp/go.tar.gz "https://go.dev/dl/go${GO_VERSION}.linux-${TARGETARCH}.tar.gz" \
+    && curl -fsSL "https://go.dev/dl/?mode=json&include=all" -o /tmp/go.json \
+    && EXPECTED=$(python3 -c 'import json,os;d=json.load(open("/tmp/go.json"));v=os.environ["GO_VERSION"];a=os.environ["TARGETARCH"];fn="go%s.linux-%s.tar.gz"%(v,a);print(next(f["sha256"] for r in d if r["version"]=="go"+v for f in r["files"] if f["filename"]==fn))') \
+    && echo "${EXPECTED}  /tmp/go.tar.gz" | sha256sum -c - \
     && tar -C /usr/local -xzf /tmp/go.tar.gz \
-    && rm /tmp/go.tar.gz
+    && rm /tmp/go.tar.gz /tmp/go.json
 
 # OpenTofu
 RUN mkdir -p /etc/apt/keyrings \
@@ -101,11 +108,11 @@ RUN mkdir -p \
         ${HOME}/.config/opencode \
         ${HOME}/.local/share/opencode \
         ${HOME}/.local/state/opencode \
-    && chown -R ${USER}:${USER} \
+    && chown -R ubuntu:ubuntu \
         ${HOME} \
         /workspace
 
-USER ${USER}
+USER ubuntu
 
 WORKDIR /workspace
 

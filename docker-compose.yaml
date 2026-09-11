@@ -12,6 +12,7 @@ services:
         OPENSPEC_VERSION: "1.12.0"
         OPENTOFU_VERSION: "1.12.6"
         PYTHON_VERSION: "3.14"
+        YQ_VERSION: "v4.53.6"
     platform: linux/amd64
     image: opencode-devbox:1.4.0
     container_name: opencode-devbox
@@ -21,15 +22,19 @@ services:
       - "${OPENCODE_HOST_PORT:-4096}:4096"
     volumes:
       # Repository Configuration
-      - $HOME/repos/${REPO_NAME}:/workspace/${REPO_NAME}
+      - $HOME/repos/${REPO_NAME:?REPO_NAME is required}:/workspace/${REPO_NAME}
       # OpenCode Configuration
       - $HOME/.config/opencode/agents:/home/ubuntu/.config/opencode/agents
       - $HOME/.config/opencode/command:/home/ubuntu/.config/opencode/command
       - $HOME/.config/opencode/skills:/home/ubuntu/.config/opencode/skills
       - $HOME/.config/opencode/opencode.jsonc:/home/ubuntu/.config/opencode/opencode.jsonc
       # OpenCode Persistent storage
-      - opencode-data:/home/ubuntu/.local/share/opencode
-      - opencode-state:/home/ubuntu/.local/state/opencode
+      # Home dir keeps plugin cache, Go/Python tooling and OpenCode data/state writable
+      - opencode-home:/home/ubuntu
+      # Workspace stays writable so git worktrees can be created as siblings of the repo
+      - opencode-workspace:/workspace
+    tmpfs:
+      - /tmp:size=256m
     environment:
       - TZ=UTC
       - OPENCODE_SERVER_USERNAME=${OPENCODE_SERVER_USERNAME}
@@ -40,12 +45,18 @@ services:
       timeout: 5s
       retries: 3
       start_period: 10s
+    read_only: true
+    cap_drop:
+      - ALL
     security_opt:
       - no-new-privileges:true
+    pids_limit: 4096
+    mem_limit: ${OPENCODE_MEM_LIMIT:-4g}
+    cpus: ${OPENCODE_CPUS:-2.0}
     restart: unless-stopped
 
 volumes:
-  opencode-data:
-    name: opencode-devbox-data
-  opencode-state:
-    name: opencode-devbox-state
+  opencode-home:
+    name: opencode-devbox-home
+  opencode-workspace:
+    name: opencode-devbox-workspace

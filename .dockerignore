@@ -1,0 +1,17 @@
+# Version control
+.git
+.gitignore
+
+# Local dependencies (host)
+node_modules
+package.json
+package-lock.json
+
+# Secrets and local env
+.env
+.env.*
+!.env.example
+
+# Docs / compose / image definition (not needed in build context)
+*.md
+docker-compose.yaml

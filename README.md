@@ -1,4 +1,4 @@
-# opencode-devbox
+# OpenCode
 
 Personal [OpenCode](https://opencode.ai) configuration plus a reproducible Docker development environment (devbox). It defines an agent-orchestrated engineering workflow: specify → implement → test → review → merge.
 
@@ -32,7 +32,7 @@ The default agent is **`architect`**, which orchestrates the work and delegates 
 ### Subagents
 
 | Agent | Role |
-|-------|------|
+| ------- | ------ |
 | `explorer` | Read-only repository reconnaissance: architecture, relevant files, dependencies, patterns, and impact. |
 | `researcher` | External research (docs, APIs, libraries, best practices). Read-only. |
 | `spec_author` | Authors OpenSpec artifacts (proposal → specs → design → tasks). Only writes `openspec/**`, `specs/**`, `project.md`, `AGENTS.md`. |
@@ -71,7 +71,7 @@ merge ──▶ archive                            (integration)
 ## Commands (`command/`)
 
 | Command | Description |
-|---------|-------------|
+| --------- | ------------- |
 | `/changelog` | Updates `CHANGELOG.md` (Keep a Changelog format), computes the SemVer bump, updates the manifest, and creates the release commit. |
 | `/format` | Formats Python (`ruff`/`black`/`isort`), Terraform (`terraform fmt`), or Go (`gofmt`/`goimports`) code and shows `git diff --stat`. |
 | `/versioning` | Audits and implements version support (`--version`, `/version` endpoint, `__version__`, …) based on project type, integrating with OpenSpec when present. |
@@ -104,11 +104,13 @@ Image based on `ubuntu:24.04` with the tooling required for the workflow:
 
 `docker-compose.yaml` mounts:
 
-- the working repo at `/workspace/${REPO_NAME}`,
+- the working repo at `/workspace/${REPO_NAME}` (`REPO_NAME` is required; the stack fails fast if unset),
 - `agents/`, `command/`, `skills/`, and `opencode.jsonc` as configuration,
-- persistent volumes for OpenCode data and state.
+- persistent volumes for the home directory (plugin cache, tooling, OpenCode data/state) and the workspace (so git worktrees can be created as siblings of the repo).
 
-The container runs `opencode serve` on port `4096` (mapped to the host), with a healthcheck and `no-new-privileges`.
+The container runs `opencode serve` on port `4096` (mapped to the host), with a healthcheck and hardening: non-root `ubuntu` user, `read_only` root filesystem (with writable volumes for home and workspace plus a `/tmp` tmpfs), `cap_drop: ALL`, `no-new-privileges`, `pids_limit`, and configurable `mem_limit`/`cpus`.
+
+> **Security note:** `OPENCODE_SERVER_USERNAME`/`OPENCODE_SERVER_PASSWORD` are passed as container environment variables and are therefore visible via `docker inspect`. Keep `.env` out of version control.
 
 ### Usage
 
@@ -121,8 +123,10 @@ docker compose up -d --build
 ### Environment Variables (`.env`)
 
 | Variable | Description |
-|----------|-------------|
+| ---------- | ------------- |
 | `REPO_NAME` | Name of the repo to mount (`$HOME/repos/<REPO_NAME>`). |
 | `OPENCODE_HOST_PORT` | Host port to expose the server on. |
 | `OPENCODE_SERVER_USERNAME` | Username to authenticate with the server. |
 | `OPENCODE_SERVER_PASSWORD` | Password to authenticate with the server. |
+| `OPENCODE_MEM_LIMIT` | Optional container memory limit (default: `4g`). |
+| `OPENCODE_CPUS` | Optional CPU limit (default: `2.0`). |
