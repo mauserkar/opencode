@@ -13,8 +13,10 @@ Personal [OpenCode](https://opencode.ai) configuration plus a reproducible Docke
 ├── Dockerfile           # Devbox image
 ├── docker-compose.yaml  # Container orchestration
 ├── .env.example         # Environment variable template
-└── package.json         # OpenCode plugin dependency
+└── package.json         # (gitignored) local deps for plugin development
 ```
+
+> **Note:** `package.json`, `package-lock.json`, and `node_modules/` are **not versioned** (they are listed in `.gitignore`). A fresh clone will not contain them, and they are not required at runtime: OpenCode automatically installs the `opencode-plugin-openspec` plugin declared in `opencode.jsonc` into `~/.cache/opencode/`.
 
 ## Agents (`agents/`)
 
