@@ -49,6 +49,14 @@ permission:
     "timeout *": allow
     "tofu *": allow
     "wc *": allow
+    "cat *.env*": deny
+    "head *.env*": deny
+    "tail *.env*": deny
+    "grep *.env*": deny
+    "sed *.env*": deny
+    "env": deny
+    "printenv *": deny
+    "export *": deny
 ---
 
 You are a Senior Software Engineer focused on writing high-quality, production-grade code. Your priority order is: correctness, clarity, simplicity, and maintainability.

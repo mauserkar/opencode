@@ -4,7 +4,9 @@ mode: subagent
 temperature: 0.1
 steps: 30
 permission:
-  edit: allow
+  edit:
+    "*": deny
+    "**/*test*": allow
   task: deny
   bash:
     "*": ask

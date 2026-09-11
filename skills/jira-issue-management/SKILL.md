@@ -1,14 +1,19 @@
 ---
 name: jira-issue-management
 description: Create, look up, update, search for, list, or comment on Jira issues during a session. Use when the user asks to create, update, search for, list, comment on, or check the status of a Jira issue.
-compatibility: Requires .opencode/scripts/jira.py (Python 3, stdlib only), a JIRA_TOKEN and a JIRA_BASE_URL exported in the environment.
+compatibility: Requires jira.py (Python 3, stdlib only) available either in the repository's .opencode/scripts/ directory or the global OpenCode scripts directory ($HOME/.config/opencode/scripts/), plus JIRA_TOKEN and JIRA_BASE_URL exported in the environment.
 ---
 
 # Skill: jira-issue-management
 
 Manage Jira issues and their comments in your project by delegating to the
-single `jira` opencode command, which wraps `.opencode/scripts/jira.py`. This
-skill is procedural — it says when to use the command and which action to
+single `jira` opencode command, which wraps the resolved `jira.py`
+implementation.
+
+The Jira script may be provided at repository or global OpenCode scope.
+Repository-local configuration takes precedence over the global configuration.
+
+This skill is procedural — it says when to use the command and which action to
 pick, not how the script talks to Jira.
 
 Before running anything, ensure `JIRA_TOKEN` and `JIRA_BASE_URL` are set: both
@@ -52,17 +57,37 @@ properly defaulted in the environment:
 - Adding, listing, updating, or deleting a comment on an issue — e.g.
   recording progress, a decision, or a link back to a merge request.
 
+## Script Resolution
+
+The Jira implementation may exist at either repository or global OpenCode
+scope.
+
+Resolve `jira.py` in this order:
+
+1. Repository-local:
+   `.opencode/scripts/jira.py`
+
+2. Global OpenCode:
+   `$HOME/.config/opencode/scripts/jira.py`
+
+If both exist, the repository-local implementation takes precedence.
+
+If neither exists, report that `jira.py` could not be found and include the
+locations that were checked.
+
 ## How dispatch works
 
-There is a single opencode command that wraps the script — it takes the raw
+There is a single `jira` opencode command that wraps the resolved script — it takes the raw
 request as `$ARGUMENTS`, figures out which action is intended (`create`,
 `get`, `update`, `list`, `search`, `comment-add`, `comment-list`,
 `comment-update`, `comment-delete`, or `help`), gathers only the fields that
 action needs, and runs:
 
 ```
-<python> .opencode/scripts/jira.py <action> [flags...]
+<python> <resolved-jira-script> <action> [flags...]
 ```
+The `jira` command is responsible for resolving the script location according
+to the Script Resolution rules.
 
 The command's own file is the source of truth for exact flag names, which
 fields are required per action, and how results are reported — read it
@@ -85,7 +110,8 @@ one file per action.
 
 1. Verify environment configuration: ensure `.env` is loaded or the
    environment variables above (`JIRA_TOKEN`, `JIRA_BASE_URL`,
-   `JIRA_PROJECT_ID`, etc.) are accessible.
+   `JIRA_PROJECT_ID`, etc.) are accessible. Also ensure that a `jira.py`
+   implementation can be resolved according to the Script Resolution rules.
 2. Identify the action (`create`, `get`, `update`, `list`, `search`, one of
    the comment sub-actions, or `help`) from the request. If it's genuinely
    ambiguous (e.g. `search` vs `list`, or `get` vs `comment-list`), ask the

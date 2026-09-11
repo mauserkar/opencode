@@ -21,7 +21,7 @@ Personal [OpenCode](https://opencode.ai) configuration plus a reproducible Docke
 
 ## Agents (`agents/`)
 
-The default agent is **`architect`**, which orchestrates the work and delegates to subagents (it never implements code itself). `subagent_depth: 1` prevents a subagent from launching further subagents.
+The default agent is **`resolver`** (lightweight fallback). Select a profile to use **`architect`**, which orchestrates the work and delegates to subagents (it never implements code itself).
 
 ### Primary
 
@@ -76,21 +76,22 @@ merge ──▶ archive                            (integration)
 | `/changelog` | Updates `CHANGELOG.md` (Keep a Changelog format), computes the SemVer bump, updates the manifest, and creates the release commit. |
 | `/format` | Formats Python (`ruff`/`black`/`isort`), Terraform (`terraform fmt`), or Go (`gofmt`/`goimports`) code and shows `git diff --stat`. |
 | `/versioning` | Audits and implements version support (`--version`, `/version` endpoint, `__version__`, …) based on project type, integrating with OpenSpec when present. |
+| `/jira` | Creates, gets, updates, lists, or searches Jira issues and manages their comments via `.opencode/scripts/jira.py`. |
 
 ## Skills (`skills/`)
 
 | Skill | Description |
 |-------|-------------|
 | `conventional-commits` | Analyzes the `git diff` and generates commit messages following Conventional Commits (`feat`, `fix`, `refactor`, `docs`, `perf`, `chore`, `!` for breaking changes). |
+| `jira-issue-management` | Creates, updates, searches, lists, or comments on Jira issues during a session (requires `.opencode/scripts/jira.py`, `JIRA_TOKEN` and `JIRA_BASE_URL`). |
 
 ## OpenCode Configuration (`opencode.jsonc`)
 
-- `default_agent: architect`, `subagent_depth: 1`.
+- `default_agent: resolver` (base fallback; profiles override to `architect` when needed).
 - `build` and `plan` agents disabled.
 - Server listening on `0.0.0.0:4096`.
 - Plugin: `opencode-plugin-openspec`.
-- Automatic compaction with pruning (`reserved: 10000`).
-- Tool output limits: 500 lines / 20000 bytes.
+- `compaction`, `tool_output` limits and `subagent_depth` are configured in `profiles/*/opencode.jsonc`.
 
 ## Profiles (`profiles/`)
 

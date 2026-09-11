@@ -4,7 +4,19 @@ mode: subagent
 temperature: 0.2
 steps: 30
 permission:
-  read: allow
+  read:
+    "*": allow
+    "*.env": deny
+    "*.env.*": deny
+    "*.env.example": allow
+    "*.pem": deny
+    "*.key": deny
+    "*credential*": deny
+    "*secret*": deny
+    "**/.ssh/**": deny
+    "**/.kube/**": deny
+    "**/.gcloud/**": deny
+    "**/.gnupg/**": deny
   glob: allow
   grep: allow
   list: allow
@@ -26,6 +38,11 @@ permission:
     "find *": allow
     "grep *": allow
     "echo *": allow
+    "cat *.env*": deny
+    "grep *.env*": deny
+    "env": deny
+    "printenv *": deny
+    "export *": deny
   task: deny
   webfetch: allow
   websearch: allow

@@ -7,18 +7,25 @@ permission:
   edit: deny
   task:
     "*": allow
-  read: allow
+  read:
+    "*": allow
+    "*.env": deny
+    "*.env.*": deny
+    "*.env.example": allow
+    "*.pem": deny
+    "*.key": deny
+    "*credential*": deny
+    "*secret*": deny
+    "**/.ssh/**": deny
+    "**/.kube/**": deny
+    "**/.gcloud/**": deny
+    "**/.gnupg/**": deny
   glob: allow
   grep: allow
   list: allow
   bash:
     "*": deny
     "git status *": allow
-    "git diff *": allow
-    "git log *": allow
-    "git show *": allow
-    "git branch *": allow
-    "git rev-parse *": allow
     "git worktree list*": allow
     "openspec list*": allow
     "openspec status*": allow
@@ -141,7 +148,7 @@ Do not advance to the next artifact until the current one is approved, and do no
 
 Isolate the change before any code is written:
 
-- delegate worktree creation to `developer` (`git worktree add`, sibling directory, one worktree per change/branch)
+- The Architect MUST delegate branch and worktree creation to developer. The Architect MUST NOT create, switch, checkout, or modify branches itself.
 - verify with `git worktree list`
 - the main branch stays clean until the merge
 
