@@ -1,0 +1,51 @@
+name: opencode-devbox
+
+services:
+  opencode:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        GO_VERSION: "1.27.1"
+        NODE_MAJOR: "20"
+        OPENCODE_VERSION: "1.18.27"
+        OPENSPEC_VERSION: "1.12.0"
+        OPENTOFU_VERSION: "1.12.6"
+        PYTHON_VERSION: "3.14"
+    platform: linux/amd64
+    image: opencode-devbox:1.4.0
+    container_name: opencode-devbox
+    command: opencode serve --hostname 0.0.0.0 --port 4096 --log-level DEBUG --print-logs
+    working_dir: /workspace
+    ports:
+      - "${OPENCODE_HOST_PORT:-4096}:4096"
+    volumes:
+      # Repository Configuration
+      - $HOME/repos/${REPO_NAME}:/workspace/${REPO_NAME}
+      # OpenCode Configuration
+      - $HOME/.config/opencode/agents:/home/ubuntu/.config/opencode/agents
+      - $HOME/.config/opencode/command:/home/ubuntu/.config/opencode/command
+      - $HOME/.config/opencode/skills:/home/ubuntu/.config/opencode/skills
+      - $HOME/.config/opencode/opencode.jsonc:/home/ubuntu/.config/opencode/opencode.jsonc
+      # OpenCode Persistent storage
+      - opencode-data:/home/ubuntu/.local/share/opencode
+      - opencode-state:/home/ubuntu/.local/state/opencode
+    environment:
+      - TZ=UTC
+      - OPENCODE_SERVER_USERNAME=${OPENCODE_SERVER_USERNAME}
+      - OPENCODE_SERVER_PASSWORD=${OPENCODE_SERVER_PASSWORD}
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:4096/"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+    security_opt:
+      - no-new-privileges:true
+    restart: unless-stopped
+
+volumes:
+  opencode-data:
+    name: opencode-devbox-data
+  opencode-state:
+    name: opencode-devbox-state
