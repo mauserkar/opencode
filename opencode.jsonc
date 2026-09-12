@@ -33,7 +33,8 @@
       "**/.ssh/**": "deny",
       "**/.kube/**": "deny",
       "**/.gcloud/**": "deny",
-      "**/.gnupg/**": "deny"
+      "**/.gnupg/**": "deny",
+      "~/go/pkg/mod/**": "allow"
     },
     "bash": {
       "cat *.env*": "deny",
@@ -42,6 +43,15 @@
       "env": "deny",
       "printenv *": "deny",
       "export *": "deny"
+    },
+    "external_directory": {
+      "~/go/pkg/mod/**": "allow"
+    },
+    "list": {
+      "~/go/pkg/mod/**": "allow"
+    },
+    "edit": {
+      "~/go/pkg/mod/**": "deny"
     }
   },
   "plugin": [
