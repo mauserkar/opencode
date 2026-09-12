@@ -2,6 +2,10 @@
   "$schema": "https://opencode.ai/config.json",
   "default_agent": "resolver",
   "share": "disabled",
+  "instructions": [
+    "AGENTS.md",
+    "SECURITY.md"
+  ],
   "agent": {
     "build": {
       "disable": true

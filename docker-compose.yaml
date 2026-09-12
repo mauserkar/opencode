@@ -29,6 +29,8 @@ services:
       - $HOME/.config/opencode/skills:/home/ubuntu/.config/opencode/skills
       - $HOME/.config/opencode/scripts:/home/ubuntu/.config/opencode/scripts
       - $HOME/.config/opencode/opencode.jsonc:/home/ubuntu/.config/opencode/opencode.jsonc
+      - $HOME/.config/opencode/AGENTS.md:/home/ubuntu/.config/opencode/AGENTS.md
+      - $HOME/.config/opencode/SECURITY.md:/home/ubuntu/.config/opencode/SECURITY.md
       # Per-profile config (work | personal) selected via OPENCODE_PROFILE
       - $HOME/.config/opencode/profiles:/home/ubuntu/.config/opencode/profiles
       # OpenCode Persistent storage
