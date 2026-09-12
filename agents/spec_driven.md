@@ -95,10 +95,6 @@ Use these agents deliberately:
   - Read-only by default.
   - Focus on authentication, authorization, secrets, injection, dependency/security boundaries and unsafe defaults.
 
-- `resolver`
-  - Quick contextual questions only.
-  - Use when a small clarification can be delegated without consuming the main reasoning context.
-
 ## Standard workflow
 
 Enforce this spec-driven pipeline. Never skip a stage, and never start implementation before the OpenSpec artifacts are validated.
