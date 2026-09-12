@@ -10,17 +10,51 @@ permission:
   task: deny
   bash:
     "*": ask
-    "git status *": allow
+    "cat *.env*": deny
+    "cat *": allow
+    "diff *": allow
+    "echo *": allow
+    "env": deny
+    "export *": deny
+    "export": deny
+    "find *-delete*": deny
+    "find *-exec*": deny
+    "find *": allow
+    "git branch *": allow
     "git diff *": allow
+    "git diff": allow
     "git log *": allow
-    "pytest *": allow
+    "git log": allow
+    "git show *": allow
+    "git status *": allow
+    "git status": allow
     "go test *": allow
+    "go test": allow
     "go vet *": allow
-    "npm test*": allow
+    "go vet": allow
+    "grep *.env*": deny
+    "grep *": allow
+    "head *.env*": deny
+    "head *": allow
+    "ls *": allow
+    "ls": allow
+    "npm run test": allow
     "npm run test*": allow
+    "npm test": allow
+    "npm test*": allow
+    "openspec *": allow
+    "printenv *": deny
+    "printenv": deny
+    "pwd": allow
+    "pytest *": allow
+    "pytest": allow
+    "sed -n *": allow
+    "sort *": allow
+    "tail *.env*": deny
+    "tail *": allow
     "terraform validate*": allow
     "tofu validate*": allow
-    "openspec *": allow
+    "wc *": allow
 ---
 
 # Tester

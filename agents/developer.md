@@ -6,57 +6,91 @@ steps: 30
 permission:
   edit: allow
   bash:
-    "*": ask
+    "*": allow
+    "cat *.env*": deny
     "cat *": allow
+    "cat": allow
     "cd *": allow
+    "cd": allow
     "conftest *": allow
+    "conftest": allow
+    "curl *169.254.169.254*": deny
     "diff *": allow
+    "diff": allow
+    "docker *": deny
     "echo *": allow
+    "echo": allow
+    "env": deny
+    "export *": deny
+    "export": deny
     "find *": allow
+    "find": allow
     "git add *": allow
     "git branch *": allow
+    "git branch": allow
     "git check-ignore *": allow
     "git checkout *": allow
     "git commit *": allow
     "git diff *": allow
+    "git diff": allow
     "git fetch *": allow
     "git log *": allow
+    "git log": allow
     "git merge *": allow
     "git pull *": allow
     "git push *": ask
+    "git push": ask
     "git show *": allow
+    "git show": allow
     "git status *": allow
+    "git status": allow
     "git switch *": allow
     "git worktree *": allow
+    "git worktree": allow
     "go *": allow
+    "go": allow
+    "grep *.env*": deny
     "grep *": allow
+    "grep": allow
+    "head *.env*": deny
     "head *": allow
+    "head": allow
     "ls *": allow
+    "ls": allow
     "mkdir -p *": allow
     "npm run build*": allow
     "npm test*": allow
     "openspec *": allow
     "pgrep *": allow
+    "pgrep": allow
+    "printenv *": deny
+    "printenv": deny
+    "pwd": allow
     "pytest *": allow
+    "pytest": allow
     "python *": allow
+    "python": allow
     "rm *": deny
+    "scp *": deny
     "sed -n *": allow
+    "sed *.env*": deny
     "sort *": allow
+    "sort": allow
+    "ssh *": deny
+    "tail *.env*": deny
     "tail *": allow
+    "tail": allow
     "terraform *": allow
+    "terraform": allow
     "test": allow
     "time": allow
     "timeout *": allow
+    "timeout": allow
     "tofu *": allow
+    "tofu": allow
     "wc *": allow
-    "cat *.env*": deny
-    "head *.env*": deny
-    "tail *.env*": deny
-    "grep *.env*": deny
-    "sed *.env*": deny
-    "env": deny
-    "printenv *": deny
-    "export *": deny
+    "wc": allow
+    "wget *169.254.169.254*": deny
 ---
 
 You are a Senior Software Engineer focused on writing high-quality, production-grade code. Your priority order is: correctness, clarity, simplicity, and maintainability.
