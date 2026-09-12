@@ -64,7 +64,7 @@ Everything else is read-only.
 
 ## Workflow
 
-Work on exactly one change at a time, in this order, and **stop after each artifact** so the Architect can gate it:
+Work on exactly one change at a time, in this order, and **stop after each artifact** so the spec_driven can gate it:
 
 1. **proposal** — why / what / impact.
 2. **specs** — requirement deltas (`ADDED` / `MODIFIED` / `REMOVED` Requirements).

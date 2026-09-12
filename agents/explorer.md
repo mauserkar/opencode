@@ -1,5 +1,5 @@
 ---
-description: Read-only repository explorer. Maps architecture, relevant files, dependencies, conventions and change impact for the Architect.
+description: Read-only repository explorer. Maps architecture, relevant files, dependencies, conventions and changes.
 mode: subagent
 temperature: 0.1
 steps: 30
@@ -27,4 +27,4 @@ Return a concise but useful report containing:
 6. Potential risks or hidden coupling.
 7. Recommended implementation boundaries.
 
-Do not propose speculative redesigns. The Architect decides the architecture.
+Do not propose speculative redesigns.

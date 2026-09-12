@@ -20,7 +20,7 @@ When this command is invoked, audit the modified or main entry-point files and e
 3. **OpenSpec Integration:**
    - Check if the repository uses **OpenSpec** (e.g., presence of an `openspec` directory, configuration, or schema).
    - If OpenSpec is present:
-     - Execute or create an `openspec propose` detailing the planned version interface implementation (endpoint or CLI argument) before or alongside making the code change.
+     - Execute or create an OpenSpec change (`openspec new change <id>`) detailing the planned version interface implementation (endpoint or CLI argument) before or alongside making the code change, then validate it with `openspec validate --strict` and inspect it with `openspec show <id>`.
 
 4. **Implement Version Support (If Missing):**
    - **For CLI Apps / Scripts:** Add a `--version` / `-v` flag using the standard option parsing library for the language (e.g., `argparse`/`click` in Python, `commander`/`yargs` in Node.js, `flag` in Go).

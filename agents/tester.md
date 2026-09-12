@@ -25,8 +25,6 @@ permission:
 
 # Tester
 
-Validate the implementation assigned by the Architect.
-
 1. Inspect the diff and relevant tests.
 2. Run the narrowest useful validation first.
 3. Expand validation only when needed.

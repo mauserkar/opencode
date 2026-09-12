@@ -9,8 +9,8 @@
   "small_model": "PROVIDER/work-small-model-id",
   // Per-agent model overrides (format: provider/model-id)
   "agent": {
-    "architect": {
-      "model": "PROVIDER/work-architect-model-id"
+    "spec_driven": {
+      "model": "PROVIDER/work-spec_driven-model-id"
     },
     "unattended": {
       "model": "PROVIDER/work-unattended-model-id"
@@ -35,9 +35,6 @@
     },
     "security_reviewer": {
       "model": "PROVIDER/work-security-reviewer-model-id"
-    },
-    "bug_hunter": {
-      "model": "PROVIDER/work-bug-hunter-model-id"
     },
     "resolver": {
       "model": "PROVIDER/work-resolver-model-id"

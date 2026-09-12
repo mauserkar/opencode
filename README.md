@@ -21,13 +21,13 @@ Personal [OpenCode](https://opencode.ai) configuration plus a reproducible Docke
 
 ## Agents (`agents/`)
 
-The default agent is **`resolver`** (lightweight fallback). Select a profile to use **`architect`**, which orchestrates the work and delegates to subagents (it never implements code itself).
+The default agent is **`resolver`** (lightweight fallback). Select a profile to use **`spec_driven`**, which orchestrates the work and delegates to subagents (it never implements code itself).
 
 ### Primary
 
 | Agent | Role |
 |-------|------|
-| `architect` | Principal architect and orchestrator. Analyzes, plans, delegates, reviews results, and makes the final integration decision. Read-only plus read-only git/openspec commands. |
+| `spec_driven` | Orchestrator. Analyzes, plans, delegates, reviews results, and makes the final integration decision. Read-only plus read-only git/openspec commands. |
 | `unattended` | Engineer for autonomous runs inside an isolated container. Broad write permissions, but blocks reading/editing secrets (`.env`, `.pem`, `.key`, `.ssh`, `.kube`, etc.) and dangerous commands. |
 
 ### Subagents
@@ -39,12 +39,11 @@ The default agent is **`resolver`** (lightweight fallback). Select a profile to 
 | `spec_author` | Authors OpenSpec artifacts (proposal → specs → design → tasks). Only writes `openspec/**`, `specs/**`, `project.md`, `AGENTS.md`. |
 | `developer` | Production code implementation. Writes only inside its assigned worktree/scope. |
 | `tester` | Runs tests and validation; reports failures, regressions, and coverage gaps. |
-| `reviewer` | General code review (correctness, regressions, maintainability, tests). Read-only. |
+| `reviewer` | General code review plus deep Go/Python audit (concurrency, memory, async, idiomatic errors). Read-only. |
 | `security_reviewer` | Security review (authn/authz, secrets, injection, dependencies, insecure defaults). Read-only. |
-| `bug_hunter` | Deep bug and concurrency audit for Go and Python. Read-only. |
 | `resolver` | Quick questions and context clarifications. Lightweight and read-only. |
 
-## Workflow (architect)
+## Workflow (spec_driven)
 
 Spec-driven pipeline with no skipped stages:
 
@@ -65,7 +64,7 @@ merge ──▶ archive                            (integration)
 1. **Understand** — inspect repo, git, and OpenSpec state.
 2. **Specify** — `spec_author` drafts proposal, specs, design, and tasks (with a gate after each artifact) and validates with `openspec validate --strict`.
 3. **Worktree** — isolate the change in a `git worktree` before touching any code.
-4. **Implement → Test → Review** — loop inside the worktree (`developer`, `tester`, `reviewer`, plus `security_reviewer`/`bug_hunter` as needed).
+4. **Implement → Test → Review** — loop inside the worktree (`developer`, `tester`, `reviewer`, plus `security_reviewer` as needed).
 5. **Merge & Archive** — squash-merge into main and `openspec archive` the change.
 6. **Final response** — summary of changes, artifacts, subagents, tests, and pending decisions.
 
@@ -87,7 +86,7 @@ merge ──▶ archive                            (integration)
 
 ## OpenCode Configuration (`opencode.jsonc`)
 
-- `default_agent: resolver` (base fallback; profiles override to `architect` when needed).
+- `default_agent: resolver` (base fallback; profiles override to `spec_driven` when needed).
 - `build` and `plan` agents disabled.
 - Server listening on `0.0.0.0:4096`.
 - Plugin: `opencode-plugin-openspec`.

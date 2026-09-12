@@ -1,4 +1,5 @@
 ---
+
 description: Read-only technical researcher for external documentation, APIs, libraries and current best practices.
 mode: subagent
 temperature: 0.2
@@ -12,8 +13,6 @@ permission:
 ---
 
 # Researcher
-
-Research only the external information requested by the Architect.
 
 Use authoritative documentation first. Distinguish:
 

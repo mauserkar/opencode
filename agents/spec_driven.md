@@ -86,7 +86,7 @@ Use these agents deliberately:
   - May make test-only changes when explicitly assigned.
 
 - `reviewer`
-  - General code review.
+  - General code review plus deep Go/Python audit (concurrency, memory, async, idiomatic errors).
   - Read-only.
   - Focus on correctness, maintainability, regressions and missing tests.
 
@@ -94,11 +94,6 @@ Use these agents deliberately:
   - Security-focused review.
   - Read-only by default.
   - Focus on authentication, authorization, secrets, injection, dependency/security boundaries and unsafe defaults.
-
-- `bug_hunter`
-  - Deep Go/Python bug and concurrency review.
-  - Read-only.
-  - Use for difficult Go/Python changes.
 
 - `resolver`
   - Quick contextual questions only.
@@ -148,7 +143,7 @@ Do not advance to the next artifact until the current one is approved, and do no
 
 Isolate the change before any code is written:
 
-- The Architect MUST delegate branch and worktree creation to developer. The Architect MUST NOT create, switch, checkout, or modify branches itself.
+- The spec_driven MUST delegate branch and worktree creation to developer. The spec_driven MUST NOT create, switch, checkout, or modify branches itself.
 - verify with `git worktree list`
 - the main branch stays clean until the merge
 
@@ -159,8 +154,12 @@ Run this loop in the worktree, never on the main branch:
 1. `developer` implements against the `tasks` checklist.
 2. `tester` runs the narrowest useful validation.
 3. `reviewer` inspects the diff.
-4. `security_reviewer` for security-sensitive changes; `bug_hunter` for complex Go/Python changes.
+4. `security_reviewer` for security-sensitive changes.
 5. On findings, send the specific issue back to `developer` and re-run tests/review.
+6. **Retry limit:** allow at most **2** implement→test→review iterations per issue. Track the iteration count explicitly; never loop indefinitely.
+7. **After 2 failed iterations, stop retrying and take the matching exit below.** Then report the outcome in the final response:
+   - **Specification defect** (requirements, acceptance criteria or tasks are wrong, missing or ambiguous): send the change back to `spec_author` to re-specify the affected artifact, re-run the Phase 2 gates, then restart Phase 4 from a spec-corrected state with the retry counter reset.
+   - **Implementation defect** unresolved after the limit, or a regression that cannot be fixed within the approved plan: stop, do not merge, and **escalate to the human** with the failing test/review evidence, the affected files/functions, and the fixes already attempted.
 
 ### Phase 5 — Merge & Archive
 
@@ -203,4 +202,4 @@ Use the smallest capable model for each task:
 - coding model → implementation
 - stronger reasoning model → architecture and final review
 
-The Architect should remain the only agent responsible for deciding the overall execution strategy.
+The spec_driven should remain the only agent responsible for deciding the overall execution strategy.
