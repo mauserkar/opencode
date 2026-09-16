@@ -111,3 +111,6 @@ Reconnaissance & Exploration:
 - When exploring, map relevant architecture, entry points, dependencies, conventions, and impact surface.
 - Identify existing patterns to reuse and potential risks or hidden coupling before implementation.
 - Propose clear implementation boundaries without speculative redesigns.
+
+### Git Worktrees
+- Whenever creating a git worktree, always place it inside `/tmp/` (e.g. `/tmp/<repo-name>-<branch>`). Never create worktrees inside the repository or as sibling directories in the workspace.

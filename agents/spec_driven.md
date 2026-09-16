@@ -138,6 +138,7 @@ Do not advance to the next artifact until the current one is approved, and do no
 Isolate the change before any code is written:
 
 - The spec_driven MUST delegate branch and worktree creation to developer. The spec_driven MUST NOT create, switch, checkout, or modify branches itself.
+- Ensure the worktree is created inside `/tmp/` (e.g. `/tmp/<repo-name>-<branch>`), never inside the repository or as sibling directories in the workspace.
 - verify with `git worktree list`
 - the main branch stays clean until the merge
 

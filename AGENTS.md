@@ -35,3 +35,7 @@ own root `AGENTS.md`, which is versioned with the repo.
   paraphrase of what was expected to happen.
 - If a script or tool returns a structured error, relay it verbatim rather
   than rewording or silently retrying.
+
+## Git Worktrees
+
+- Whenever creating a git worktree, always create it under `/tmp/` (e.g. `/tmp/<repo-name>-<branch>`). Never create worktrees inside the repository or as sibling directories in the workspace.

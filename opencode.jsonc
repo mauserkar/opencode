@@ -47,7 +47,10 @@
       "export *": "deny"
     },
     "external_directory": {
-      "~/go/pkg/mod/**": "allow"
+      "~/go/pkg/mod/**": "allow",
+      "/tmp/**": "allow",
+      "/private/tmp/**": "allow",
+      "~/AppData/Local/Temp/**": "allow"
     },
     "list": {
       "~/go/pkg/mod/**": "allow"
