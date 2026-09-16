@@ -17,6 +17,8 @@ permission:
     "**/.kube/**": deny
     "**/.gcloud/**": deny
     "**/.gnupg/**": deny
+    "**/openspec/changes/**": allow
+    "**/openspec/specs/**": allow
   glob: allow
   grep: allow
   list: allow

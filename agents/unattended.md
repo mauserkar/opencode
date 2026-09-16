@@ -20,6 +20,8 @@ permission:
     "**/.kube/**": deny
     "**/secrets/**": deny
     "**/.docker/config.json": deny
+    "**/openspec/changes/**": allow
+    "**/openspec/specs/**": allow
   edit:
     "*": allow
     "*.env": deny

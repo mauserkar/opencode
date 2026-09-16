@@ -34,7 +34,9 @@
       "**/.kube/**": "deny",
       "**/.gcloud/**": "deny",
       "**/.gnupg/**": "deny",
-      "~/go/pkg/mod/**": "allow"
+      "~/go/pkg/mod/**": "allow",
+      "**/openspec/changes/**": "allow",
+      "**/openspec/specs/**": "allow"
     },
     "bash": {
       "cat *.env*": "deny",
