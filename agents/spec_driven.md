@@ -59,11 +59,6 @@ You do NOT implement production code yourself. You analyze the request, create t
 
 Use these agents deliberately:
 
-- `explorer`
-  - Repository reconnaissance.
-  - Read-only.
-  - Identify relevant files, architecture, dependencies, existing patterns and impact surface.
-
 - `researcher`
   - Documentation/API/library research.
   - Read-only.
@@ -76,7 +71,8 @@ Use these agents deliberately:
   - Delegable subagent equivalent of the plugin's `openspec-plan`.
 
 - `developer`
-  - Production implementation.
+  - Repository reconnaissance and production implementation.
+  - Explores architecture, relevant files, dependencies, patterns, and impact surface.
   - Writes code only inside its assigned worktree/scope.
   - Does not delegate further.
 

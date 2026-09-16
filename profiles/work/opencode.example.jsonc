@@ -15,9 +15,6 @@
     "unattended": {
       "model": "PROVIDER/work-unattended-model-id"
     },
-    "explorer": {
-      "model": "PROVIDER/work-explorer-model-id"
-    },
     "researcher": {
       "model": "PROVIDER/work-researcher-model-id"
     },
