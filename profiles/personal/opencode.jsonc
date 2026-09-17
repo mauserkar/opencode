@@ -5,8 +5,10 @@
   // so only include the settings that differ for personal use.
   "$schema": "https://opencode.ai/config.json",
   "model": "deepseek/deepseek-v4-pro",
-  "small_model": "deepseek/deepseek-v4-flash",
-  "agent": {
+  "agents": {
+    "title": {
+      "model": "deepseek/deepseek-v4-flash"
+    },
     "spec_driven": {
       "model": "deepseek/deepseek-v4-flash"
     },
