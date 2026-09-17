@@ -4,7 +4,7 @@ ARG TARGETARCH=amd64
 
 ARG GO_VERSION=1.27.1
 ARG NODE_MAJOR=20
-ARG OPENCODE_VERSION=1.18.27
+ARG OPENCODE_VERSION=2.0.5
 ARG OPENSPEC_VERSION=1.12.0
 ARG OPENTOFU_VERSION=1.12.6
 ARG PYTHON_VERSION=3.14
@@ -72,7 +72,7 @@ RUN mkdir -p /etc/apt/keyrings \
     && apt-get update \
     && apt-get install -y --no-install-recommends nodejs \
     && rm -rf /var/lib/apt/lists/* \
-    && npm install -g opencode-ai@${OPENCODE_VERSION} @fission-ai/openspec@${OPENSPEC_VERSION}
+    && npm install -g @opencode/cli@${OPENCODE_VERSION} @fission-ai/openspec@${OPENSPEC_VERSION}
 
 # Golang
 RUN curl -fSL -o /tmp/go.tar.gz "https://go.dev/dl/go${GO_VERSION}.linux-${TARGETARCH}.tar.gz" \

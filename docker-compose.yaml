@@ -8,13 +8,13 @@ services:
       args:
         GO_VERSION: "1.27.1"
         NODE_MAJOR: "20"
-        OPENCODE_VERSION: "1.18.27"
+        OPENCODE_VERSION: "2.0.5"
         OPENSPEC_VERSION: "1.12.0"
         OPENTOFU_VERSION: "1.12.6"
         PYTHON_VERSION: "3.14"
         YQ_VERSION: "v4.53.6"
     platform: linux/amd64
-    image: opencode-devbox:1.4.0
+    image: opencode-devbox:2.0.0
     container_name: opencode-devbox
     command: opencode serve --hostname 0.0.0.0 --port 4096 --log-level DEBUG --print-logs
     working_dir: /workspace
