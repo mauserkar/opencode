@@ -16,7 +16,7 @@ services:
     platform: linux/amd64
     image: opencode-devbox:2.0.0
     container_name: opencode-devbox
-    command: opencode serve --hostname 0.0.0.0 --port 4096 --log-level DEBUG --print-logs
+    command: opencode serve --hostname 0.0.0.0 --port 4096 --log-level all --print-logs
     working_dir: /workspace
     ports:
       - "${OPENCODE_HOST_PORT:-4096}:4096"
@@ -43,14 +43,7 @@ services:
     environment:
       - TZ=UTC
       - OPENCODE_CONFIG=/home/ubuntu/.config/opencode/profiles/${OPENCODE_PROFILE:-personal}/opencode.jsonc
-      - OPENCODE_SERVER_USERNAME=${OPENCODE_SERVER_USERNAME}
       - OPENCODE_SERVER_PASSWORD=${OPENCODE_SERVER_PASSWORD}
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:4096/"]
-      interval: 30s
-      timeout: 5s
-      retries: 3
-      start_period: 10s
     read_only: true
     cap_drop:
       - ALL
