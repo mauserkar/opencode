@@ -7,7 +7,7 @@ Personal [OpenCode](https://opencode.ai) configuration plus a reproducible Docke
 ```
 .
 ├── agents/              # Agent definitions (primary and subagents)
-├── command/             # Custom slash commands
+├── commands/             # Custom slash commands
 ├── skills/              # Reusable skills
 ├── opencode.jsonc       # OpenCode configuration (base)
 ├── profiles/            # Work/personal config profiles (one opencode.jsonc each)
@@ -67,7 +67,7 @@ merge ──▶ archive                            (integration)
 5. **Merge & Archive** — squash-merge into main and `openspec archive` the change.
 6. **Final response** — summary of changes, artifacts, subagents, tests, and pending decisions.
 
-## Commands (`command/`)
+## Commands (`commands/`)
 
 | Command | Description |
 | --------- | ------------- |
@@ -86,14 +86,14 @@ merge ──▶ archive                            (integration)
 ## OpenCode Configuration (`opencode.jsonc`)
 
 - `default_agent: resolver` (base fallback; profiles override to `spec_driven` when needed).
-- `build` and `plan` agents disabled.
-- Server listening on `0.0.0.0:4096`.
-- Plugin: `opencode-plugin-openspec`.
-- `compaction`, `tool_output` limits and `subagent_depth` are configured in `profiles/*/opencode.jsonc`.
+- `build` and `plan` agents disabled (`agents.build.disabled`, `agents.plan.disabled`).
+- Plugin: `opencode-plugin-openspec`, declared under the `plugins` array.
+- `compaction`, `tool_output` limits and `experimental.subagent_depth` are configured in `profiles/*/opencode.jsonc`.
+- The HTTP server's hostname/port are **not** set in `opencode.jsonc` — they're passed as flags to `opencode serve` in the container's start command (see Docker Devbox below).
 
 ## Profiles (`profiles/`)
 
-Separate **work** and **personal** configurations, each an `opencode.jsonc` that is **merged on top of** the base config (so it only needs the overrides, e.g. `model`/`small_model`):
+Separate **work** and **personal** configurations, each an `opencode.jsonc` that is **merged on top of** the base config (so it only needs the overrides, e.g. `model`):
 
 ```
 profiles/
@@ -117,16 +117,16 @@ Image based on `ubuntu:24.04` with the tooling required for the workflow:
 - **Node.js** 20
 - **Python** 3.14 (+ pip, venv)
 - **OpenTofu** 1.12.6
-- **OpenCode** 1.18.27 and **OpenSpec** 1.12.0
+- **OpenCode 2.x** (V2 — pin an exact version) and **OpenSpec** 1.12.0
 - CLI utilities: `git`, `ripgrep`, `fd-find`, `jq`, `yq`, `curl`, `vim`, `htop`, `tree`, etc.
 
 `docker-compose.yaml` mounts:
 
 - the working repo at `/workspace/${REPO_NAME}` (`REPO_NAME` is required; the stack fails fast if unset),
-- `agents/`, `command/`, `skills/`, `opencode.jsonc`, and `profiles/` as configuration,
+- `agents/`, `commands/`, `skills/`, `opencode.jsonc`, and `profiles/` as configuration,
 - persistent volumes for the home directory (plugin cache, tooling, OpenCode data/state) and the workspace (so git worktrees can be created as siblings of the repo).
 
-The container runs `opencode serve` on port `4096` (mapped to the host), with a healthcheck and hardening: non-root `ubuntu` user, `read_only` root filesystem (with writable volumes for home and workspace plus a `/tmp` tmpfs), `cap_drop: ALL`, `no-new-privileges`, `pids_limit`, and configurable `mem_limit`/`cpus`.
+The container runs `opencode serve --hostname 0.0.0.0 --port 4096` (mapped to the host), with a healthcheck and hardening: non-root `ubuntu` user, `read_only` root filesystem (with writable volumes for home and workspace plus a `/tmp` tmpfs), `cap_drop: ALL`, `no-new-privileges`, `pids_limit`, and configurable `mem_limit`/`cpus`.
 
 > **Security note:** `OPENCODE_SERVER_USERNAME`/`OPENCODE_SERVER_PASSWORD` are passed as container environment variables and are therefore visible via `docker inspect`. Keep `.env` out of version control.
 

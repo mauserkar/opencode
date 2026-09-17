@@ -6,60 +6,50 @@
     "AGENTS.md",
     "SECURITY.md"
   ],
-  "agent": {
+  "agents": {
     "build": {
-      "disable": true
+      "disabled": true
     },
     "plan": {
-      "disable": true
-    }
+      "disabled": true
+    }   
   },
-  "server": {
-    "hostname": "0.0.0.0",
-    "port": 4096
-  },
-  "permission": {
-    "read": {
-      "*": "allow",
-      "*.env": "deny",
-      "*.env.*": "deny",
-      "*.env.example": "allow",
-      "*.pem": "deny",
-      "*.key": "deny",
-      "*.p12": "deny",
-      "*.pfx": "deny",
-      "*credential*": "deny",
-      "*secret*": "deny",
-      "**/.ssh/**": "deny",
-      "**/.kube/**": "deny",
-      "**/.gcloud/**": "deny",
-      "**/.gnupg/**": "deny",
-      "~/go/pkg/mod/**": "allow",
-      "**/openspec/changes/**": "allow",
-      "**/openspec/specs/**": "allow"
-    },
-    "bash": {
-      "cat *.env*": "deny",
-      "cat *.pem": "deny",
-      "cat *.key": "deny",
-      "env": "deny",
-      "printenv *": "deny",
-      "export *": "deny"
-    },
-    "external_directory": {
-      "~/go/pkg/mod/**": "allow",
-      "/tmp/**": "allow",
-      "/private/tmp/**": "allow",
-      "~/AppData/Local/Temp/**": "allow"
-    },
-    "list": {
-      "~/go/pkg/mod/**": "allow"
-    },
-    "edit": {
-      "~/go/pkg/mod/**": "deny"
-    }
-  },
-  "plugin": [
+  "permissions": [
+    { "action": "read", "resource": "*", "effect": "allow" },
+    { "action": "read", "resource": "*.env", "effect": "deny" },
+    { "action": "read", "resource": "*.env.*", "effect": "deny" },
+    { "action": "read", "resource": "*.env.example", "effect": "allow" },
+    { "action": "read", "resource": "*.pem", "effect": "deny" },
+    { "action": "read", "resource": "*.key", "effect": "deny" },
+    { "action": "read", "resource": "*.p12", "effect": "deny" },
+    { "action": "read", "resource": "*.pfx", "effect": "deny" },
+    { "action": "read", "resource": "*credential*", "effect": "deny" },
+    { "action": "read", "resource": "*secret*", "effect": "deny" },
+    { "action": "read", "resource": "*.ssh/*", "effect": "deny" },
+    { "action": "read", "resource": "*.kube/*", "effect": "deny" },
+    { "action": "read", "resource": "*.gcloud/*", "effect": "deny" },
+    { "action": "read", "resource": "*.gnupg/*", "effect": "deny" },
+    { "action": "read", "resource": "~/go/pkg/mod/*", "effect": "allow" },
+    { "action": "read", "resource": "*openspec/changes/*", "effect": "allow" },
+    { "action": "read", "resource": "*openspec/specs/*", "effect": "allow" },
+
+    { "action": "glob", "resource": "~/go/pkg/mod/*", "effect": "allow" },
+
+    { "action": "edit", "resource": "~/go/pkg/mod/*", "effect": "deny" },
+
+    { "action": "external_directory", "resource": "~/go/pkg/mod/*", "effect": "allow" },
+    { "action": "external_directory", "resource": "/tmp/*", "effect": "allow" },
+    { "action": "external_directory", "resource": "/private/tmp/*", "effect": "allow" },
+    { "action": "external_directory", "resource": "~/AppData/Local/Temp/*", "effect": "allow" },
+
+    { "action": "shell", "resource": "cat *.env*", "effect": "deny" },
+    { "action": "shell", "resource": "cat *.pem", "effect": "deny" },
+    { "action": "shell", "resource": "cat *.key", "effect": "deny" },
+    { "action": "shell", "resource": "env", "effect": "deny" },
+    { "action": "shell", "resource": "printenv *", "effect": "deny" },
+    { "action": "shell", "resource": "export *", "effect": "deny" }
+  ],
+  "plugins": [
     "opencode-plugin-openspec"
   ]
 }
