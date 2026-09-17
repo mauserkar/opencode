@@ -25,22 +25,22 @@ The default agent is **`resolver`** (lightweight fallback). Select a profile to 
 
 ### Primary
 
-| Agent | Role |
-|-------|------|
-| `spec_driven` | Orchestrator. Analyzes, plans, delegates, reviews results, and makes the final integration decision. Read-only plus read-only git/openspec commands. |
-| `unattended` | Engineer for autonomous runs inside an isolated container. Broad write permissions, but blocks reading/editing secrets (`.env`, `.pem`, `.key`, `.ssh`, `.kube`, etc.) and dangerous commands. |
+| Agent         | Role                                                                                                                                                                                           |
+| ------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `spec_driven` | Orchestrator. Analyzes, plans, delegates, reviews results, and makes the final integration decision. Read-only plus read-only git/openspec commands.                                           |
+| `unattended`  | Engineer for autonomous runs inside an isolated container. Broad write permissions, but blocks reading/editing secrets (`.env`, `.pem`, `.key`, `.ssh`, `.kube`, etc.) and dangerous commands. |
 
 ### Subagents
 
-| Agent | Role |
-| ------- | ------ |
-| `researcher` | External research (docs, APIs, libraries, best practices). Read-only. |
-| `spec_author` | Authors OpenSpec artifacts (proposal → specs → design → tasks). Only writes `openspec/**`, `specs/**`, `project.md`, `AGENTS.md`. |
-| `developer` | Repository reconnaissance and production code implementation. Writes only inside its assigned worktree/scope. |
-| `tester` | Runs tests and validation; reports failures, regressions, and coverage gaps. |
-| `reviewer` | General code review plus deep Go/Python audit (concurrency, memory, async, idiomatic errors). Read-only. |
-| `security_reviewer` | Security review (authn/authz, secrets, injection, dependencies, insecure defaults). Read-only. |
-| `resolver` | Quick questions and context clarifications. Lightweight and read-only. |
+| Agent               | Role                                                                                                                              |
+| ------------------- | --------------------------------------------------------------------------------------------------------------------------------- |
+| `researcher`        | External research (docs, APIs, libraries, best practices). Read-only.                                                             |
+| `spec_author`       | Authors OpenSpec artifacts (proposal → specs → design → tasks). Only writes `openspec/**`, `specs/**`, `project.md`, `AGENTS.md`. |
+| `developer`         | Repository reconnaissance and production code implementation. Writes only inside its assigned worktree/scope.                     |
+| `tester`            | Runs tests and validation; reports failures, regressions, and coverage gaps.                                                      |
+| `reviewer`          | General code review plus deep Go/Python audit (concurrency, memory, async, idiomatic errors). Read-only.                          |
+| `security_reviewer` | Security review (authn/authz, secrets, injection, dependencies, insecure defaults). Read-only.                                    |
+| `resolver`          | Quick questions and context clarifications. Lightweight and read-only.                                                            |
 
 ## Workflow (spec_driven)
 
@@ -69,19 +69,19 @@ merge ──▶ archive                            (integration)
 
 ## Commands (`command/`)
 
-| Command | Description |
-| --------- | ------------- |
-| `/changelog` | Updates `CHANGELOG.md` (Keep a Changelog format), computes the SemVer bump, updates the manifest, and creates the release commit. |
-| `/format` | Formats Python (`ruff`/`black`/`isort`), Terraform (`terraform fmt`), or Go (`gofmt`/`goimports`) code and shows `git diff --stat`. |
+| Command       | Description                                                                                                                                               |
+| ------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `/changelog`  | Updates `CHANGELOG.md` (Keep a Changelog format), computes the SemVer bump, updates the manifest, and creates the release commit.                         |
+| `/format`     | Formats Python (`ruff`/`black`/`isort`), Terraform (`terraform fmt`), or Go (`gofmt`/`goimports`) code and shows `git diff --stat`.                       |
 | `/versioning` | Audits and implements version support (`--version`, `/version` endpoint, `__version__`, …) based on project type, integrating with OpenSpec when present. |
-| `/jira` | Creates, gets, updates, lists, or searches Jira issues and manages their comments via `.opencode/scripts/jira.py`. |
+| `/jira`       | Creates, gets, updates, lists, or searches Jira issues and manages their comments via `.opencode/scripts/jira.py`.                                        |
 
 ## Skills (`skills/`)
 
-| Skill | Description |
-|-------|-------------|
-| `conventional-commits` | Analyzes the `git diff` and generates commit messages following Conventional Commits (`feat`, `fix`, `refactor`, `docs`, `perf`, `chore`, `!` for breaking changes). |
-| `jira-issue-management` | Creates, updates, searches, lists, or comments on Jira issues during a session (requires `.opencode/scripts/jira.py`, `JIRA_TOKEN` and `JIRA_BASE_URL`). |
+| Skill                   | Description                                                                                                                                                          |
+| ----------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `conventional-commits`  | Analyzes the `git diff` and generates commit messages following Conventional Commits (`feat`, `fix`, `refactor`, `docs`, `perf`, `chore`, `!` for breaking changes). |
+| `jira-issue-management` | Creates, updates, searches, lists, or comments on Jira issues during a session (requires `.opencode/scripts/jira.py`, `JIRA_TOKEN` and `JIRA_BASE_URL`).             |
 
 ## OpenCode Configuration (`opencode.jsonc`)
 
@@ -140,12 +140,12 @@ docker compose up -d --build
 
 ### Environment Variables (`.env`)
 
-| Variable | Description |
-| ---------- | ------------- |
-| `REPO_NAME` | Name of the repo to mount (`$HOME/repos/<REPO_NAME>`). |
-| `OPENCODE_PROFILE` | Config profile to load: `work` or `personal` (default: `personal`). |
-| `OPENCODE_HOST_PORT` | Host port to expose the server on. |
-| `OPENCODE_SERVER_USERNAME` | Username to authenticate with the server. |
-| `OPENCODE_SERVER_PASSWORD` | Password to authenticate with the server. |
-| `OPENCODE_MEM_LIMIT` | Optional container memory limit (default: `4g`). |
-| `OPENCODE_CPUS` | Optional CPU limit (default: `2.0`). |
+| Variable                   | Description                                                         |
+| -------------------------- | ------------------------------------------------------------------- |
+| `REPO_NAME`                | Name of the repo to mount (`$HOME/repos/<REPO_NAME>`).              |
+| `OPENCODE_PROFILE`         | Config profile to load: `work` or `personal` (default: `personal`). |
+| `OPENCODE_HOST_PORT`       | Host port to expose the server on.                                  |
+| `OPENCODE_SERVER_USERNAME` | Username to authenticate with the server.                           |
+| `OPENCODE_SERVER_PASSWORD` | Password to authenticate with the server.                           |
+| `OPENCODE_MEM_LIMIT`       | Optional container memory limit (default: `4g`).                    |
+| `OPENCODE_CPUS`            | Optional CPU limit (default: `2.0`).                                |

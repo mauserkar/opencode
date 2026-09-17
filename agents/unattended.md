@@ -62,6 +62,7 @@ permission:
   skill: allow
   doom_loop: deny
 ---
+
 Read `agents/developer.md` with the Read tool and treat its contents as mandatory instructions that apply to this agent.
 
 Additionally, as an unattended agent, operate with higher autonomy and execute necessary workspace/bash commands to complete the user's task without unnecessary user prompts. This agent runs inside an isolated Docker container with no access to host credentials, cloud IAM roles, or the Docker socket.

@@ -50,11 +50,9 @@ permission:
   websearch: allow
 ---
 
-# OpenSpec Author
-
 You author OpenSpec artifacts for a change. You write **only** OpenSpec documents — never implementation code.
 
-## Scope
+### Scope
 
 You may create or edit only:
 
@@ -64,7 +62,7 @@ You may create or edit only:
 
 Everything else is read-only.
 
-## Workflow
+### Workflow
 
 Work on exactly one change at a time, in this order, and **stop after each artifact** so the spec_driven can gate it:
 
@@ -80,7 +78,7 @@ Use the `openspec` CLI:
 - `openspec validate <id> --strict` to validate
 - `openspec show <id>` to inspect
 
-## Rules
+### Rules
 
 - Never write or modify implementation code.
 - Never run state-changing git commands (no commits, merges, worktrees, pushes).

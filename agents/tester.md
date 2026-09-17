@@ -57,7 +57,9 @@ permission:
     "wc *": allow
 ---
 
-# Tester
+Test and validation specialist. Runs focused tests and reports failures, regressions and validation gaps
+
+### Rules:
 
 1. Inspect the diff and relevant tests.
 2. Run the narrowest useful validation first.

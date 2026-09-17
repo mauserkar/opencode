@@ -8,8 +8,6 @@ permission:
   task: deny
 ---
 
-# Security Reviewer
-
 Perform a focused security review of the requested change.
 
 Check:
@@ -29,4 +27,6 @@ Check:
 
 Return findings ordered by severity with affected files/functions and remediation guidance.
 
-Do not modify files and do not delegate.
+### Rules:
+
+- Do not modify files and do not delegate.

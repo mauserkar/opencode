@@ -19,18 +19,18 @@ Request: $ARGUMENTS
 
 From the request above, determine which action is intended:
 
-| Action | Typical phrasing |
-| --- | --- |
-| `create` | "create/open/file a new issue/ticket/bug/task" |
-| `get` | "show/get/look up issue KEY", "what's the status of KEY" |
-| `update` | "update/change/edit issue KEY", "move KEY to project X", "relabel KEY" |
-| `list` | "list issues in PROJECT", "what's in progress in PROJECT" |
-| `search` | "find issues about X", "search for issues under epic Y" |
-| `comment-add` | "comment on KEY", "add a note to KEY" |
-| `comment-list` | "show comments on KEY" |
-| `comment-update` | "edit/update comment on KEY" |
-| `comment-delete` | "delete/remove comment on KEY" |
-| `help` | "jira help", "what can you do with jira", "how does this work" |
+| Action           | Typical phrasing                                                       |
+| ---------------- | ---------------------------------------------------------------------- |
+| `create`         | "create/open/file a new issue/ticket/bug/task"                         |
+| `get`            | "show/get/look up issue KEY", "what's the status of KEY"               |
+| `update`         | "update/change/edit issue KEY", "move KEY to project X", "relabel KEY" |
+| `list`           | "list issues in PROJECT", "what's in progress in PROJECT"              |
+| `search`         | "find issues about X", "search for issues under epic Y"                |
+| `comment-add`    | "comment on KEY", "add a note to KEY"                                  |
+| `comment-list`   | "show comments on KEY"                                                 |
+| `comment-update` | "edit/update comment on KEY"                                           |
+| `comment-delete` | "delete/remove comment on KEY"                                         |
+| `help`           | "jira help", "what can you do with jira", "how does this work"         |
 
 If the action is genuinely ambiguous (e.g. it's unclear whether the user wants `search` vs `list`, or `get` vs `comment-list`), ask the user to clarify before proceeding. Otherwise, proceed directly to the matching branch below — do not ask just to confirm an action that's already clear from phrasing.
 

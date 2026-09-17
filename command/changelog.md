@@ -35,6 +35,6 @@ Steps to follow:
 6. **Commit the changes:**
    - Stage `CHANGELOG.md` and any updated manifest/version files, plus the code changes made in this task.
    - Create a commit with a message following the pattern:
-      release: vX.Y.Z
-      <short summary of changes>
+     release: vX.Y.Z
+     <short summary of changes>
    - Do not push automatically — leave the push step to the user unless explicitly instructed otherwise.

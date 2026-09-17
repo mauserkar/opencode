@@ -86,6 +86,7 @@ action needs, and runs:
 ```
 <python> <resolved-jira-script> <action> [flags...]
 ```
+
 The `jira` command is responsible for resolving the script location according
 to the Script Resolution rules.
 
@@ -96,15 +97,15 @@ one file per action.
 
 ## Which action to use
 
-| Action | Purpose | Required input |
-| --- | --- | --- |
-| `create` | Open a new issue | `summary`, `description` (plus `project` only if `JIRA_PROJECT_ID` isn't set) |
-| `get` | Look up one issue | `issue-key` (e.g. `PROJECT-123`) |
-| `update` | Change fields on an existing issue | `issue-key`, plus only the fields being changed (`summary`, `description`, `issuetype`, `labels`, `priority`, `epic`) — only fields explicitly mentioned are touched |
-| `search` | Find issues by summary text and/or epic | at least one of `summary`, `epic`, plus `project` only if `JIRA_PROJECT_ID` isn't set |
-| `list` | List issues in the project | none required; optional exact-match `status`, plus `project` only if `JIRA_PROJECT_ID` isn't set |
-| `comment-add` / `comment-list` / `comment-update` / `comment-delete` | Manage comments on an issue | `issue-key`, plus `body` (add/update) or `comment-id` (update/delete) |
-| `help` | Summarize what's available | none — answered directly, nothing is run |
+| Action                                                               | Purpose                                 | Required input                                                                                                                                                       |
+| -------------------------------------------------------------------- | --------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `create`                                                             | Open a new issue                        | `summary`, `description` (plus `project` only if `JIRA_PROJECT_ID` isn't set)                                                                                        |
+| `get`                                                                | Look up one issue                       | `issue-key` (e.g. `PROJECT-123`)                                                                                                                                     |
+| `update`                                                             | Change fields on an existing issue      | `issue-key`, plus only the fields being changed (`summary`, `description`, `issuetype`, `labels`, `priority`, `epic`) — only fields explicitly mentioned are touched |
+| `search`                                                             | Find issues by summary text and/or epic | at least one of `summary`, `epic`, plus `project` only if `JIRA_PROJECT_ID` isn't set                                                                                |
+| `list`                                                               | List issues in the project              | none required; optional exact-match `status`, plus `project` only if `JIRA_PROJECT_ID` isn't set                                                                     |
+| `comment-add` / `comment-list` / `comment-update` / `comment-delete` | Manage comments on an issue             | `issue-key`, plus `body` (add/update) or `comment-id` (update/delete)                                                                                                |
+| `help`                                                               | Summarize what's available              | none — answered directly, nothing is run                                                                                                                             |
 
 ## Procedure
 

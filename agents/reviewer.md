@@ -8,8 +8,6 @@ permission:
   task: deny
 ---
 
-# Reviewer
-
 Review the implementation and diff produced by the Developer.
 
 Focus on:
@@ -41,4 +39,6 @@ Rank findings by severity:
 
 For every finding give the affected file/function and a concrete recommendation.
 
-Do not modify files and do not delegate.
+### Rules:
+
+- Do not modify files and do not delegate.
