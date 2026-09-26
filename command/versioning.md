@@ -1,5 +1,5 @@
 ---
-description: Checks and adds version reporting (argument/flag or API endpoint depending on code type). Integrates with OpenSpec proposals if present.
+description: Checks and adds version reporting (argument/flag or API endpoint depending on code type) and creates/updates a VERSION file at the repo root. Integrates with OpenSpec proposals if present.
 ---
 
 # Command: Add Version Support
@@ -26,3 +26,11 @@ When this command is invoked, audit the modified or main entry-point files and e
    - **For CLI Apps / Scripts:** Add a `--version` / `-v` flag using the standard option parsing library for the language (e.g., `argparse`/`click` in Python, `commander`/`yargs` in Node.js, `flag` in Go).
    - **For Web APIs / HTTP Services:** Add a lightweight `/version` or `/health` GET endpoint returning a JSON payload with the current version string (e.g., `{"version": "1.0.0"}`).
    - Ensure execution returns the current version string cleanly and adheres to standard language conventions.
+
+5. **Create/Update the `VERSION` File (Always):**
+   - This step runs on every invocation of the command, regardless of the earlier findings and even if version support already exists.
+   - Determine the latest version, in this order of precedence:
+     1. The most recent git tag: `git describe --tags --abbrev=0`.
+     2. The version declared in the project manifest (`package.json`, `pyproject.toml`, `Cargo.toml`, `go.mod`, etc.).
+   - Create or overwrite the `VERSION` file at the repository root with exactly the version string and a single trailing newline.
+   - Never invent a version: if neither a tag nor a manifest version can be determined, stop and report that no source version was found instead of writing a placeholder.
