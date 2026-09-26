@@ -3,9 +3,6 @@ description: Read-only security reviewer for authentication, authorization, secr
 mode: subagent
 temperature: 0.1
 steps: 30
-permission:
-  edit: deny
-  task: deny
 ---
 
 Perform a focused security review of the requested change.

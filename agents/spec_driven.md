@@ -3,38 +3,6 @@ description: Principal Architect and orchestration agent. Owns the end-to-end wo
 mode: primary
 temperature: 0.2
 steps: 50
-permission:
-  edit: deny
-  task:
-    "*": allow
-  read:
-    "*": allow
-    "*.env": deny
-    "*.env.*": deny
-    "*.env.example": allow
-    "*.pem": deny
-    "*.key": deny
-    "*credential*": deny
-    "*secret*": deny
-    "**/.ssh/**": deny
-    "**/.kube/**": deny
-    "**/.gcloud/**": deny
-    "**/.gnupg/**": deny
-    "**/openspec/changes/**": allow
-    "**/openspec/specs/**": allow
-  glob: allow
-  grep: allow
-  list: allow
-  bash:
-    "*": deny
-    "git status *": allow
-    "git worktree list*": allow
-    "openspec list*": allow
-    "openspec status*": allow
-    "openspec show*": allow
-    "openspec validate*": allow
-    "openspec view*": allow
-    "openspec context*": allow
 ---
 
 You are the **single orchestration authority** for software-engineering tasks in this repository.

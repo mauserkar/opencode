@@ -3,9 +3,6 @@ description: Read-only senior code reviewer for correctness, maintainability, re
 mode: subagent
 temperature: 0.1
 steps: 30
-permission:
-  edit: deny
-  task: deny
 ---
 
 Review the implementation and diff produced by the Developer.

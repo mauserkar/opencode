@@ -1,0 +1,65 @@
+name: opencode-devbox-unattended
+
+services:
+  opencode:
+    build:
+      context: ../..
+      dockerfile: Dockerfile
+      args:
+        GO_VERSION: "1.27.1"
+        NODE_MAJOR: "20"
+        OPENCODE_VERSION: "1.18.27"
+        OPENSPEC_VERSION: "1.12.0"
+        OPENTOFU_VERSION: "1.12.6"
+        PYTHON_VERSION: "3.14"
+        YQ_VERSION: "v4.53.6"
+    platform: linux/amd64
+    image: opencode-devbox:1.4.0
+    container_name: unattended
+    command: opencode serve --hostname 0.0.0.0 --port 4096 --log-level DEBUG --print-logs
+    working_dir: /workspace
+    ports:
+      - "${OPENCODE_HOST_PORT:-5002}:4096"
+    volumes:
+      # Repository Configuration
+      - $HOME/repos:/workspace/repos
+      # OpenCode Configuration
+      - $HOME/.config/opencode/agents:/home/ubuntu/.config/opencode/agents
+      - $HOME/.config/opencode/command:/home/ubuntu/.config/opencode/command
+      - $HOME/.config/opencode/skills:/home/ubuntu/.config/opencode/skills
+      - $HOME/.config/opencode/scripts:/home/ubuntu/.config/opencode/scripts
+      - $HOME/.config/opencode/opencode.jsonc:/home/ubuntu/.config/opencode/opencode.jsonc
+      - $HOME/.config/opencode/AGENTS.md:/home/ubuntu/.config/opencode/AGENTS.md
+      - $HOME/.config/opencode/SECURITY.md:/home/ubuntu/.config/opencode/SECURITY.md
+      - $HOME/.config/opencode/profiles:/home/ubuntu/.config/opencode/profiles
+      # OpenCode Persistent storage
+      - opencode-home:/home/ubuntu
+      - opencode-workspace:/workspace
+    tmpfs:
+      - /tmp:size=512m
+    environment:
+      - TZ=UTC
+      - OPENCODE_CONFIG=/home/ubuntu/.config/opencode/profiles/${OPENCODE_PROFILE:-unattended}/opencode.jsonc
+      - OPENCODE_SERVER_USERNAME=${OPENCODE_SERVER_USERNAME}
+      - OPENCODE_SERVER_PASSWORD=${OPENCODE_SERVER_PASSWORD}
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:4096/"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+    read_only: true
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+    pids_limit: 4096
+    mem_limit: ${OPENCODE_MEM_LIMIT:-4g}
+    cpus: ${OPENCODE_CPUS:-2.0}
+    restart: unless-stopped
+
+volumes:
+  opencode-home:
+    name: opencode-devbox-home-unattended
+  opencode-workspace:
+    name: opencode-devbox-workspace-unattended

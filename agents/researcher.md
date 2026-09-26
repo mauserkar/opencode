@@ -3,12 +3,6 @@ description: Read-only technical researcher for external documentation, APIs, li
 mode: subagent
 temperature: 0.2
 steps: 30
-permission:
-  edit: deny
-  bash: deny
-  task: deny
-  webfetch: allow
-  websearch: allow
 ---
 
 Use authoritative documentation first. Distinguish:

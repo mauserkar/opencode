@@ -1,38 +1,38 @@
 {
-  // Personal profile — activate with:
-  //   export OPENCODE_CONFIG=~/.config/opencode/profiles/personal/opencode.jsonc
+  // Unattended profile — activate with:
+  //   export OPENCODE_CONFIG=~/.config/opencode/profiles/unattended/opencode.jsonc
   // Merged on top of the global config (~/.config/opencode/opencode.jsonc),
-  // so only include the settings that differ for personal use.
+  // so only include the settings that differ for unattended use.
   "$schema": "https://opencode.ai/config.json",
   "model": "deepseek/deepseek-flash",
   "small_model": "deepseek/deepseek-flash",
   "agent": {
     "spec_driven": {
-      "disable": true
+      "model": "deepseek/deepseek-flash"
     },
     "unattended": {
       "model": "deepseek/deepseek-flash"
     },
     "researcher": {
-      "disable": true
+      "model": "deepseek/deepseek-flash"
     },
     "spec_author": {
-      "disable": true
+      "model": "deepseek/deepseek-flash"
     },
     "developer": {
       "model": "deepseek/deepseek-flash"
     },
     "tester": {
-      "disable": true
+      "model": "deepseek/deepseek-flash"
     },
     "reviewer": {
-      "disable": true
+      "model": "deepseek/deepseek-flash"
     },
     "security_reviewer": {
-      "disable": true
+      "model": "deepseek/deepseek-flash"
     },
     "resolver": {
-      "model": "opencode/deepseek-v4.1-flash"
+      "model": "deepseek/deepseek-flash"
     }
   }
 }

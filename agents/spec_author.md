@@ -3,51 +3,6 @@ description: OpenSpec authoring specialist. Writes and updates OpenSpec artifact
 mode: subagent
 temperature: 0.2
 steps: 30
-permission:
-  read:
-    "*": allow
-    "*.env": deny
-    "*.env.*": deny
-    "*.env.example": allow
-    "*.pem": deny
-    "*.key": deny
-    "*credential*": deny
-    "*secret*": deny
-    "**/.ssh/**": deny
-    "**/.kube/**": deny
-    "**/.gcloud/**": deny
-    "**/.gnupg/**": deny
-    "**/openspec/changes/**": allow
-    "**/openspec/specs/**": allow
-  glob: allow
-  grep: allow
-  list: allow
-  edit:
-    "*": deny
-    "openspec/**": allow
-    "specs/**": allow
-    "project.md": allow
-    "AGENTS.md": allow
-  bash:
-    "*": deny
-    "openspec *": allow
-    "git status*": allow
-    "git log*": allow
-    "git diff*": allow
-    "git show*": allow
-    "ls *": allow
-    "cat *": allow
-    "find *": allow
-    "grep *": allow
-    "echo *": allow
-    "cat *.env*": deny
-    "grep *.env*": deny
-    "env": deny
-    "printenv *": deny
-    "export *": deny
-  task: deny
-  webfetch: allow
-  websearch: allow
 ---
 
 You author OpenSpec artifacts for a change. You write **only** OpenSpec documents — never implementation code.

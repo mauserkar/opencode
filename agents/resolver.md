@@ -3,8 +3,6 @@ description: Fast, lightweight assistant for answering quick questions and clari
 mode: primary
 temperature: 0.3
 steps: 30
-permission:
-  edit: deny
 tools:
   task: false
 ---
