@@ -122,7 +122,7 @@ Image based on `ubuntu:24.04` with the tooling required for the workflow:
 
 `docker-compose.yaml` mounts:
 
-- the working repo at `/workspace/${REPO_NAME}` (`REPO_NAME` is required; the stack fails fast if unset),
+- the working repo at `/workspace/${PROJECT_NAME}` (`PROJECT_NAME` is required; the stack fails fast if unset),
 - `agents/`, `command/`, `skills/`, `opencode.jsonc`, and `profiles/` as configuration,
 - persistent volumes for the home directory (plugin cache, tooling, OpenCode data/state) and the workspace (so git worktrees can be created as siblings of the repo).
 
@@ -142,7 +142,7 @@ docker compose up -d --build
 
 | Variable                   | Description                                                         |
 | -------------------------- | ------------------------------------------------------------------- |
-| `REPO_NAME`                | Name of the repo to mount (`$HOME/repos/<REPO_NAME>`).              |
+| `PROJECT_NAME`                | Name of the repo to mount (`$HOME/repos/<PROJECT_NAME>`).              |
 | `OPENCODE_PROFILE`         | Config profile to load: `work` or `personal` (default: `personal`). |
 | `OPENCODE_HOST_PORT`       | Host port to expose the server on.                                  |
 | `OPENCODE_SERVER_USERNAME` | Username to authenticate with the server.                           |

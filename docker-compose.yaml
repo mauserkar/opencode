@@ -1,28 +1,19 @@
-name: opencode-devbox
+# PROJECT_NAME=$(basename $PWD) docker-compose -f docker-compose.yaml up -d 
+name: opencode-devbox-${PROJECT_NAME}
 
 services:
   opencode:
     build:
       context: .
       dockerfile: Dockerfile
-      args:
-        GO_VERSION: "1.27.1"
-        NODE_MAJOR: "20"
-        OPENCODE_VERSION: "1.18.27"
-        OPENSPEC_VERSION: "1.12.0"
-        OPENTOFU_VERSION: "1.12.6"
-        PYTHON_VERSION: "3.14"
-        YQ_VERSION: "v4.53.6"
     platform: linux/amd64
-    image: opencode-devbox:1.4.0
-    container_name: opencode-devbox
+    image: opencode-devbox:1.5.0
+    container_name: opencode-devbox-${PROJECT_NAME}
     command: opencode serve --hostname 0.0.0.0 --port 4096 --log-level DEBUG --print-logs
     working_dir: /workspace
-    ports:
-      - "${OPENCODE_HOST_PORT:-4096}:4096"
     volumes:
       # Repository Configuration
-      - $HOME/repos/${REPO_NAME:?REPO_NAME is required}:/workspace/${REPO_NAME}
+      - .:/workspace/${PROJECT_NAME}
       # OpenCode Configuration
       - $HOME/.config/opencode/agents:/home/ubuntu/.config/opencode/agents
       - $HOME/.config/opencode/command:/home/ubuntu/.config/opencode/command
@@ -31,12 +22,9 @@ services:
       - $HOME/.config/opencode/opencode.jsonc:/home/ubuntu/.config/opencode/opencode.jsonc
       - $HOME/.config/opencode/AGENTS.md:/home/ubuntu/.config/opencode/AGENTS.md
       - $HOME/.config/opencode/SECURITY.md:/home/ubuntu/.config/opencode/SECURITY.md
-      # Per-profile config (work | personal) selected via OPENCODE_PROFILE
       - $HOME/.config/opencode/profiles:/home/ubuntu/.config/opencode/profiles
-      # OpenCode Persistent storage
-      # Home dir keeps plugin cache, Go/Python tooling and OpenCode data/state writable
+      # Workdir
       - opencode-home:/home/ubuntu
-      # Workspace stays writable so git worktrees can be created as siblings of the repo
       - opencode-workspace:/workspace
     tmpfs:
       - /tmp:size=256m
@@ -45,24 +33,29 @@ services:
       - OPENCODE_CONFIG=/home/ubuntu/.config/opencode/profiles/${OPENCODE_PROFILE:-personal}/opencode.jsonc
       - OPENCODE_SERVER_USERNAME=${OPENCODE_SERVER_USERNAME}
       - OPENCODE_SERVER_PASSWORD=${OPENCODE_SERVER_PASSWORD}
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:4096/"]
-      interval: 30s
-      timeout: 5s
-      retries: 3
-      start_period: 10s
     read_only: true
     cap_drop:
       - ALL
     security_opt:
       - no-new-privileges:true
     pids_limit: 4096
-    mem_limit: ${OPENCODE_MEM_LIMIT:-4g}
-    cpus: ${OPENCODE_CPUS:-2.0}
-    restart: unless-stopped
+    mem_limit: ${OPENCODE_MEM_LIMIT:-8g}
+    cpus: ${OPENCODE_CPUS:-4.0}
+    restart: always
+    # Only necessary for the Traefik gateway
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.${PROJECT_NAME}.rule=Host(`${PROJECT_NAME}.docker.localhost`)"
+      - "traefik.http.services.${PROJECT_NAME}.loadbalancer.server.port=4096"
+    networks:
+      - traefik-net
 
 volumes:
   opencode-home:
-    name: opencode-devbox-home
+    name: opencode-devbox-home-${PROJECT_NAME}
   opencode-workspace:
-    name: opencode-devbox-workspace
+    name: opencode-devbox-workspace-${PROJECT_NAME}
+
+networks:
+  traefik-net:
+    external: true

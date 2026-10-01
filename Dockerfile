@@ -3,15 +3,16 @@ FROM ubuntu:24.04
 ARG TARGETARCH=amd64
 
 ARG GO_VERSION=1.27.1
+ARG KUBECTL_VERSION=1.32.0
 ARG NODE_MAJOR=20
-ARG OPENCODE_VERSION=1.18.27
-ARG OPENSPEC_VERSION=1.12.0
-ARG OPENTOFU_VERSION=1.12.6
+ARG OPENCODE_VERSION=1.18.34
+ARG OPENSPEC_VERSION=1.13.0
+ARG OPENTOFU_VERSION=1.13.0 
 ARG PYTHON_VERSION=3.14
-ARG YQ_VERSION=v4.53.6
+ARG YQ_VERSION=4.53.6
 
 LABEL org.opencontainers.image.title="opencode-devbox" \
-      org.opencontainers.image.description="Dev environment: Go, OpenTofu, Node.js, Python, OpenCode, OpenSpec" \
+      org.opencontainers.image.description="Dev environment: Go, OpenTofu, Node.js, Python, OpenCode, OpenSpec, kubectl" \
       org.opencontainers.image.version="${OPENCODE_VERSION}"
 
 ENV DEBIAN_FRONTEND=noninteractive
@@ -49,10 +50,18 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     python${PYTHON_VERSION}-dev \
     && rm -rf /var/lib/apt/lists/*
 
+# kubectl
+RUN cd /tmp \
+    && curl -fsSL -O "https://dl.k8s.io/release/v${KUBECTL_VERSION}/bin/linux/${TARGETARCH}/kubectl" \
+    && curl -fsSL -O "https://dl.k8s.io/release/v${KUBECTL_VERSION}/bin/linux/${TARGETARCH}/kubectl.sha256" \
+    && echo "$(cat kubectl.sha256)  kubectl" | sha256sum -c - \
+    && install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl \
+    && rm -f kubectl kubectl.sha256
+
 # yq
 RUN cd /tmp \
-    && wget -q "https://github.com/mikefarah/yq/releases/download/${YQ_VERSION}/yq_linux_${TARGETARCH}" -O yq \
-    && wget -q "https://github.com/mikefarah/yq/releases/download/${YQ_VERSION}/checksums" -O checksums \
+    && wget -q "https://github.com/mikefarah/yq/releases/download/v${YQ_VERSION}/yq_linux_${TARGETARCH}" -O yq \
+    && wget -q "https://github.com/mikefarah/yq/releases/download/v${YQ_VERSION}/checksums" -O checksums \
     && EXPECTED=$(grep "^yq_linux_${TARGETARCH}  " checksums | awk '{print $19}') \
     && echo "${EXPECTED}  yq" | sha256sum -c - \
     && install -m 0755 yq /usr/bin/yq \
