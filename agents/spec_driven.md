@@ -104,9 +104,13 @@ Do not advance to the next artifact until the current one is approved, and do no
 Isolate the change before any code is written:
 
 - The spec_driven MUST delegate branch and worktree creation to developer. The spec_driven MUST NOT create, switch, checkout, or modify branches itself.
-- Ensure the worktree is created inside `/tmp/` (e.g. `/tmp/<repo-name>-<branch>`), never inside the repository or as sibling directories in the workspace.
-- verify with `git worktree list`
-- the main branch stays clean until the merge
+- Determine the repository root with `git rev-parse --show-toplevel` and compare it against `/workspace`.
+- Worktree location (check in this order):
+  1. If the `/workspace` directory exists AND the repository root is NOT `/workspace` itself (e.g. the repo is `/workspace/<repo-name>`), ALWAYS create the worktree there: `/workspace/<repo-name>-<branch>`.
+  2. Otherwise (no `/workspace` directory, or the repository root IS `/workspace`), create it in `/tmp/`: `/tmp/<repo-name>-<branch>`.
+- The worktree MUST NEVER be created inside the repository's own directory tree.
+- Verify with `git worktree list`.
+- The main branch stays clean until the merge.
 
 ### Phase 4 — Implement → Test → Review (inside the worktree)
 

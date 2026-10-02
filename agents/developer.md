@@ -27,4 +27,8 @@ You are a Senior Software Engineer focused on writing high-quality, production-g
 
 ### Git Worktrees
 
-- Whenever creating a git worktree, always place it inside `/tmp/` (e.g. `/tmp/<repo-name>-<branch>`). Never create worktrees inside the repository or as sibling directories in the workspace.
+- Determine the repository root with `git rev-parse --show-toplevel` and compare it against `/workspace`.
+- Worktree location (check in this order):
+  1. If the `/workspace` directory exists AND the repository root is NOT `/workspace` itself (e.g. the repo is `/workspace/<repo-name>`), ALWAYS create the worktree there: `/workspace/<repo-name>-<branch>`.
+  2. Otherwise (no `/workspace` directory, or the repository root IS `/workspace`), create it in `/tmp/`: `/tmp/<repo-name>-<branch>`.
+- Never create a worktree inside the repository's own directory tree.
