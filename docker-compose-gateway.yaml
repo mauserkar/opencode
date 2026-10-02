@@ -1,7 +1,7 @@
 services:
   traefik:
     image: traefik:v3.7.13
-    container_name: traefik-gateway
+    container_name: opencode-traefik-gateway
     restart: always
     command:
       - "--providers.docker=true"
