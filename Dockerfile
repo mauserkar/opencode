@@ -3,16 +3,17 @@ FROM ubuntu:24.04
 ARG TARGETARCH=amd64
 
 ARG GO_VERSION=1.27.1
+ARG HELM_VERSION=4.0.0
 ARG KUBECTL_VERSION=1.37.0
 ARG NODE_MAJOR=20
 ARG OPENCODE_VERSION=1.18.34
 ARG OPENSPEC_VERSION=1.13.0
-ARG OPENTOFU_VERSION=1.13.0 
+ARG OPENTOFU_VERSION=1.13.0
 ARG PYTHON_VERSION=3.14
 ARG YQ_VERSION=4.53.6
 
 LABEL org.opencontainers.image.title="opencode-devbox" \
-      org.opencontainers.image.description="Dev environment: Go, OpenTofu, Node.js, Python, OpenCode, OpenSpec, kubectl" \
+      org.opencontainers.image.description="Dev environment: Go, OpenTofu, Node.js, Python, OpenCode, OpenSpec, kubectl, helm, make" \
       org.opencontainers.image.version="${OPENCODE_VERSION}"
 
 ENV DEBIAN_FRONTEND=noninteractive
@@ -35,6 +36,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     jq \
     less \
     lsb-release \
+    make \
     net-tools \
     ripgrep \
     software-properties-common \
@@ -57,6 +59,15 @@ RUN cd /tmp \
     && echo "$(cat kubectl.sha256)  kubectl" | sha256sum -c - \
     && install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl \
     && rm -f kubectl kubectl.sha256
+
+# helm
+RUN cd /tmp \
+    && curl -fsSL -O "https://get.helm.sh/helm-v${HELM_VERSION}-linux-${TARGETARCH}.tar.gz" \
+    && curl -fsSL -O "https://get.helm.sh/helm-v${HELM_VERSION}-linux-${TARGETARCH}.tar.gz.sha256sum" \
+    && sha256sum -c "helm-v${HELM_VERSION}-linux-${TARGETARCH}.tar.gz.sha256sum" \
+    && tar -xzf "helm-v${HELM_VERSION}-linux-${TARGETARCH}.tar.gz" \
+    && install -o root -g root -m 0755 "linux-${TARGETARCH}/helm" /usr/local/bin/helm \
+    && rm -rf "helm-v${HELM_VERSION}-linux-${TARGETARCH}.tar.gz"* "linux-${TARGETARCH}"
 
 # yq
 RUN cd /tmp \
