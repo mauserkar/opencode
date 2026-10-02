@@ -84,7 +84,8 @@
       "~/go/pkg/mod/**": "allow",
       "/tmp/**": "allow",
       "/private/tmp/**": "allow",
-      "~/AppData/Local/Temp/**": "allow"
+      "~/AppData/Local/Temp/**": "allow",
+      "/workspace/*": "allow"
     }
   },
   "plugin": [

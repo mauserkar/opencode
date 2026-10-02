@@ -32,7 +32,7 @@
       "disable": true
     },
     "resolver": {
-      "model": "opencode/deepseek-v4.1-flash"
+      "model": "deepseek/deepseek-flash"
     }
   }
 }
