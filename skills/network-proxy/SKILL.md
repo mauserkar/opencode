@@ -1,46 +1,83 @@
 ---
 name: network-proxy
-description: Use when running network commands (curl, wget) in the terminal. Reads the proxy from the HTTP_PROXY environment variable, applies it to curl and wget, retries on network or SSL errors, and forbids any proxy use if HTTP_PROXY is not defined.
+description: Rules for running network commands (curl, wget) from the terminal behind a proxy. Use whenever you are about to run curl, wget, or any command that downloads or calls a remote URL, or when such a command fails with a connection, name resolution, or SSL certificate error. Reads the proxy only from HTTP_PROXY and forbids any proxy use if it is not defined.
+metadata:
+  version: "1.1"
 ---
 
-# Proxy Handling Instructions via Environment Variable
+# Skill: network-proxy
 
-When running network commands (`curl`, `wget`, etc.) in the terminal, you must check and use the proxy address defined in the `$HTTP_PROXY` environment variable. No other variable is to be used.
+Use the proxy defined in `$HTTP_PROXY`, and only that variable, for network
+commands. If it is not defined, no proxy may be used.
 
-### 1. Proxy Detection
-Before building the command, read the value of the `$HTTP_PROXY` environment variable.
+## Prerequisites
 
-### 2. Format for `curl`
-Use the environment variable directly within the command to pass the proxy and the flag to skip certificate verification:
-
-```bash
-curl -k -x "$HTTP_PROXY" "https://example.com/file"
-```
-
-### 3. Format for `wget`
-Pass the environment variable to `wget`'s inline configuration:
-
-```bash
-wget --no-check-certificate -e use_proxy=on -e https_proxy="$HTTP_PROXY" "https://example.com/file"
-```
-
-### 4. Fallback / Retry Rule on Network or SSL Error
-If a standard network command fails due to connection problems, name resolution issues, or SSL certificate errors (`SSL certificate problem`, `unable to get local issuer certificate`), you must retry the operation by injecting the proxy variable and ignoring SSL validation as shown in the examples above, **but only if `HTTP_PROXY` is defined (see section 5)**.
-
-### 5. Mandatory Condition: Proxy Variable Must Be Declared
-If `HTTP_PROXY` is not declared (unset or empty) in the environment:
-
-- **No agent may use a proxy** for any network command.
-- Do **not** add `-x`, `--proxy`, `use_proxy`, `https_proxy`, or any equivalent proxy option.
-- Do **not** invent, guess, or hardcode a proxy address.
-- Do **not** apply the fallback rule from section 4 (no retry with `-k` / `--no-check-certificate`); report the original error instead.
-
-To check whether the proxy is defined, use:
+Check whether the proxy is defined **without printing credentials**
+(proxy URLs often contain `user:pass@`):
 
 ```bash
 if [ -n "$HTTP_PROXY" ]; then
-  echo "Proxy defined: $HTTP_PROXY"
+  echo "Proxy defined: $(printf '%s' "$HTTP_PROXY" | sed -E 's#//[^@/]*@#//***@#')"
 else
-  echo "No proxy defined: run network commands directly, without proxy options."
+  echo "No proxy defined"
 fi
 ```
+
+## Procedure
+
+### If `HTTP_PROXY` is NOT defined (unset or empty)
+
+- Run network commands directly.
+- Do **not** add `-x`, `--proxy`, `use_proxy`, `http_proxy`, `https_proxy`,
+  or any equivalent option.
+- Do **not** invent, guess, or hardcode a proxy address.
+- Do **not** disable certificate verification; on failure, report the
+  original error.
+
+### If `HTTP_PROXY` is defined
+
+**1. First attempt: proxy with TLS verification enabled.**
+
+```bash
+curl -x "$HTTP_PROXY" --noproxy "${NO_PROXY:-}" "https://example.com/file"
+```
+
+```bash
+wget -e use_proxy=on -e http_proxy="$HTTP_PROXY" -e https_proxy="$HTTP_PROXY" \
+     -e no_proxy="${NO_PROXY:-}" "https://example.com/file"
+```
+
+If the user provides a corporate CA bundle, prefer it over disabling
+verification: `curl --cacert /path/ca.pem ...` or
+`wget --ca-certificate=/path/ca.pem ...`.
+
+**2. Retry only on a certificate error** (`SSL certificate problem`,
+`unable to get local issuer certificate`). Retry **once**, ignoring
+verification, and tell the user that TLS verification was disabled for
+that request:
+
+```bash
+curl -k -x "$HTTP_PROXY" --noproxy "${NO_PROXY:-}" "https://example.com/file"
+```
+
+```bash
+wget --no-check-certificate -e use_proxy=on -e http_proxy="$HTTP_PROXY" \
+     -e https_proxy="$HTTP_PROXY" -e no_proxy="${NO_PROXY:-}" "https://example.com/file"
+```
+
+For plain connection or name resolution errors, retrying with `-k` does not
+help: report the error instead.
+
+## Rules
+
+- Read the proxy only from `$HTTP_PROXY`; no other variable.
+- Never use `-k` / `--no-check-certificate` on requests that carry tokens,
+  passwords, or other credentials (e.g. `Authorization` headers, Jira API
+  calls). Report the error and ask the user.
+- Never print the raw value of `HTTP_PROXY`.
+- Hosts listed in `NO_PROXY` (internal services) must bypass the proxy.
+
+## Output
+
+Report the command outcome. If TLS verification was disabled, say so
+explicitly.

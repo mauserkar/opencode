@@ -1,152 +1,98 @@
 ---
 name: jira-issue-management
-description: Create, look up, update, search for, list, or comment on Jira issues during a session. Use when the user asks to create, update, search for, list, comment on, or check the status of a Jira issue.
-compatibility: Requires jira.py (Python 3, stdlib only) available either in the repository's .opencode/scripts/ directory or the global OpenCode scripts directory ($HOME/.config/opencode/scripts/), plus JIRA_TOKEN and JIRA_BASE_URL exported in the environment.
+description: Create, look up, update, search, list, or comment on Jira issues. Use whenever the user mentions a Jira issue, ticket, epic, or issue key (e.g. PROJ-123), or asks to create, update, find, list, check the status of, or comment on an issue, even if they don't say "Jira".
+compatibility: Requires Python 3 (stdlib only), the `jira` opencode command (.opencode/command/jira.md), a resolvable jira.py, and JIRA_TOKEN and JIRA_BASE_URL exported in the environment.
+metadata:
+  version: "1.1"
 ---
 
 # Skill: jira-issue-management
 
-Manage Jira issues and their comments in your project by delegating to the
-single `jira` opencode command, which wraps the resolved `jira.py`
-implementation.
+Manage Jira issues and comments through the single `jira` opencode command,
+which wraps `jira.py`. This skill says **when** to use the command and
+**which action** to pick. The command file (`.opencode/command/jira.md`) is
+the source of truth for exact flags and per-action fields: read it before
+running anything.
 
-The Jira script may be provided at repository or global OpenCode scope.
-Repository-local configuration takes precedence over the global configuration.
+## Prerequisites
 
-This skill is procedural — it says when to use the command and which action to
-pick, not how the script talks to Jira.
+### Environment variables
 
-Before running anything, ensure `JIRA_TOKEN` and `JIRA_BASE_URL` are set: both
-are required, with no built-in default. Copy `.env.example` to `.env`
-(gitignored) and set your variables there, or export them directly in your
-shell — never add a real value to the tracked `.env.example`.
+Load them from `.env` (copy `.env.example`, which is tracked; `.env` is
+gitignored) or export them in the shell. Never put real values in
+`.env.example`.
 
-## Environment Variables (.env Verification)
+| Variable              | Required                                     | Default  | Purpose                                                     |
+| --------------------- | -------------------------------------------- | -------- | ----------------------------------------------------------- |
+| `JIRA_TOKEN`          | Yes                                          | none     | Authentication                                              |
+| `JIRA_BASE_URL`       | Yes                                          | none     | Instance URL, e.g. `https://your-company.atlassian.net`     |
+| `JIRA_PROJECT_ID`     | For create/search/list (or pass `--project`) | none     | Default project key                                         |
+| `JIRA_ISSUE_TYPE`     | No                                           | `Task`   | Default issue type                                          |
+| `JIRA_ISSUE_LABELS`   | No                                           | none     | Default labels, comma-separated                             |
+| `JIRA_ISSUE_PRIORITY` | No                                           | `Medium` | Default priority                                            |
+| `JIRA_ISSUE_EPIC`     | No                                           | none     | Default epic key for create/update                          |
+| `JIRA_EPIC_FIELD`     | Only if an epic is used                      | none     | Custom field id for the epic link, e.g. `customfield_10014` |
+| `JIRA_TIMEOUT`        | No                                           | `10`     | HTTP timeout in seconds                                     |
+| `JIRA_MAX_RESULTS`    | No                                           | `50`     | Page size for search/list (override with `--max-results`)   |
 
-If a `.env` file exists, verify that the following variables are available or
-properly defaulted in the environment:
+Check that secrets are set **without printing them**:
 
-- `JIRA_TOKEN`: Required for authentication. No default.
-- `JIRA_BASE_URL`: Required — the Jira instance base URL (e.g.
-  `https://your-company.atlassian.net`). No default; the script refuses to
-  guess an org-specific URL.
-- `JIRA_PROJECT_ID`: Default Jira project key. No default — required (via
-  `.env` or `--project`) for `create`, `search`, and `list`.
-- `JIRA_ISSUE_TYPE`: Default issue type. Defaults to `Task`.
-- `JIRA_ISSUE_LABELS`: Default comma-separated labels. Defaults to none.
-- `JIRA_ISSUE_PRIORITY`: Default priority. Defaults to `Medium`.
-- `JIRA_ISSUE_EPIC`: Default epic key to link on `create`/`update`. No
-  default.
-- `JIRA_EPIC_FIELD`: Jira custom field id used for the epic link (e.g.
-  `customfield_10014`). No default — required only if `--epic` /
-  `JIRA_ISSUE_EPIC` is actually used; if needed but unset, the script fails
-  with `{"success": false, "error": "..."}` explaining what to set. Relay
-  that error as-is rather than treating it as unexpected.
-- `JIRA_TIMEOUT`: HTTP request timeout in seconds. Defaults to `10`.
-- `JIRA_MAX_RESULTS`: Default page size for `search`/`list`. Defaults to
-  `50`; can be overridden per-call with `--max-results`.
-
-## When to invoke this skill
-
-- Creating a new Jira issue for work about to start or already agreed on.
-- Looking up an existing issue's summary, description, status, or labels.
-- Updating an existing issue's fields as work progresses.
-- Finding an issue by summary text or by the epic it belongs to, when its
-  key isn't already known.
-- Listing issues in the project, with or without a status filter.
-- Adding, listing, updating, or deleting a comment on an issue — e.g.
-  recording progress, a decision, or a link back to a merge request.
-
-## Script Resolution
-
-The Jira implementation may exist at either repository or global OpenCode
-scope.
-
-Resolve `jira.py` in this order:
-
-1. Repository-local:
-   `.opencode/scripts/jira.py`
-
-2. Global OpenCode:
-   `$HOME/.config/opencode/scripts/jira.py`
-
-If both exist, the repository-local implementation takes precedence.
-
-If neither exists, report that `jira.py` could not be found and include the
-locations that were checked.
-
-## How dispatch works
-
-There is a single `jira` opencode command that wraps the resolved script — it takes the raw
-request as `$ARGUMENTS`, figures out which action is intended (`create`,
-`get`, `update`, `list`, `search`, `comment-add`, `comment-list`,
-`comment-update`, `comment-delete`, or `help`), gathers only the fields that
-action needs, and runs:
-
-```
-<python> <resolved-jira-script> <action> [flags...]
+```bash
+[ -n "$JIRA_TOKEN" ] && [ -n "$JIRA_BASE_URL" ] && echo "ok" || echo "missing JIRA_TOKEN or JIRA_BASE_URL"
 ```
 
-The `jira` command is responsible for resolving the script location according
-to the Script Resolution rules.
+### Script resolution
 
-The command's own file is the source of truth for exact flag names, which
-fields are required per action, and how results are reported — read it
-before running anything. It documents each action in one place rather than
-one file per action.
+Resolve `jira.py` once, in this order (repository-local wins):
 
-## Which action to use
+1. `.opencode/scripts/jira.py`
+2. `$HOME/.config/opencode/scripts/jira.py`
 
-| Action                                                               | Purpose                                 | Required input                                                                                                                                                       |
-| -------------------------------------------------------------------- | --------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `create`                                                             | Open a new issue                        | `summary`, `description` (plus `project` only if `JIRA_PROJECT_ID` isn't set)                                                                                        |
-| `get`                                                                | Look up one issue                       | `issue-key` (e.g. `PROJECT-123`)                                                                                                                                     |
-| `update`                                                             | Change fields on an existing issue      | `issue-key`, plus only the fields being changed (`summary`, `description`, `issuetype`, `labels`, `priority`, `epic`) — only fields explicitly mentioned are touched |
-| `search`                                                             | Find issues by summary text and/or epic | at least one of `summary`, `epic`, plus `project` only if `JIRA_PROJECT_ID` isn't set                                                                                |
-| `list`                                                               | List issues in the project              | none required; optional exact-match `status`, plus `project` only if `JIRA_PROJECT_ID` isn't set                                                                     |
-| `comment-add` / `comment-list` / `comment-update` / `comment-delete` | Manage comments on an issue             | `issue-key`, plus `body` (add/update) or `comment-id` (update/delete)                                                                                                |
-| `help`                                                               | Summarize what's available              | none — answered directly, nothing is run                                                                                                                             |
+If neither exists, report that `jira.py` was not found and list both
+locations checked.
+
+## Actions
+
+| Action                                                               | Purpose                         | Required input                                                                                                       |
+| -------------------------------------------------------------------- | ------------------------------- | -------------------------------------------------------------------------------------------------------------------- |
+| `create`                                                             | Open a new issue                | `summary`, `description`                                                                                             |
+| `get`                                                                | Look up one issue               | `issue-key`                                                                                                          |
+| `update`                                                             | Change fields on an issue       | `issue-key` plus only the fields being changed (`summary`, `description`, `issuetype`, `labels`, `priority`, `epic`) |
+| `search`                                                             | Find issues by text and/or epic | at least one of `summary`, `epic`                                                                                    |
+| `list`                                                               | List issues in the project      | none; optional exact-match `status`                                                                                  |
+| `comment-add` / `comment-list` / `comment-update` / `comment-delete` | Manage comments on an issue     | `issue-key`, plus `body` (add/update) or `comment-id` (update/delete)                                                |
+| `help`                                                               | Summarize what is available     | none; answer directly, run nothing                                                                                   |
+
+`project` is also required for `create`, `search`, and `list` when
+`JIRA_PROJECT_ID` is not set.
 
 ## Procedure
 
-1. Verify environment configuration: ensure `.env` is loaded or the
-   environment variables above (`JIRA_TOKEN`, `JIRA_BASE_URL`,
-   `JIRA_PROJECT_ID`, etc.) are accessible. Also ensure that a `jira.py`
-   implementation can be resolved according to the Script Resolution rules.
-2. Identify the action (`create`, `get`, `update`, `list`, `search`, one of
-   the comment sub-actions, or `help`) from the request. If it's genuinely
-   ambiguous (e.g. `search` vs `list`, or `get` vs `comment-list`), ask the
-   user to clarify before proceeding.
-3. If any required input for that action is missing, ask the user for it —
-   do not guess a `summary`, `description`, `issue-key`, `project` (when
-   `JIRA_PROJECT_ID` is unset), or comment `body`/`comment-id`. A missing
-   `status` on `list` is not ambiguous: it means "list unfiltered," not "ask
-   the user."
-4. Run the `jira` command with the identified action and only the flags
-   that were actually provided or extracted — never invent values for
-   fields the user didn't mention.
-5. Report the result to the user: the issue URL for `create`/`update`, the
-   issue details for `get`, the matching issues (or "no issues found") for
-   `search`/`list` (and mention if `truncated` is `true`, suggesting a
-   narrower filter), or the comment result for comment actions. On
-   `{"success": false, "error": "..."}`, report the error message verbatim
-   rather than retrying silently.
+1. Verify the environment and resolve `jira.py` (see Prerequisites).
+2. Identify the action from the request. If it is genuinely ambiguous
+   (`search` vs `list`, `get` vs `comment-list`), ask the user.
+3. If a required input is missing, ask for it. Never guess a `summary`,
+   `description`, `issue-key`, `project`, comment `body`, or `comment-id`.
+   A missing `status` on `list` means "unfiltered", not "ask".
+4. Run the `jira` command with only the flags the user provided or that
+   were clearly extracted. Never invent values for fields the user did not
+   mention; on `update`, touch only the fields explicitly mentioned.
+5. Report the result (see Output).
 
-## Defaults & Environment Fallbacks
+## Rules
 
-If optional arguments are omitted, the script falls back dynamically to the
-values defined in the environment:
+- **`comment-delete` is destructive:** show the target issue and comment,
+  and require explicit user confirmation before running it.
+- Never print, log, or echo `JIRA_TOKEN`, and never include it in
+  commands shown to the user.
+- On `{"success": false, "error": "..."}`, report the message verbatim and
+  do not retry silently. This includes the "set `JIRA_EPIC_FIELD`" error:
+  relay it as-is.
 
-- **Base URL**: `JIRA_BASE_URL` — required, no fallback; `create`/`get`/
-  `update`/`search`/`list` all fail loudly if it's unset.
-- **Project ID**: `DEFAULT_PROJECT` (`JIRA_PROJECT_ID`)
-- **Issue Type**: `DEFAULT_ISSUETYPE` (defaults to `"Task"`)
-- **Labels**: `DEFAULT_LABELS` (parsed from comma-separated
-  `JIRA_ISSUE_LABELS`)
-- **Priority**: `DEFAULT_PRIORITY` (defaults to `"Medium"`)
-- **Epic**: `DEFAULT_EPIC` (`JIRA_ISSUE_EPIC`)
-- **Epic Field**: `EPIC_FIELD` (`JIRA_EPIC_FIELD`) — only required if an
-  epic is actually being set or searched on
-- **Timeout**: `DEFAULT_TIMEOUT` (`JIRA_TIMEOUT`, defaults to `10` seconds)
-- **Max results**: `DEFAULT_MAX_RESULTS` (`JIRA_MAX_RESULTS`, defaults to
-  `50`; overridable per-call with `--max-results` on `search`/`list`)
+## Output
+
+- `create` / `update`: the issue URL.
+- `get`: the issue details (summary, description, status, labels).
+- `search` / `list`: the matching issues, or "no issues found". If
+  `truncated` is `true`, say so and suggest a narrower filter.
+- Comment actions: the comment result.

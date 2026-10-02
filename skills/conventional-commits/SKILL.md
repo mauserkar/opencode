@@ -1,40 +1,74 @@
 ---
 name: conventional-commits
-description: Analyze git diff workspace changes and formulate structured commit messages following the Conventional Commits specification.
+description: Analyze git changes and write commit messages that follow the Conventional Commits specification. Use whenever the user asks to commit, write or review a commit message, prepare a release, or inspect staged/unstaged changes before committing, even if they don't mention "Conventional Commits".
 metadata:
+  version: "1.1"
   opencode/slash: "true"
 ---
 
-# Skill: Conventional Commits & Scope Inspector
+# Skill: conventional-commits
 
-## Trigger
+Inspect the workspace changes and propose a standardized commit message.
+This skill **proposes** the message; it never commits on its own.
 
-Execute this skill prior to staging commits or during the release packaging phase to inspect workspace modifications (`git diff`) and generate standardized commit headers.
+## Prerequisites
 
-## Instructions
+- A git repository with at least one modified, added, or deleted file.
 
-1. **Analyze Diff Scope:**
+## Procedure
 
-- Run `git diff --cached` or `git diff` to evaluate all modified, added, or deleted files.
-- Determine the primary impact area (e.g., component name, module, or file path as scope).
+1. **Inspect the changes**
+   - Run `git status --short` to see what is staged and unstaged.
+   - Run `git diff --cached`; if nothing is staged, run `git diff` and tell
+     the user the changes are not staged yet.
+   - Determine the scope: the component, module, or top-level directory that
+     concentrates most of the change. Omit the scope if the change is
+     cross-cutting.
 
-2. **Classify Change Type:**
-Map the primary intent of the modifications to the appropriate prefix:
+2. **Classify the change type**
 
-- **`feat:`** New backward-compatible functionality (corresponds to a MINOR version bump).
-- **`fix:`** Backward-compatible bug fixes (corresponds to a PATCH version bump).
-- **`refactor:`** Code changes that neither fix a bug nor add a feature.
-- **`docs:`** Documentation-only changes.
-- **`perf:`** Code changes that improve performance.
-- **`chore:`** Maintenance tasks, dependency updates, build processes, or auxiliary tool modifications.
-- **`Note:`**  Append an exclamation mark (`feat!:`, `refactor!:`) if the change introduces breaking alterations (MAJOR version bump).
+   | Type       | Use for                                                 | Version bump |
+   | ---------- | ------------------------------------------------------- | ------------ |
+   | `feat`     | New backward-compatible functionality                   | MINOR        |
+   | `fix`      | Backward-compatible bug fix                             | PATCH        |
+   | `refactor` | Code change that neither fixes a bug nor adds a feature | none         |
+   | `perf`     | Performance improvement                                 | PATCH        |
+   | `docs`     | Documentation only                                      | none         |
+   | `style`    | Formatting only, no logic change                        | none         |
+   | `test`     | Adding or fixing tests                                  | none         |
+   | `build`    | Build system or dependency changes                      | none         |
+   | `ci`       | CI configuration and scripts                            | none         |
+   | `chore`    | Other maintenance that doesn't touch src or tests       | none         |
+   | `revert`   | Reverts a previous commit                               | varies       |
 
-3. **Construct Commit Message:**
+   **Breaking changes:** append `!` after the type/scope (`feat(api)!:`) and
+   add a footer `BREAKING CHANGE: <what breaks and how to migrate>`. This
+   triggers a MAJOR bump.
 
-- Format: `<type>(<scope>): <short description>`
-- Keep the description imperative, concise, and lowercase (e.g., `feat(auth): add JWT expiration validation`).
-- Add an optional body for complex technical context if needed.
+3. **Write the message**
+   - Header format: `<type>(<scope>): <description>`
+   - Description: imperative mood, lowercase, no trailing period, header
+     at most 72 characters.
+   - Add a body only when the *why* is not obvious from the diff; separate
+     it from the header with a blank line.
+   - Add footers when relevant, e.g. `Refs: PROJ-123` (Jira issue key).
+   - If the diff mixes unrelated changes, suggest splitting it into several
+     commits and propose one message per commit.
 
-4. **Apply and Stage:**
+4. **Present and confirm**
+   - Show the proposed message to the user.
+   - Only run `git commit` if the user explicitly asks for it.
 
-- Use the generated message for the final commit or provide it to the orchestration agent for verification.
+## Rules
+
+- Do not invent a scope, issue key, or breaking-change note that the diff
+  does not support.
+- Do not run `git add`, `git commit`, or `git push` without explicit
+  confirmation.
+
+## Output
+
+The proposed commit message in a code block, plus one line explaining why
+that type and scope were chosen.
+
+Example: `feat(auth): add jwt expiration validation`
