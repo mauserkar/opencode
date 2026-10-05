@@ -62,7 +62,6 @@
       "curl *169.254.169.254*": "deny",
       "wget *169.254.169.254*": "deny",
       "git push*": "deny",
-      "git push --force*": "deny",
       "rm -rf /": "deny",
       "rm -rf /*": "deny",
       "rm -rf ~": "deny",

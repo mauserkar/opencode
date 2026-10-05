@@ -37,10 +37,12 @@ RUN cd /tmp \
     && tar -xzf "helm-v${HELM_VERSION}-linux-${TARGETARCH}.tar.gz" \
     && install -m 0755 "linux-${TARGETARCH}/helm" /out-helm
 
+# yq's `checksums` file lists multiple hashes per artifact; field 19 is the SHA-256.
 RUN cd /tmp \
     && wget -q "https://github.com/mikefarah/yq/releases/download/v${YQ_VERSION}/yq_linux_${TARGETARCH}" -O yq \
     && wget -q "https://github.com/mikefarah/yq/releases/download/v${YQ_VERSION}/checksums" -O checksums \
-    && EXPECTED=$(grep "^yq_linux_${TARGETARCH}  " checksums | awk '{print $19}') \
+    && EXPECTED=$(awk -v f="yq_linux_${TARGETARCH}" '$1 == f { print $19 }' checksums) \
+    && printf '%s' "$EXPECTED" | grep -Eq '^[0-9a-f]{64}$' \
     && echo "${EXPECTED}  yq" | sha256sum -c - \
     && install -m 0755 yq /out-yq
 
