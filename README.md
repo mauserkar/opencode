@@ -89,7 +89,7 @@ merge ──▶ archive                            (integration)
 - `build` and `plan` agents disabled.
 - Server listening on `0.0.0.0:4096`.
 - Plugin: `opencode-plugin-openspec`.
-- `compaction`, `tool_output` limits and `subagent_depth` are configured in `profiles/*/opencode.jsonc`.
+- `compaction`, `tool_output` limits and `subagent_depth` are supported but not set here; define them in `opencode.jsonc` or a profile to override the defaults.
 
 ## Profiles (`profiles/`)
 
