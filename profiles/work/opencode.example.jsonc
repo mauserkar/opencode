@@ -42,6 +42,7 @@
           "echo *": "allow",
           "echo": "allow",
           "env": "deny",
+          "env *": "deny",
           "export *": "deny",
           "export": "deny",
           "find *": "allow",
@@ -251,6 +252,7 @@
           "diff *": "allow",
           "echo *": "allow",
           "env": "deny",
+          "env *": "deny",
           "export *": "deny",
           "export": "deny",
           "find *-delete*": "deny",
@@ -329,8 +331,10 @@
         "bash": {
           "*": "allow",
           "env": "deny",
+          "env *": "deny",
           "printenv*": "deny",
           "export *": "deny",
+          "export": "deny",
           "cat *.env*": "deny",
           "cat *.pem": "deny",
           "cat *.key": "deny",
@@ -365,42 +369,15 @@
     "hostname": "0.0.0.0",
     "port": 4096
   },
+  // Only overrides relative to the base opencode.jsonc are listed here;
+  // configs are deep-merged, so unchanged permission rules are inherited.
   "permission": {
     "read": {
-      "*": "allow",
-      "*.env": "deny",
-      "*.env.*": "deny",
-      "*.env.example": "allow",
-      "*.pem": "deny",
-      "*.key": "deny",
-      "*.p12": "deny",
-      "*.pfx": "deny",
       "*credential*": "deny",
-      "*secret*": "deny",
-      "**/.ssh/**": "deny",
-      "**/.kube/**": "deny",
-      "**/.gcloud/**": "deny",
-      "**/.gnupg/**": "deny",
-      "~/go/pkg/mod/**": "allow",
-      "**/openspec/changes/**": "allow",
-      "**/openspec/specs/**": "allow"
+      "~/go/pkg/mod/**": "allow"
     },
     "bash": {
-      "cat *.env*": "deny",
-      "cat *.pem": "deny",
-      "cat *.key": "deny",
-      "env": "deny",
-      "printenv *": "deny",
-      "export *": "deny"
-    },
-    "external_directory": {
-      "~/go/pkg/mod/**": "allow",
-      "/tmp/**": "allow",
-      "/private/tmp/**": "allow",
-      "~/AppData/Local/Temp/**": "allow"
-    },
-    "list": {
-      "~/go/pkg/mod/**": "allow"
+      "printenv *": "deny"
     },
     "edit": {
       "~/go/pkg/mod/**": "deny"

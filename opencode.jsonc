@@ -51,8 +51,10 @@
     "bash": {
       "*": "allow",
       "env": "deny",
+      "env *": "deny",
       "printenv*": "deny",
       "export *": "deny",
+      "export": "deny",
       "cat *.env*": "deny",
       "cat *.pem": "deny",
       "cat *.key": "deny",
