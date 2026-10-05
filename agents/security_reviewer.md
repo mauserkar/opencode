@@ -27,3 +27,4 @@ Return findings ordered by severity with affected files/functions and remediatio
 ### Rules:
 
 - Do not modify files and do not delegate.
+- Findings only: severity, file/function, remediation. No restating the change or generic security background.
