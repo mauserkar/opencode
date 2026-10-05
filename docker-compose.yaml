@@ -1,5 +1,5 @@
 # PROJECT_NAME=$(basename $PWD) docker-compose -f docker-compose.yaml up -d 
-name: opencode-devbox-${PROJECT_NAME}
+name: opencode-devbox-${PROJECT_NAME:?PROJECT_NAME is required}
 
 services:
   opencode:

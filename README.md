@@ -10,7 +10,7 @@ Personal [OpenCode](https://opencode.ai) configuration plus a reproducible Docke
 ├── command/             # Custom slash commands
 ├── skills/              # Reusable skills
 ├── opencode.jsonc       # OpenCode configuration (base)
-├── profiles/            # Work/personal config profiles (one opencode.jsonc each)
+├── profiles/            # Work/personal/unattended config profiles (one opencode.jsonc each)
 ├── Dockerfile           # Devbox image
 ├── docker-compose.yaml  # Container orchestration
 ├── .env.example         # Environment variable template
@@ -74,14 +74,14 @@ merge ──▶ archive                            (integration)
 | `/changelog`  | Updates `CHANGELOG.md` (Keep a Changelog format), computes the SemVer bump, updates the manifest, and creates the release commit.                         |
 | `/format`     | Formats Python (`ruff`/`black`/`isort`), Terraform (`terraform fmt`), or Go (`gofmt`/`goimports`) code and shows `git diff --stat`.                       |
 | `/versioning` | Audits and implements version support (`--version`, `/version` endpoint, `__version__`, …) based on project type, integrating with OpenSpec when present. |
-| `/jira`       | Creates, gets, updates, lists, or searches Jira issues and manages their comments via `.opencode/scripts/jira.py`.                                        |
+| `/jira`       | Creates, gets, updates, lists, or searches Jira issues and manages their comments via `scripts/jira.py`.                                        |
 
 ## Skills (`skills/`)
 
 | Skill                   | Description                                                                                                                                                          |
 | ----------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `conventional-commits`  | Analyzes the `git diff` and generates commit messages following Conventional Commits (`feat`, `fix`, `refactor`, `docs`, `perf`, `chore`, `!` for breaking changes). |
-| `jira-issue-management` | Creates, updates, searches, lists, or comments on Jira issues during a session (requires `.opencode/scripts/jira.py`, `JIRA_TOKEN` and `JIRA_BASE_URL`).             |
+| `jira-issue-management` | Creates, updates, searches, lists, or comments on Jira issues during a session (requires `scripts/jira.py`, `JIRA_TOKEN` and `JIRA_BASE_URL`).             |
 
 ## OpenCode Configuration (`opencode.jsonc`)
 
@@ -93,12 +93,13 @@ merge ──▶ archive                            (integration)
 
 ## Profiles (`profiles/`)
 
-Separate **work** and **personal** configurations, each an `opencode.jsonc` that is **merged on top of** the base config (so it only needs the overrides, e.g. `model`/`small_model`):
+Separate **work**, **personal**, and **unattended** configurations, each an `opencode.jsonc` that is **merged on top of** the base config (so it only needs the overrides, e.g. `model`/`small_model`):
 
 ```
 profiles/
-├── work/opencode.jsonc
-└── personal/opencode.jsonc
+├── work/opencode.example.jsonc   # copy to opencode.jsonc (gitignored)
+├── personal/opencode.jsonc
+└── unattended/opencode.jsonc
 ```
 
 Select one with the `OPENCODE_CONFIG` environment variable:
@@ -107,7 +108,7 @@ Select one with the `OPENCODE_CONFIG` environment variable:
 export OPENCODE_CONFIG=~/.config/opencode/profiles/work/opencode.jsonc
 ```
 
-In the Docker devbox, set `OPENCODE_PROFILE` (`work` or `personal`) in `.env`; the compose file wires it to `OPENCODE_CONFIG` automatically.
+In the Docker devbox, set `OPENCODE_PROFILE` (`work`, `personal`, or `unattended`) in `.env`; the compose file wires it to `OPENCODE_CONFIG` automatically.
 
 ## Docker Devbox
 
@@ -115,10 +116,10 @@ Image based on `ubuntu:24.04` with the tooling required for the workflow:
 
 - **Go** 1.27.1
 - **Node.js** 20
-- **Python** 3.14 (+ pip, venv)
-- **OpenTofu** 1.12.6
-- **OpenCode** 1.18.27 and **OpenSpec** 1.12.0
-- CLI utilities: `git`, `ripgrep`, `fd-find`, `jq`, `yq`, `curl`, `vim`, `htop`, `tree`, etc.
+- **Python** 3.14 (standalone, installed via `uv`)
+- **OpenTofu** 1.13.0
+- **OpenCode** 1.18.34 and **OpenSpec** 1.13.0
+- CLI utilities: `git`, `ripgrep`, `fd-find`, `jq`, `yq`, `curl`, `vim`, `tree`, etc.
 
 `docker-compose.yaml` mounts:
 
@@ -126,7 +127,7 @@ Image based on `ubuntu:24.04` with the tooling required for the workflow:
 - `agents/`, `command/`, `skills/`, `opencode.jsonc`, and `profiles/` as configuration,
 - persistent volumes for the home directory (plugin cache, tooling, OpenCode data/state) and the workspace (so git worktrees can be created as siblings of the repo).
 
-The container runs `opencode serve` on port `4096` (mapped to the host), with a healthcheck and hardening: non-root `ubuntu` user, `read_only` root filesystem (with writable volumes for home and workspace plus a `/tmp` tmpfs), `cap_drop: ALL`, `no-new-privileges`, `pids_limit`, and configurable `mem_limit`/`cpus`.
+The container runs `opencode serve` on port `4096`, reachable through the Traefik gateway, with hardening: non-root `ubuntu` user, `read_only` root filesystem (with writable volumes for home and workspace plus a `/tmp` tmpfs), `cap_drop: ALL`, `no-new-privileges`, `pids_limit`, and configurable `mem_limit`/`cpus`.
 
 > **Security note:** `OPENCODE_SERVER_USERNAME`/`OPENCODE_SERVER_PASSWORD` are passed as container environment variables and are therefore visible via `docker inspect`. Keep `.env` out of version control.
 
@@ -134,8 +135,10 @@ The container runs `opencode serve` on port `4096` (mapped to the host), with a 
 
 ```bash
 cp .env.example .env      # fill in the variables
+# Start the gateway once (creates the external traefik-net network)
+docker compose -f docker-compose-gateway.yaml up -d
 docker compose up -d --build
-# Server available at http://localhost:${OPENCODE_HOST_PORT:-4096}
+# Server available at http://${PROJECT_NAME}.docker.localhost
 ```
 
 ### Environment Variables (`.env`)
@@ -143,9 +146,8 @@ docker compose up -d --build
 | Variable                   | Description                                                         |
 | -------------------------- | ------------------------------------------------------------------- |
 | `PROJECT_NAME`                | Name of the repo to mount (`$HOME/repos/<PROJECT_NAME>`).              |
-| `OPENCODE_PROFILE`         | Config profile to load: `work` or `personal` (default: `personal`). |
-| `OPENCODE_HOST_PORT`       | Host port to expose the server on.                                  |
+| `OPENCODE_PROFILE`         | Config profile to load: `work`, `personal`, or `unattended` (default: `personal`). |
 | `OPENCODE_SERVER_USERNAME` | Username to authenticate with the server.                           |
 | `OPENCODE_SERVER_PASSWORD` | Password to authenticate with the server.                           |
-| `OPENCODE_MEM_LIMIT`       | Optional container memory limit (default: `4g`).                    |
-| `OPENCODE_CPUS`            | Optional CPU limit (default: `2.0`).                                |
+| `OPENCODE_MEM_LIMIT`       | Optional container memory limit (default: `8g`).                    |
+| `OPENCODE_CPUS`            | Optional CPU limit (default: `4.0`).                                |

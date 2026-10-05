@@ -301,6 +301,7 @@
           "*": "allow",
           "*.env": "deny",
           "*.env.*": "deny",
+          "*.env.example": "allow",
           "*.pem": "deny",
           "*.key": "deny",
           "*.p12": "deny",
