@@ -22,8 +22,8 @@ services:
         bind:
           create_host_path: false
       - type: bind
-        source: ${HOME}/.config/opencode/command
-        target: /home/ubuntu/.config/opencode/command
+        source: ${HOME}/.config/opencode/commands
+        target: /home/ubuntu/.config/opencode/commands
         read_only: true
         bind:
           create_host_path: false

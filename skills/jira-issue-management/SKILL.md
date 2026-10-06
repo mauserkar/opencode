@@ -1,7 +1,7 @@
 ---
 name: jira-issue-management
 description: Create, look up, update, search, list, or comment on Jira issues. Use whenever the user mentions a Jira issue, ticket, epic, or issue key (e.g. PROJ-123), or asks to create, update, find, list, check the status of, or comment on an issue, even if they don't say "Jira".
-compatibility: Requires Python 3 (stdlib only), the `jira` opencode command (.opencode/command/jira.md), a resolvable jira.py, and JIRA_TOKEN and JIRA_BASE_URL exported in the environment.
+compatibility: Requires Python 3 (stdlib only), the `jira` opencode command (.opencode/commands/jira.md), a resolvable jira.py, and JIRA_TOKEN and JIRA_BASE_URL exported in the environment.
 metadata:
   version: "1.1"
 ---
@@ -10,7 +10,7 @@ metadata:
 
 Manage Jira issues and comments through the single `jira` opencode command,
 which wraps `jira.py`. This skill says **when** to use the command and
-**which action** to pick. The command file (`.opencode/command/jira.md`) is
+**which action** to pick. The command file (`.opencode/commands/jira.md`) is
 the source of truth for exact flags and per-action fields: read it before
 running anything.
 

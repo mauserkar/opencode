@@ -7,7 +7,7 @@ Personal [OpenCode](https://opencode.ai) configuration plus a reproducible Docke
 ```
 .
 ├── agents/              # Agent definitions (primary and subagents)
-├── command/             # Custom slash commands
+├── commands/            # Custom slash commands
 ├── skills/              # Reusable skills
 ├── opencode.jsonc       # OpenCode configuration (base)
 ├── profiles/            # Work/personal/unattended config profiles (one opencode.jsonc each)
@@ -67,7 +67,7 @@ merge ──▶ archive                            (integration)
 5. **Merge & Archive** — squash-merge into main and `openspec archive` the change.
 6. **Final response** — summary of changes, artifacts, subagents, tests, and pending decisions.
 
-## Commands (`command/`)
+## Commands (`commands/`)
 
 | Command       | Description                                                                                                                                               |
 | ------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -124,7 +124,7 @@ Image based on `ubuntu:24.04` with the tooling required for the workflow:
 `docker-compose.yaml` mounts:
 
 - the working repo at `/workspace/${PROJECT_NAME}` (`PROJECT_NAME` is required; the stack fails fast if unset),
-- `agents/`, `command/`, `skills/`, `opencode.jsonc`, and `profiles/` as configuration,
+- `agents/`, `commands/`, `skills/`, `opencode.jsonc`, and `profiles/` as configuration,
 - persistent volumes for the home directory (plugin cache, tooling, OpenCode data/state) and the workspace (so git worktrees can be created as siblings of the repo).
 
 The container runs `opencode serve` on port `4096`, reachable through the Traefik gateway, with hardening: non-root `ubuntu` user, `read_only` root filesystem (with writable volumes for home and workspace plus a `/tmp` tmpfs), `cap_drop: ALL`, `no-new-privileges`, `pids_limit`, and configurable `mem_limit`/`cpus`.
