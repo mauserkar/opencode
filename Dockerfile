@@ -99,7 +99,7 @@ COPY --from=node /usr/local/bin/node /usr/local/bin/node
 COPY --from=node /usr/local/lib/node_modules /usr/local/lib/node_modules
 RUN ln -s ../lib/node_modules/npm/bin/npm-cli.js /usr/local/bin/npm \
     && ln -s ../lib/node_modules/npm/bin/npx-cli.js /usr/local/bin/npx \
-    && ln -s ../lib/node_modules/opencode-ai/bin/opencode /usr/local/bin/opencode \
+    && ln -s ../lib/node_modules/opencode-ai/bin/opencode.exe /usr/local/bin/opencode \
     && ln -s ../lib/node_modules/@fission-ai/openspec/bin/openspec.js /usr/local/bin/openspec
 
 # Standalone Python via uv (no deadsnakes PPA, no -dev packages, no get-pip)
@@ -107,12 +107,13 @@ RUN uv python install ${PYTHON_VERSION} \
     && PY="$(uv python find ${PYTHON_VERSION})" \
     && ln -s "$PY" /usr/local/bin/python3 \
     && ln -s "$PY" /usr/local/bin/python \
-    && rm -rf /root/.cache
+    && rm -rf /root/.cache ${HOME}/.cache
 
 RUN install -d -o ubuntu -g ubuntu \
         /workspace \
         ${GOPATH}/src \
         ${GOPATH}/bin \
+        ${HOME}/.cache \
         ${HOME}/.config/opencode \
         ${HOME}/.local/share/opencode \
         ${HOME}/.local/state/opencode
