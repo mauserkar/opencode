@@ -1,18 +1,20 @@
 ---
 name: jira-issue-management
 description: Create, look up, update, search, list, or comment on Jira issues. Use whenever the user mentions a Jira issue, ticket, epic, or issue key (e.g. PROJ-123), or asks to create, update, find, list, check the status of, or comment on an issue, even if they don't say "Jira".
-compatibility: Requires Python 3 (stdlib only), the `jira` opencode command (.opencode/command/jira.md), a resolvable jira.py, and JIRA_TOKEN and JIRA_BASE_URL exported in the environment.
+compatibility: Requires Python 3 (stdlib only), a resolvable jira.py, and JIRA_TOKEN and JIRA_BASE_URL exported in the environment. The `jira` command (.opencode/commands/jira.md) documents the exact flags.
 metadata:
   version: "1.1"
 ---
 
 # Skill: jira-issue-management
 
-Manage Jira issues and comments through the single `jira` opencode command,
-which wraps `jira.py`. This skill says **when** to use the command and
-**which action** to pick. The command file (`.opencode/command/jira.md`) is
-the source of truth for exact flags and per-action fields: read it before
-running anything.
+Manage Jira issues and comments with the resolved `jira.py`. An agent runs it
+directly through the `bash` tool; the `jira` command
+(`.opencode/commands/jira.md`) is the manual `/jira` entry point. Either way,
+that command file is the source of truth for exact flags and per-action
+fields — read it before running anything.
+
+This skill says **when** to act and **which action** to pick.
 
 ## Prerequisites
 
@@ -74,9 +76,10 @@ locations checked.
 3. If a required input is missing, ask for it. Never guess a `summary`,
    `description`, `issue-key`, `project`, comment `body`, or `comment-id`.
    A missing `status` on `list` means "unfiltered", not "ask".
-4. Run the `jira` command with only the flags the user provided or that
-   were clearly extracted. Never invent values for fields the user did not
-   mention; on `update`, touch only the fields explicitly mentioned.
+4. Run the resolved `jira.py` (see Script resolution) with the `bash` tool,
+   using only the flags the user provided or that were clearly extracted.
+   Never invent values for fields the user did not mention; on `update`,
+   touch only the fields explicitly mentioned.
 5. Report the result (see Output).
 
 ## Rules

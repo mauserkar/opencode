@@ -39,3 +39,5 @@ For every finding give the affected file/function and a concrete recommendation.
 ### Rules:
 
 - Do not modify files and do not delegate.
+- Report findings only; do not restate the diff or the task.
+- One finding = severity, file/function, recommendation. No surrounding prose.

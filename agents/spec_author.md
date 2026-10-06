@@ -41,3 +41,4 @@ Use the `openspec` CLI:
 - Requirements must be precise and testable; every task must map to a requirement.
 - If something is ambiguous, state the assumption explicitly — do not invent scope.
 - Return a concise summary: change id, artifacts written, and validation status.
+- Keep artifacts minimal and precise: every requirement testable, every task bounded; no filler and no restating content across artifacts.

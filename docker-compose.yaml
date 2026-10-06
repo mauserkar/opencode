@@ -1,5 +1,5 @@
 # PROJECT_NAME=$(basename $PWD) docker-compose -f docker-compose.yaml up -d 
-name: opencode-devbox-${PROJECT_NAME}
+name: opencode-devbox-${PROJECT_NAME:?PROJECT_NAME is required}
 
 services:
   opencode:
@@ -12,17 +12,57 @@ services:
     command: opencode serve --hostname 0.0.0.0 --port 4096 --log-level DEBUG --print-logs
     working_dir: /workspace
     volumes:
-      # Repository Configuration
+      # Repository Configuration (read-write: the agent works here)
       - .:/workspace/${PROJECT_NAME}
-      # OpenCode Configuration
-      - $HOME/.config/opencode/agents:/home/ubuntu/.config/opencode/agents
-      - $HOME/.config/opencode/command:/home/ubuntu/.config/opencode/command
-      - $HOME/.config/opencode/skills:/home/ubuntu/.config/opencode/skills
-      - $HOME/.config/opencode/scripts:/home/ubuntu/.config/opencode/scripts
-      - $HOME/.config/opencode/opencode.jsonc:/home/ubuntu/.config/opencode/opencode.jsonc
-      - $HOME/.config/opencode/AGENTS.md:/home/ubuntu/.config/opencode/AGENTS.md
-      - $HOME/.config/opencode/SECURITY.md:/home/ubuntu/.config/opencode/SECURITY.md
-      - $HOME/.config/opencode/profiles:/home/ubuntu/.config/opencode/profiles
+      # OpenCode Configuration (read-only; each source must already exist on the host)
+      - type: bind
+        source: ${HOME}/.config/opencode/agents
+        target: /home/ubuntu/.config/opencode/agents
+        read_only: true
+        bind:
+          create_host_path: false
+      - type: bind
+        source: ${HOME}/.config/opencode/commands
+        target: /home/ubuntu/.config/opencode/commands
+        read_only: true
+        bind:
+          create_host_path: false
+      - type: bind
+        source: ${HOME}/.config/opencode/skills
+        target: /home/ubuntu/.config/opencode/skills
+        read_only: true
+        bind:
+          create_host_path: false
+      - type: bind
+        source: ${HOME}/.config/opencode/scripts
+        target: /home/ubuntu/.config/opencode/scripts
+        read_only: true
+        bind:
+          create_host_path: false
+      - type: bind
+        source: ${HOME}/.config/opencode/opencode.jsonc
+        target: /home/ubuntu/.config/opencode/opencode.jsonc
+        read_only: true
+        bind:
+          create_host_path: false
+      - type: bind
+        source: ${HOME}/.config/opencode/AGENTS.md
+        target: /home/ubuntu/.config/opencode/AGENTS.md
+        read_only: true
+        bind:
+          create_host_path: false
+      - type: bind
+        source: ${HOME}/.config/opencode/SECURITY.md
+        target: /home/ubuntu/.config/opencode/SECURITY.md
+        read_only: true
+        bind:
+          create_host_path: false
+      - type: bind
+        source: ${HOME}/.config/opencode/profiles
+        target: /home/ubuntu/.config/opencode/profiles
+        read_only: true
+        bind:
+          create_host_path: false
       # Workdir
       - opencode-home:/home/ubuntu
       - opencode-workspace:/workspace

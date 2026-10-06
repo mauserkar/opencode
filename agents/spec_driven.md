@@ -158,6 +158,8 @@ Return:
 - Prefer sequential delegation when later work depends on earlier findings.
 - Treat subagent output as evidence, not truth: inspect and cross-check it before making the final decision.
 - Subagent nesting is depth-limited (`subagent_depth: 1`), so a subagent cannot launch further subagents. Use this to your advantage: delegate a bounded package and expect a single, self-contained result.
+- Every delegation must specify deliverable, scope, and expected output format — nothing more.
+- Keep the final response concise: outcomes and evidence, no narration.
 
 ## Delegation principle
 

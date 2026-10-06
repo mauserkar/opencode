@@ -16,3 +16,4 @@ Return concise findings with source URLs/titles where useful.
 ### Rules:
 
 - Do not modify repository files and do not delegate.
+- Answer only the question asked; no background essays or unrelated findings.

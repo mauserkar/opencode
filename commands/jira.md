@@ -1,8 +1,8 @@
 ---
-description: Create, get, update, list, or search Jira issues, or manage their comments, using .opencode/scripts/jira.py
+description: Create, get, update, list, or search Jira issues, or manage their comments, using a resolved jira.py
 ---
 
-Manage Jira issues and comments by running `.opencode/scripts/jira.py` with the `bash` tool. This script is fully self-contained: no imports from this project's `app/` package, and zero third-party dependencies (pure Python stdlib, no `pip install` needed). It needs the `JIRA_TOKEN` environment variable (required), loaded from the `.env` file in the project root.
+Manage Jira issues and comments by running the resolved `jira.py` with the `bash` tool. This script is fully self-contained: no imports from this project's `app/` package, and zero third-party dependencies (pure Python stdlib, no `pip install` needed). It needs the `JIRA_TOKEN` environment variable (required), loaded from the `.env` file in the project root.
 
 The following are also configurable via `.env`, each with a default except `JIRA_PROJECT_ID`:
 
@@ -12,6 +12,15 @@ The following are also configurable via `.env`, each with a default except `JIRA
 - `JIRA_ISSUE_PRIORITY`: priority for `create`. Default `Medium`.
 - `JIRA_ISSUE_EPIC`: epic key to link on `create`/`update`. No default (no epic link if omitted).
 - `JIRA_EPIC_FIELD`: Jira custom field id used for the epic link and for `search --epic`. No default — required only if `--epic`/`JIRA_ISSUE_EPIC` is used; if it's needed but not set, the script fails with `{"success": false, "error": "..."}` explaining that `JIRA_EPIC_FIELD` must be set (e.g. to `customfield_10014`, the standard "Epic Link" field id on Jira Server/Data Center). Relay that error as-is rather than treating it as unexpected.
+
+## Step 0 — Resolve `jira.py`
+
+Resolve the script once, in this order (repository-local wins):
+
+1. `.opencode/scripts/jira.py`
+2. `$HOME/.config/opencode/scripts/jira.py`
+
+If neither exists, report that `jira.py` was not found and list both locations checked. In every command below, `<jira.py>` stands for the resolved path.
 
 Request: $ARGUMENTS
 
@@ -50,7 +59,7 @@ No fields to extract, and nothing to run — answer directly from this file. Rep
 Mention that `project` only needs to be given if `JIRA_PROJECT_ID` isn't already set in `.env`, and that `epic` needs `JIRA_EPIC_FIELD` configured. If the user wants the full flag-by-flag detail for a specific action instead of this overview, run:
 
 ```
-<python> .opencode/scripts/jira.py <action> --help
+<python> <jira.py> <action> --help
 ```
 
 and relay argparse's own usage output.
@@ -62,7 +71,7 @@ Use `python3` (any Python 3 interpreter works, e.g. `.venv/bin/python3` or the s
 Extract: `summary` and `description` (required — ask if missing). If `JIRA_PROJECT_ID` is not set in `.env`, also extract `project` and ask if missing/ambiguous. Optionally extract `issuetype`, `labels`, `priority`, `epic` if mentioned; otherwise omit and let the script fall back to `.env`/defaults.
 
 ```
-<python> .opencode/scripts/jira.py create [--project <PROJECT>] --summary "<summary>" --description "<description>" [--issuetype "<issuetype>"] [--labels "<label1>" "<label2>" ...] [--priority "<priority>"] [--epic "<epic>"]
+<python> <jira.py> create [--project <PROJECT>] --summary "<summary>" --description "<description>" [--issuetype "<issuetype>"] [--labels "<label1>" "<label2>" ...] [--priority "<priority>"] [--epic "<epic>"]
 ```
 
 Output: `{"success": true, "url": "..."}` or `{"success": false, "error": "..."}`. Report the issue URL, or the error as-is.
@@ -72,7 +81,7 @@ Output: `{"success": true, "url": "..."}` or `{"success": false, "error": "..."}
 Extract: `issue-key` (required — ask if missing).
 
 ```
-<python> .opencode/scripts/jira.py get --issue-key <KEY>
+<python> <jira.py> get --issue-key <KEY>
 ```
 
 Output: `{"success": true, "issue": {"key": "...", "project": "...", "summary": "...", "description": "...", "issuetype": "...", "labels": [...], "priority": "...", "status": "...", "epic": "...", "url": "..."}}` or `{"success": false, "error": "..."}`. Report the issue details, or the error.
@@ -82,7 +91,7 @@ Output: `{"success": true, "issue": {"key": "...", "project": "...", "summary": 
 Extract: `issue-key` (required — ask if missing). Extract any of `project`, `summary`, `description`, `issuetype`, `labels`, `priority`, `epic` that were explicitly mentioned — omit the rest entirely (do not invent values).
 
 ```
-<python> .opencode/scripts/jira.py update --issue-key <KEY> [--project <PROJECT>] [--summary "<summary>"] [--description "<description>"] [--issuetype "<issuetype>"] [--labels "<label1>" "<label2>" ...] [--priority "<priority>"] [--epic "<epic>"]
+<python> <jira.py> update --issue-key <KEY> [--project <PROJECT>] [--summary "<summary>"] [--description "<description>"] [--issuetype "<issuetype>"] [--labels "<label1>" "<label2>" ...] [--priority "<priority>"] [--epic "<epic>"]
 ```
 
 Output: `{"success": true, "url": "..."}` or `{"success": false, "error": "..."}`. If only `--summary`/`--description` is given, only those fields are patched directly; otherwise the full issue payload is rebuilt from the current issue + new values. Report the URL, or the error.
@@ -92,7 +101,7 @@ Output: `{"success": true, "url": "..."}` or `{"success": false, "error": "..."}
 Extract: optional `status` (exact status name, e.g. `"In Progress"`, `"Done"` — must match Jira's configured name exactly; no filter is required and no filter means "every issue in the project" — do not ask the user for one if not mentioned). If `JIRA_PROJECT_ID` is not set in `.env`, also extract `project` and ask if missing/ambiguous. Extract `max-results` only if the user asks for a specific count; otherwise omit it.
 
 ```
-<python> .opencode/scripts/jira.py list [--project <PROJECT>] [--status "<status>"] [--max-results <N>]
+<python> <jira.py> list [--project <PROJECT>] [--status "<status>"] [--max-results <N>]
 ```
 
 Output: `{"success": true, "issues": [...], "total": N, "truncated": false}` or `{"success": false, "error": "..."}`. Report matching issues (key, summary, status, url each), "no issues found" if empty (an unmatched `--status` returns zero results, not an error), or the error. If `truncated` is `true`, say more results exist and suggest narrowing with `--status`.
@@ -102,7 +111,7 @@ Output: `{"success": true, "issues": [...], "total": N, "truncated": false}` or 
 Extract: `summary` (text to match) and/or `epic` (epic key, e.g. `PRJ_MRDN-5`) — at least one is required; ask if neither can be identified. If `JIRA_PROJECT_ID` is not set in `.env`, also extract `project` and ask if missing/ambiguous. Extract `max-results` only if the user asks for a specific count; otherwise omit it.
 
 ```
-<python> .opencode/scripts/jira.py search [--project <PROJECT>] [--summary "<summary>"] [--epic "<epic>"] [--max-results <N>]
+<python> <jira.py> search [--project <PROJECT>] [--summary "<summary>"] [--epic "<epic>"] [--max-results <N>]
 ```
 
 Output: `{"success": true, "issues": [...], "total": N, "truncated": false}` or `{"success": false, "error": "..."}`. Report matching issues (key, summary, status, url each), "no issues found" if empty, or the error. If `truncated` is `true`, say more results exist and suggest narrowing (add `--epic`, or a more specific `--summary`).
@@ -112,7 +121,7 @@ Output: `{"success": true, "issues": [...], "total": N, "truncated": false}` or 
 Extract: `issue-key` (required) and `body` (the comment text — ask if missing).
 
 ```
-<python> .opencode/scripts/jira.py comment-add --issue-key <KEY> --body "<body>"
+<python> <jira.py> comment-add --issue-key <KEY> --body "<body>"
 ```
 
 Output: `{"success": true, "comment": {"id": "...", "body": "...", "author": "...", "created": "...", "updated": "..."}}` or `{"success": false, "error": "..."}`. Report the result, or the error.
@@ -122,7 +131,7 @@ Output: `{"success": true, "comment": {"id": "...", "body": "...", "author": "..
 Extract: `issue-key` (required — ask if missing). No other fields needed.
 
 ```
-<python> .opencode/scripts/jira.py comment-list --issue-key <KEY>
+<python> <jira.py> comment-list --issue-key <KEY>
 ```
 
 Output: `{"success": true, "comments": [{"id": "...", "body": "...", "author": "...", "created": "...", "updated": "..."}, ...]}` or `{"success": false, "error": "..."}`. Report the comments, or the error.
@@ -132,7 +141,7 @@ Output: `{"success": true, "comments": [{"id": "...", "body": "...", "author": "
 Extract: `issue-key` (required), `comment-id`, and the new `body`. If `comment-id` is missing, first run `comment-list` to help identify it, or ask the user directly.
 
 ```
-<python> .opencode/scripts/jira.py comment-update --issue-key <KEY> --comment-id <ID> --body "<body>"
+<python> <jira.py> comment-update --issue-key <KEY> --comment-id <ID> --body "<body>"
 ```
 
 Output: `{"success": true, "comment": {...}}` or `{"success": false, "error": "..."}`. Report the result, or the error.
@@ -142,7 +151,7 @@ Output: `{"success": true, "comment": {...}}` or `{"success": false, "error": ".
 Extract: `issue-key` (required) and `comment-id`. If `comment-id` is missing, first run `comment-list` to help identify it, or ask the user directly.
 
 ```
-<python> .opencode/scripts/jira.py comment-delete --issue-key <KEY> --comment-id <ID>
+<python> <jira.py> comment-delete --issue-key <KEY> --comment-id <ID>
 ```
 
 Output: `{"success": true}` or `{"success": false, "error": "..."}`. Report success, or the error.
