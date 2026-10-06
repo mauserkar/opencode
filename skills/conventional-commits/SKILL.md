@@ -3,7 +3,6 @@ name: conventional-commits
 description: Analyze git changes and write commit messages that follow the Conventional Commits specification. Use whenever the user asks to commit, write or review a commit message, prepare a release, or inspect staged/unstaged changes before committing, even if they don't mention "Conventional Commits".
 metadata:
   version: "1.1"
-  opencode/slash: "true"
 ---
 
 # Skill: conventional-commits
