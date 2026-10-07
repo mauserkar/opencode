@@ -12,7 +12,8 @@ Personal [OpenCode](https://opencode.ai) configuration plus a reproducible Docke
 ├── opencode.jsonc       # OpenCode configuration (base)
 ├── profiles/            # Work/personal/unattended config profiles (one opencode.jsonc each)
 ├── Dockerfile           # Devbox image
-├── docker-compose.yaml  # Container orchestration
+├── docker-compose.yaml  # Container orchestration (usually copied into the target repo as `docker-compose-devbox.yaml`)
+├── Makefile             # Shortcuts to build/run the devbox (`make help`)
 ├── .env.example         # Environment variable template
 └── package.json         # (gitignored) local deps for plugin development
 ```
@@ -74,14 +75,14 @@ merge ──▶ archive                            (integration)
 | `/changelog`  | Updates `CHANGELOG.md` (Keep a Changelog format), computes the SemVer bump, updates the manifest, and creates the release commit.                         |
 | `/format`     | Formats Python (`ruff`/`black`/`isort`), Terraform (`terraform fmt`), or Go (`gofmt`/`goimports`) code and shows `git diff --stat`.                       |
 | `/versioning` | Audits and implements version support (`--version`, `/version` endpoint, `__version__`, …) based on project type, integrating with OpenSpec when present. |
-| `/jira`       | Creates, gets, updates, lists, or searches Jira issues and manages their comments via `scripts/jira.py`.                                        |
+| `/jira`       | Creates, gets, updates, lists, or searches Jira issues and manages their comments via `scripts/jira.py`.                                                  |
 
 ## Skills (`skills/`)
 
 | Skill                   | Description                                                                                                                                                          |
 | ----------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `conventional-commits`  | Analyzes the `git diff` and generates commit messages following Conventional Commits (`feat`, `fix`, `refactor`, `docs`, `perf`, `chore`, `!` for breaking changes). |
-| `jira-issue-management` | Creates, updates, searches, lists, or comments on Jira issues during a session (requires `scripts/jira.py`, `JIRA_TOKEN` and `JIRA_BASE_URL`).             |
+| `jira-issue-management` | Creates, updates, searches, lists, or comments on Jira issues during a session (requires `scripts/jira.py`, `JIRA_TOKEN` and `JIRA_BASE_URL`).                       |
 
 ## OpenCode Configuration (`opencode.jsonc`)
 
@@ -118,8 +119,9 @@ Image based on `ubuntu:24.04` with the tooling required for the workflow:
 - **Node.js** 20
 - **Python** 3.14 (standalone, installed via `uv`)
 - **OpenTofu** 1.13.0
-- **OpenCode** 1.18.34 and **OpenSpec** 1.13.0
-- CLI utilities: `git`, `ripgrep`, `fd-find`, `jq`, `yq`, `curl`, `vim`, `tree`, etc.
+- **OpenCode** 1.18.34 
+- **OpenSpec** 1.13.0
+- CLI utilities: `git`, `ripgrep`, `fd-find`, `jq`, `yq`, `curl`, `vim`, `tree`, `kubectl`, `helm`, `make`, `glab` (GitLab CLI).
 
 `docker-compose.yaml` mounts:
 
@@ -131,23 +133,41 @@ The container runs `opencode serve` on port `4096`, reachable through the Traefi
 
 > **Security note:** `OPENCODE_SERVER_USERNAME`/`OPENCODE_SERVER_PASSWORD` are passed as container environment variables and are therefore visible via `docker inspect`. Keep `.env` out of version control.
 
+> **Naming convention:** `docker-compose.yaml` is normally copied into the target repository's path as `docker-compose-devbox.yaml` (so it doesn't collide with the repo's own `docker-compose.yaml`, if any). The `Makefile` defaults to `docker-compose.yaml`; override it with `make <target> COMPOSE_FILE=docker-compose-devbox.yaml` when using a renamed copy.
+
 ### Usage
 
 ```bash
 cp .env.example .env      # fill in the variables
 # Start the gateway once (creates the external traefik-net network)
 docker compose -f docker-compose-gateway.yaml up -d
-docker compose up -d --build
+docker compose -f docker-compose-devbox.yaml up -d --build
 # Server available at http://${PROJECT_NAME}.docker.localhost
+```
+
+### Makefile
+
+Shortcuts for the commands above (defaults `PROJECT_NAME` to the current directory name; override with `make <target> PROJECT_NAME=foo`):
+
+| Target                 | Description                                                                                                   |
+| ---------------------- | ------------------------------------------------------------------------------------------------------------- |
+| `make help`            | Lists all available targets.                                                                                  |
+| `make gateway-up`      | Starts the Traefik gateway (creates the external `traefik-net` network).                                      |
+| `make gateway-down`    | Stops the Traefik gateway.                                                                                    |
+| `make build`           | Rebuilds the devbox image for the host's native architecture (amd64/arm64), no manual platform config needed. |
+| `make build-multiarch` | Builds `amd64`+`arm64` with `buildx` (needs `--push` to a registry to persist a true multi-arch manifest).    |
+
+```bash
+make help
 ```
 
 ### Environment Variables (`.env`)
 
-| Variable                   | Description                                                         |
-| -------------------------- | ------------------------------------------------------------------- |
-| `PROJECT_NAME`                | Name of the repo to mount (`$HOME/repos/<PROJECT_NAME>`).              |
+| Variable                   | Description                                                                        |
+| -------------------------- | ---------------------------------------------------------------------------------- |
+| `PROJECT_NAME`             | Name of the repo to mount (`$HOME/repos/<PROJECT_NAME>`).                          |
 | `OPENCODE_PROFILE`         | Config profile to load: `work`, `personal`, or `unattended` (default: `personal`). |
-| `OPENCODE_SERVER_USERNAME` | Username to authenticate with the server.                           |
-| `OPENCODE_SERVER_PASSWORD` | Password to authenticate with the server.                           |
-| `OPENCODE_MEM_LIMIT`       | Optional container memory limit (default: `8g`).                    |
-| `OPENCODE_CPUS`            | Optional CPU limit (default: `4.0`).                                |
+| `OPENCODE_SERVER_USERNAME` | Username to authenticate with the server.                                          |
+| `OPENCODE_SERVER_PASSWORD` | Password to authenticate with the server.                                          |
+| `OPENCODE_MEM_LIMIT`       | Optional container memory limit (default: `8g`).                                   |
+| `OPENCODE_CPUS`            | Optional CPU limit (default: `4.0`).                                               |

@@ -17,7 +17,7 @@ RUN npm install -g opencode-ai@${OPENCODE_VERSION} @fission-ai/openspec@${OPENSP
 
 # ---------- Stage: downloaded binaries (kubectl, helm, yq) ----------
 FROM ubuntu:24.04 AS tools
-ARG TARGETARCH=amd64
+ARG TARGETARCH
 ARG HELM_VERSION=4.0.0
 ARG KUBECTL_VERSION=1.37.0
 ARG YQ_VERSION=4.53.6
@@ -58,7 +58,7 @@ ARG OPENCODE_VERSION=1.18.34
 ARG GO_VERSION=1.27.1
 
 LABEL org.opencontainers.image.title="opencode-devbox" \
-      org.opencontainers.image.description="Dev environment: Go, OpenTofu, Node.js, Python, OpenCode, OpenSpec, kubectl, helm, make" \
+      org.opencontainers.image.description="Dev environment: go, opentofu, node.js, python, opencode, openspec, kubectl, helm, make, glab" \
       org.opencontainers.image.version="${OPENCODE_VERSION}"
 
 ENV DEBIAN_FRONTEND=noninteractive \
@@ -76,6 +76,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     curl \
     fd-find \
     git \
+    glab \
     jq \
     less \
     make \

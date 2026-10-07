@@ -6,8 +6,8 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    platform: linux/amd64
-    image: opencode-devbox:1.7.1
+    # platform: linux/amd64
+    image: opencode-devbox:1.8.0
     container_name: opencode-devbox-${PROJECT_NAME}
     command: opencode serve --hostname 0.0.0.0 --port 4096 --log-level DEBUG --print-logs
     working_dir: /workspace
