@@ -16,6 +16,41 @@
     },
     "plan": {
       "disable": true
+    },
+    "researcher": {
+      "permission": {
+        "edit": "deny",
+        "task": "deny"
+      }
+    },
+    "reviewer": {
+      "permission": {
+        "edit": "deny",
+        "task": "deny"
+      }
+    },
+    "security_reviewer": {
+      "permission": {
+        "edit": "deny",
+        "task": "deny"
+      }
+    },
+    "spec_author": {
+      "permission": {
+        "edit": {
+          "*": "deny",
+          "openspec/**": "allow",
+          "specs/**": "allow",
+          "project.md": "allow",
+          "AGENTS.md": "allow"
+        },
+        "task": "deny"
+      }
+    },
+    "tester": {
+      "permission": {
+        "task": "deny"
+      }
     }
   },
   "permission": {

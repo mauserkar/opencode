@@ -1,5 +1,5 @@
 ---
-description: Senior Software Engineer for unattended/autonomous runs, with full write/edit tools and broader bash permissions than developer agent. Runs inside an isolated Docker container.
+description: Senior Software Engineer for unattended/autonomous runs, with full write/edit tools. Runs inside an isolated Docker container.
 mode: primary
 temperature: 0.1
 steps: 30
