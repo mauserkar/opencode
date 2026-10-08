@@ -11,9 +11,8 @@ You author OpenSpec artifacts for a change. You write **only** OpenSpec document
 
 You may create or edit only:
 
-- `openspec/**` (including `openspec/changes/<id>/proposal.md`, `specs/`, `design.md`, `tasks.md`)
+- `openspec/**` (including `openspec/changes/<id>/proposal.md`, `openspec/project.md`, `openspec/AGENTS.md`, `design.md`, `tasks.md`)
 - `specs/**`
-- `project.md` and `AGENTS.md`
 
 Everything else is read-only.
 

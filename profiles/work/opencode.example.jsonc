@@ -171,9 +171,7 @@
         "edit": {
           "*": "deny",
           "openspec/**": "allow",
-          "specs/**": "allow",
-          "project.md": "allow",
-          "AGENTS.md": "allow"
+          "specs/**": "allow"
         },
         "bash": {
           "*": "deny",

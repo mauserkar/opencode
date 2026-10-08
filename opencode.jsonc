@@ -40,9 +40,7 @@
         "edit": {
           "*": "deny",
           "openspec/**": "allow",
-          "specs/**": "allow",
-          "project.md": "allow",
-          "AGENTS.md": "allow"
+          "specs/**": "allow"
         },
         "task": "deny"
       }
@@ -50,6 +48,24 @@
     "tester": {
       "permission": {
         "task": "deny"
+      }
+    },
+    "resolver": {
+      "permission": {
+        "task": "deny"
+      }
+    },
+    "spec_driven": {
+      "permission": {
+        "bash": {
+          "git commit*": "deny",
+          "git merge*": "deny",
+          "git checkout*": "deny",
+          "git switch*": "deny",
+          "git worktree add*": "deny",
+          "git worktree remove*": "deny",
+          "git reset*": "deny"
+        }
       }
     }
   },

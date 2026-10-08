@@ -33,15 +33,15 @@ The default agent is **`resolver`** (lightweight fallback). Select a profile to 
 
 ### Subagents
 
-| Agent               | Role                                                                                                                              |
-| ------------------- | --------------------------------------------------------------------------------------------------------------------------------- |
-| `researcher`        | External research (docs, APIs, libraries, best practices). Read-only.                                                             |
-| `spec_author`       | Authors OpenSpec artifacts (proposal → specs → design → tasks). Only writes `openspec/**`, `specs/**`, `project.md`, `AGENTS.md`. |
-| `developer`         | Repository reconnaissance and production code implementation. Writes only inside its assigned worktree/scope.                     |
-| `tester`            | Runs tests and validation; reports failures, regressions, and coverage gaps.                                                      |
-| `reviewer`          | General code review plus deep Go/Python audit (concurrency, memory, async, idiomatic errors). Read-only.                          |
-| `security_reviewer` | Security review (authn/authz, secrets, injection, dependencies, insecure defaults). Read-only.                                    |
-| `resolver`          | Quick questions and context clarifications. Lightweight and read-only.                                                            |
+| Agent               | Role                                                                                                          |
+| ------------------- | ------------------------------------------------------------------------------------------------------------- |
+| `researcher`        | External research (docs, APIs, libraries, best practices). Read-only.                                         |
+| `spec_author`       | Authors OpenSpec artifacts (proposal → specs → design → tasks). Only writes `openspec/**`, `specs/**`.        |
+| `developer`         | Repository reconnaissance and production code implementation. Writes only inside its assigned worktree/scope. |
+| `tester`            | Runs tests and validation; reports failures, regressions, and coverage gaps.                                  |
+| `reviewer`          | General code review plus deep Go/Python audit (concurrency, memory, async, idiomatic errors). Read-only.      |
+| `security_reviewer` | Security review (authn/authz, secrets, injection, dependencies, insecure defaults). Read-only.                |
+| `resolver`          | Quick questions and context clarifications. Lightweight and read-only.                                        |
 
 ## Workflow (spec_driven)
 
