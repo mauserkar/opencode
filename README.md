@@ -28,6 +28,7 @@ The default agent is **`resolver`** (lightweight fallback). Select a profile to 
 
 | Agent         | Role                                                                                                                                                                                           |
 | ------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `resolver`    | Default agent. Fast, lightweight assistant for quick questions and context clarifications. Read-only, no subagent delegation.                                                                   |
 | `spec_driven` | Orchestrator. Analyzes, plans, delegates, reviews results, and makes the final integration decision. Read-only plus read-only git/openspec commands.                                           |
 | `unattended`  | Engineer for autonomous runs inside an isolated container. Broad write permissions, but blocks reading/editing secrets (`.env`, `.pem`, `.key`, `.ssh`, `.kube`, etc.) and dangerous commands. |
 
@@ -37,11 +38,10 @@ The default agent is **`resolver`** (lightweight fallback). Select a profile to 
 | ------------------- | ------------------------------------------------------------------------------------------------------------- |
 | `researcher`        | External research (docs, APIs, libraries, best practices). Read-only.                                         |
 | `spec_author`       | Authors OpenSpec artifacts (proposal → specs → design → tasks). Only writes `openspec/**`, `specs/**`.        |
-| `developer`         | Repository reconnaissance and production code implementation. Writes only inside its assigned worktree/scope. |
+| `developer`         | Repository reconnaissance and production code implementation (mode `all`: usable as primary or subagent).    |
 | `tester`            | Runs tests and validation; reports failures, regressions, and coverage gaps.                                  |
 | `reviewer`          | General code review plus deep Go/Python audit (concurrency, memory, async, idiomatic errors). Read-only.      |
 | `security_reviewer` | Security review (authn/authz, secrets, injection, dependencies, insecure defaults). Read-only.                |
-| `resolver`          | Quick questions and context clarifications. Lightweight and read-only.                                        |
 
 ## Workflow (spec_driven)
 
@@ -83,6 +83,7 @@ merge ──▶ archive                            (integration)
 | ----------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `conventional-commits`  | Analyzes the `git diff` and generates commit messages following Conventional Commits (`feat`, `fix`, `refactor`, `docs`, `perf`, `chore`, `!` for breaking changes). |
 | `jira-issue-management` | Creates, updates, searches, lists, or comments on Jira issues during a session (requires `scripts/jira.py`, `JIRA_TOKEN` and `JIRA_BASE_URL`).                       |
+| `network-proxy`         | Rules for running `curl`/`wget` behind a proxy; reads the proxy only from `HTTP_PROXY` and forbids proxy use if it isn't defined.                                    |
 
 ## OpenCode Configuration (`opencode.jsonc`)
 
@@ -121,7 +122,7 @@ Image based on `ubuntu:24.04` with the tooling required for the workflow:
 - **OpenTofu** 1.13.0
 - **OpenCode** 1.18.34 
 - **OpenSpec** 1.13.0
-- CLI utilities: `git`, `ripgrep`, `fd-find`, `jq`, `yq`, `curl`, `vim`, `tree`, `kubectl`, `helm`, `make`, `glab` (GitLab CLI).
+- CLI utilities: `git`, `ripgrep`, `fd-find`, `jq`, `yq`, `curl`, `vim`, `tree`, `unzip`, `zip`, `kubectl`, `helm`, `make`, `glab` (GitLab CLI).
 
 `docker-compose.yaml` mounts:
 
