@@ -3,5 +3,11 @@ package.json
 package-lock.json
 bun.lock
 .env
-profiles/work/*
+profiles/**
+!profiles/*/
+!profiles/personal/certs/
+!profiles/personal/docker-compose-gateway.yaml
+!profiles/personal/certs/traefik-tls.yaml
+!profiles/personal/opencode.example.jsonc
+!profiles/unattended/opencode.example.jsonc
 !profiles/work/opencode.example.jsonc
