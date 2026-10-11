@@ -1,12 +1,12 @@
 .DEFAULT_GOAL := help
 
 GATEWAY_COMPOSE_FILE := docker-compose-gateway.yaml
-COMPOSE := docker-compose
-IMAGE_NAME := opencode-devbox
-IMAGE_TAG := $(shell grep -m1 'image: $(IMAGE_NAME):' docker-compose.yaml | sed 's/.*://')
-PLATFORMS := linux/amd64,linux/arm64
+COMPOSE              := $(shell docker compose version >/dev/null 2>&1 && echo "docker compose" || (command -v docker-compose >/dev/null 2>&1 && echo "docker-compose"))
+IMAGE_NAME           := opencode-devbox
+IMAGE_TAG            := $(shell grep -m1 'image: $(IMAGE_NAME):' docker-compose.yaml | sed 's/.*://')
+PLATFORMS            := linux/amd64,linux/arm64
+PROJECT_NAME         ?= $(notdir $(CURDIR))
 
-PROJECT_NAME ?= $(notdir $(CURDIR))
 export PROJECT_NAME
 
 .PHONY: help gateway-up gateway-down up down build build-multiarch restart logs shell ps clean
