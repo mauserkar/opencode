@@ -15,6 +15,7 @@
   ],
   // Per-agent model overrides (format: provider/model-id) plus the
   // global permission ruleset.
+  "disabled_providers": ["opencode"],
   "agent": {
     "build": {
       "disable": true

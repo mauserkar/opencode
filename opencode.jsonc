@@ -134,11 +134,12 @@
     "skill": "allow",
     "doom_loop": "deny",
     "external_directory": {
-      "~/go/pkg/mod/**": "allow",
-      "/tmp/**": "allow",
       "/private/tmp/**": "allow",
+      "/tmp/**": "allow",
+      "/workspace/*": "allow",
+      "~/.config/opencode": "allow",
       "~/AppData/Local/Temp/**": "allow",
-      "/workspace/*": "allow"
+      "~/go/pkg/mod/**": "allow"
     }
   },
   "plugin": [
