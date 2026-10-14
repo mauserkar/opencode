@@ -1,83 +1,80 @@
 ---
 name: jira-issue-management
 description: Create, look up, update, search, list, or comment on Jira issues. Use whenever the user mentions a Jira issue, ticket, epic, or issue key (e.g. PROJ-123), or asks to create, update, find, list, check the status of, or comment on an issue, even if they don't say "Jira".
-compatibility: Requires Python 3 (stdlib only), a resolvable jira.py, and JIRA_TOKEN and JIRA_BASE_URL exported in the environment. The `jira` command (.opencode/commands/jira.md) documents the exact flags.
+compatibility: Requires the `jira` MCP server (`mcps/jira/`) connected in this session, with `JIRA_TOKEN` and `JIRA_BASE_URL` configured on the server side. The `jira` command (`commands/jira.md`) documents the exact tool arguments.
 metadata:
-  version: "1.1"
+  version: "2.0"
 ---
 
 # Skill: jira-issue-management
 
-Manage Jira issues and comments with the resolved `jira.py`. An agent runs it
-directly through the `bash` tool; the `jira` command
-(`.opencode/commands/jira.md`) is the manual `/jira` entry point. Either way,
-that command file is the source of truth for exact flags and per-action
-fields — read it before running anything.
+Manage Jira issues and comments by calling the tools exposed by the `jira`
+MCP server. An agent calls the tools directly (no shelling out, no local
+script); the `jira` command (`commands/jira.md`) is the manual `/jira`
+entry point. Either way, that command file is the source of truth for
+exact tool arguments and per-action fields — read it before calling
+anything.
 
 This skill says **when** to act and **which action** to pick.
 
 ## Prerequisites
 
-### Environment variables
+### MCP server
 
-Load them from `.env` (copy `.env.example`, which is tracked; `.env` is
-gitignored) or export them in the shell. Never put real values in
-`.env.example`.
+The `jira` MCP server must be connected (see `mcp.jira` in the OpenCode
+config). It exposes: `jira_create_issue`, `jira_get_issue`,
+`jira_update_issue`, `jira_add_comment`, `jira_list_comments`,
+`jira_update_comment`, `jira_delete_comment`, `jira_search_issues`,
+`jira_list_issues`.
 
-| Variable              | Required                                     | Default  | Purpose                                                     |
-| --------------------- | -------------------------------------------- | -------- | ----------------------------------------------------------- |
-| `JIRA_TOKEN`          | Yes                                          | none     | Authentication                                              |
-| `JIRA_BASE_URL`       | Yes                                          | none     | Instance URL, e.g. `https://your-company.atlassian.net`     |
-| `JIRA_PROJECT_ID`     | For create/search/list (or pass `--project`) | none     | Default project key                                         |
-| `JIRA_ISSUE_TYPE`     | No                                           | `Task`   | Default issue type                                          |
-| `JIRA_ISSUE_LABELS`   | No                                           | none     | Default labels, comma-separated                             |
-| `JIRA_ISSUE_PRIORITY` | No                                           | `Medium` | Default priority                                            |
-| `JIRA_ISSUE_EPIC`     | No                                           | none     | Default epic key for create/update                          |
-| `JIRA_EPIC_FIELD`     | Only if an epic is used                      | none     | Custom field id for the epic link, e.g. `customfield_10014` |
-| `JIRA_TIMEOUT`        | No                                           | `10`     | HTTP timeout in seconds                                     |
-| `JIRA_MAX_RESULTS`    | No                                           | `50`     | Page size for search/list (override with `--max-results`)   |
+If the tools are not available, report that the `jira` MCP server is not
+connected (see `mcps/jira/README.md` to run it with `make up`) instead of
+looking for a local script or working around it.
 
-Check that secrets are set **without printing them**:
+### Server configuration
 
-```bash
-[ -n "$JIRA_TOKEN" ] && [ -n "$JIRA_BASE_URL" ] && echo "ok" || echo "missing JIRA_TOKEN or JIRA_BASE_URL"
-```
+`JIRA_TOKEN` and `JIRA_BASE_URL` are required and live in the server's own
+`.env` (`mcps/jira/.env`, copied from `mcps/jira/env.sample`) — never in
+this project's environment, and never printed or echoed.
 
-### Script resolution
-
-Resolve `jira.py` once, in this order (repository-local wins):
-
-1. `.opencode/scripts/jira.py`
-2. `$HOME/.config/opencode/scripts/jira.py`
-
-If neither exists, report that `jira.py` was not found and list both
-locations checked.
+| Variable              | Required                                   | Default  | Purpose                                                     |
+| --------------------- | ------------------------------------------ | -------- | ----------------------------------------------------------- |
+| `JIRA_TOKEN`          | Yes                                        | none     | Authentication                                              |
+| `JIRA_BASE_URL`       | Yes                                        | none     | Instance URL, e.g. `https://your-company.atlassian.net`     |
+| `JIRA_PROJECT_ID`     | For create/search/list (or pass `project`) | none     | Default project key                                         |
+| `JIRA_ISSUE_TYPE`     | No                                         | `Task`   | Default issue type                                          |
+| `JIRA_ISSUE_LABELS`   | No                                         | none     | Default labels, comma-separated                             |
+| `JIRA_ISSUE_PRIORITY` | No                                         | `Medium` | Default priority                                            |
+| `JIRA_ISSUE_EPIC`     | No                                         | none     | Default epic key for create/update                          |
+| `JIRA_EPIC_FIELD`     | Only if an epic is used                    | none     | Custom field id for the epic link, e.g. `customfield_10014` |
+| `JIRA_TIMEOUT`        | No                                         | `10`     | HTTP timeout in seconds                                     |
+| `JIRA_MAX_RESULTS`    | No                                         | `50`     | Page size for search/list (override with `max_results`)     |
 
 ## Actions
 
-| Action                                                               | Purpose                         | Required input                                                                                                       |
-| -------------------------------------------------------------------- | ------------------------------- | -------------------------------------------------------------------------------------------------------------------- |
-| `create`                                                             | Open a new issue                | `summary`, `description`                                                                                             |
-| `get`                                                                | Look up one issue               | `issue-key`                                                                                                          |
-| `update`                                                             | Change fields on an issue       | `issue-key` plus only the fields being changed (`summary`, `description`, `issuetype`, `labels`, `priority`, `epic`) |
-| `search`                                                             | Find issues by text and/or epic | at least one of `summary`, `epic`                                                                                    |
-| `list`                                                               | List issues in the project      | none; optional exact-match `status`                                                                                  |
-| `comment-add` / `comment-list` / `comment-update` / `comment-delete` | Manage comments on an issue     | `issue-key`, plus `body` (add/update) or `comment-id` (update/delete)                                                |
-| `help`                                                               | Summarize what is available     | none; answer directly, run nothing                                                                                   |
+| Action                                                               | Tool                                                                                      | Purpose                         | Required input                                                                                                       |
+| -------------------------------------------------------------------- | ----------------------------------------------------------------------------------------- | ------------------------------- | -------------------------------------------------------------------------------------------------------------------- |
+| `create`                                                             | `jira_create_issue`                                                                       | Open a new issue                | `summary`, `description`                                                                                             |
+| `get`                                                                | `jira_get_issue`                                                                          | Look up one issue               | `issue_key`                                                                                                          |
+| `update`                                                             | `jira_update_issue`                                                                       | Change fields on an issue       | `issue_key` plus only the fields being changed (`summary`, `description`, `issuetype`, `labels`, `priority`, `epic`) |
+| `search`                                                             | `jira_search_issues`                                                                      | Find issues by text and/or epic | at least one of `summary`, `epic`                                                                                    |
+| `list`                                                               | `jira_list_issues`                                                                        | List issues in the project      | none; optional exact-match `status`                                                                                  |
+| `comment-add` / `comment-list` / `comment-update` / `comment-delete` | `jira_add_comment` / `jira_list_comments` / `jira_update_comment` / `jira_delete_comment` | Manage comments on an issue     | `issue_key`, plus `body` (add/update) or `comment_id` (update/delete)                                                |
+| `help`                                                               | —                                                                                         | Summarize what is available     | none; answer directly, call nothing                                                                                  |
 
-`project` is also required for `create`, `search`, and `list` when
-`JIRA_PROJECT_ID` is not set.
+`project` is also required for `create`, `search`, and `list` when the
+server doesn't already have `JIRA_PROJECT_ID` configured.
 
 ## Procedure
 
-1. Verify the environment and resolve `jira.py` (see Prerequisites).
+1. Confirm the `jira` MCP tools are available (see Prerequisites).
 2. Identify the action from the request. If it is genuinely ambiguous
    (`search` vs `list`, `get` vs `comment-list`), ask the user.
 3. If a required input is missing, ask for it. Never guess a `summary`,
-   `description`, `issue-key`, `project`, comment `body`, or `comment-id`.
+   `description`, `issue_key`, `project`, comment `body`, or `comment_id`.
    A missing `status` on `list` means "unfiltered", not "ask".
-4. Run the resolved `jira.py` (see Script resolution) with the `bash` tool,
-   using only the flags the user provided or that were clearly extracted.
+4. Call the matching MCP tool (see Actions / `commands/jira.md`), passing
+   only the arguments the user provided or that were clearly extracted.
    Never invent values for fields the user did not mention; on `update`,
    touch only the fields explicitly mentioned.
 5. Report the result (see Output).
@@ -85,9 +82,9 @@ locations checked.
 ## Rules
 
 - **`comment-delete` is destructive:** show the target issue and comment,
-  and require explicit user confirmation before running it.
-- Never print, log, or echo `JIRA_TOKEN`, and never include it in
-  commands shown to the user.
+  and require explicit user confirmation before calling it.
+- Never print, log, or echo `JIRA_TOKEN`, and never include it in any
+  output shown to the user.
 - On `{"success": false, "error": "..."}`, report the message verbatim and
   do not retry silently. This includes the "set `JIRA_EPIC_FIELD`" error:
   relay it as-is.

@@ -1,21 +1,15 @@
 {
-  // Work profile — activate with:
-  //   export OPENCODE_CONFIG=~/.config/opencode/profiles/work/opencode.jsonc
-  // Merged on top of the global config (~/.config/opencode/opencode.jsonc),
-  // so only include the settings that differ for work.
   "$schema": "https://opencode.ai/config.json",
-  // Default model for any agent not listed under "agent" below.
-  "model": "PROVIDER/work-model-id",
-  "small_model": "PROVIDER/work-small-model-id",
-  "default_agent": "resolver",
+  "model": "google-vertex/claude-sonnet-5@default",
+  "small_model": "google-vertex/gemini-3.8-flash",
   "share": "disabled",
-  "instructions": [
-    "AGENTS.md",
-    "SECURITY.md"
+  "default_agent": "resolver",
+  "disabled_providers": [
+    "opencode"
   ],
-  // Per-agent model overrides (format: provider/model-id) plus the
-  // global permission ruleset.
-  "disabled_providers": ["opencode"],
+  "permission": {
+    "websearch": "deny"
+  },
   "agent": {
     "build": {
       "disable": true
@@ -23,366 +17,45 @@
     "plan": {
       "disable": true
     },
+    "openspec-plan": {
+      "disable": true
+    },
+    "Openspec-Plan": {
+      "disable": true
+    },
     "developer": {
-      "model": "PROVIDER/work-developer-model-id",
-      "permission": {
-        "edit": "allow",
-        "bash": {
-          "*": "allow",
-          "cat *.env*": "deny",
-          "cat *": "allow",
-          "cat": "allow",
-          "cd *": "allow",
-          "cd": "allow",
-          "conftest *": "allow",
-          "conftest": "allow",
-          "curl *169.254.169.254*": "deny",
-          "diff *": "allow",
-          "diff": "allow",
-          "docker *": "deny",
-          "echo *": "allow",
-          "echo": "allow",
-          "env": "deny",
-          "env *": "deny",
-          "export *": "deny",
-          "export": "deny",
-          "find *": "allow",
-          "find": "allow",
-          "git add *": "allow",
-          "git branch *": "allow",
-          "git branch": "allow",
-          "git check-ignore *": "allow",
-          "git checkout *": "allow",
-          "git commit *": "allow",
-          "git diff *": "allow",
-          "git diff": "allow",
-          "git fetch *": "allow",
-          "git log *": "allow",
-          "git log": "allow",
-          "git merge *": "allow",
-          "git pull *": "allow",
-          "git push *": "ask",
-          "git push": "ask",
-          "git show *": "allow",
-          "git show": "allow",
-          "git status *": "allow",
-          "git status": "allow",
-          "git switch *": "allow",
-          "git worktree *": "allow",
-          "git worktree": "allow",
-          "go *": "allow",
-          "go": "allow",
-          "grep *.env*": "deny",
-          "grep *": "allow",
-          "grep": "allow",
-          "head *.env*": "deny",
-          "head *": "allow",
-          "head": "allow",
-          "ls *": "allow",
-          "ls": "allow",
-          "mkdir -p *": "allow",
-          "npm run build*": "allow",
-          "npm test*": "allow",
-          "openspec *": "allow",
-          "pgrep *": "allow",
-          "pgrep": "allow",
-          "printenv *": "deny",
-          "printenv": "deny",
-          "pwd": "allow",
-          "pytest *": "allow",
-          "pytest": "allow",
-          "python *": "allow",
-          "python": "allow",
-          "rm *": "deny",
-          "scp *": "deny",
-          "sed -n *": "allow",
-          "sed *.env*": "deny",
-          "sort *": "allow",
-          "sort": "allow",
-          "ssh *": "deny",
-          "tail *.env*": "deny",
-          "tail *": "allow",
-          "tail": "allow",
-          "terraform *": "allow",
-          "terraform": "allow",
-          "test": "allow",
-          "time": "allow",
-          "timeout *": "allow",
-          "timeout": "allow",
-          "tofu *": "allow",
-          "tofu": "allow",
-          "wc *": "allow",
-          "wc": "allow",
-          "wget *169.254.169.254*": "deny"
-        }
-      }
+      "model": "google-vertex/claude-sonnet-5@default"
     },
     "researcher": {
-      "model": "PROVIDER/work-researcher-model-id",
-      "permission": {
-        "edit": "deny",
-        "bash": "deny",
-        "task": "deny",
-        "webfetch": "allow",
-        "websearch": "allow"
-      }
+      "model": "google-vertex/gemini-3.8-flash"
     },
     "resolver": {
-      "model": "PROVIDER/work-resolver-model-id",
-      "permission": {
-        "edit": "deny"
-      }
+      "model": "google-vertex/claude-sonnet-5@default"
     },
     "reviewer": {
-      "model": "PROVIDER/work-reviewer-model-id",
-      "permission": {
-        "edit": "deny",
-        "task": "deny"
-      }
+      "model": "google-vertex/gemini-3.8-flash"
     },
     "security_reviewer": {
-      "model": "PROVIDER/work-security-reviewer-model-id",
-      "permission": {
-        "edit": "deny",
-        "task": "deny"
-      }
+      "model": "google-vertex/gemini-3.8-flash"
     },
     "spec_author": {
-      "model": "PROVIDER/work-spec-author-model-id",
-      "permission": {
-        "read": {
-          "*": "allow",
-          "*.env": "deny",
-          "*.env.*": "deny",
-          "*.env.example": "allow",
-          "*.pem": "deny",
-          "*.key": "deny",
-          "*credential*": "deny",
-          "*secret*": "deny",
-          "**/.ssh/**": "deny",
-          "**/.kube/**": "deny",
-          "**/.gcloud/**": "deny",
-          "**/.gnupg/**": "deny",
-          "**/openspec/changes/**": "allow",
-          "**/openspec/specs/**": "allow"
-        },
-        "glob": "allow",
-        "grep": "allow",
-        "list": "allow",
-        "edit": {
-          "*": "deny",
-          "openspec/**": "allow",
-          "specs/**": "allow"
-        },
-        "bash": {
-          "*": "deny",
-          "openspec *": "allow",
-          "git status*": "allow",
-          "git log*": "allow",
-          "git diff*": "allow",
-          "git show*": "allow",
-          "ls *": "allow",
-          "cat *": "allow",
-          "find *": "allow",
-          "grep *": "allow",
-          "echo *": "allow",
-          "cat *.env*": "deny",
-          "grep *.env*": "deny",
-          "env": "deny",
-          "printenv *": "deny",
-          "export *": "deny"
-        },
-        "task": "deny",
-        "webfetch": "allow",
-        "websearch": "allow"
-      }
+      "model": "google-vertex/gemini-3.8-flash"
     },
     "spec_driven": {
-      "model": "PROVIDER/work-spec_driven-model-id",
-      "permission": {
-        "edit": "deny",
-        "task": {
-          "*": "allow"
-        },
-        "read": {
-          "*": "allow",
-          "*.env": "deny",
-          "*.env.*": "deny",
-          "*.env.example": "allow",
-          "*.pem": "deny",
-          "*.key": "deny",
-          "*credential*": "deny",
-          "*secret*": "deny",
-          "**/.ssh/**": "deny",
-          "**/.kube/**": "deny",
-          "**/.gcloud/**": "deny",
-          "**/.gnupg/**": "deny",
-          "**/openspec/changes/**": "allow",
-          "**/openspec/specs/**": "allow"
-        },
-        "glob": "allow",
-        "grep": "allow",
-        "list": "allow",
-        "bash": {
-          "*": "deny",
-          "git status *": "allow",
-          "git worktree list*": "allow",
-          "openspec list*": "allow",
-          "openspec status*": "allow",
-          "openspec show*": "allow",
-          "openspec validate*": "allow",
-          "openspec view*": "allow",
-          "openspec context*": "allow"
-        }
-      }
+      "model": "google-vertex/claude-sonnet-5@default"
     },
     "tester": {
-      "model": "PROVIDER/work-tester-model-id",
-      "permission": {
-        "edit": {
-          "*": "deny",
-          "**/*test*": "allow"
-        },
-        "task": "deny",
-        "bash": {
-          "*": "ask",
-          "cat *.env*": "deny",
-          "cat *": "allow",
-          "diff *": "allow",
-          "echo *": "allow",
-          "env": "deny",
-          "env *": "deny",
-          "export *": "deny",
-          "export": "deny",
-          "find *-delete*": "deny",
-          "find *-exec*": "deny",
-          "find *": "allow",
-          "git branch *": "allow",
-          "git diff *": "allow",
-          "git diff": "allow",
-          "git log *": "allow",
-          "git log": "allow",
-          "git show *": "allow",
-          "git status *": "allow",
-          "git status": "allow",
-          "go test *": "allow",
-          "go test": "allow",
-          "go vet *": "allow",
-          "go vet": "allow",
-          "grep *.env*": "deny",
-          "grep *": "allow",
-          "head *.env*": "deny",
-          "head *": "allow",
-          "ls *": "allow",
-          "ls": "allow",
-          "npm run test": "allow",
-          "npm run test*": "allow",
-          "npm test": "allow",
-          "npm test*": "allow",
-          "openspec *": "allow",
-          "printenv *": "deny",
-          "printenv": "deny",
-          "pwd": "allow",
-          "pytest *": "allow",
-          "pytest": "allow",
-          "sed -n *": "allow",
-          "sort *": "allow",
-          "tail *.env*": "deny",
-          "tail *": "allow",
-          "terraform validate*": "allow",
-          "tofu validate*": "allow",
-          "wc *": "allow"
-        }
-      }
+      "model": "google-vertex/gemini-3.8-flash"
     },
     "unattended": {
-      "model": "PROVIDER/work-unattended-model-id",
-      "permission": {
-        "read": {
-          "*": "allow",
-          "*.env": "deny",
-          "*.env.*": "deny",
-          "*.env.example": "allow",
-          "*.pem": "deny",
-          "*.key": "deny",
-          "*.p12": "deny",
-          "*.pfx": "deny",
-          "*credentials*": "deny",
-          "*secret*": "deny",
-          "**/.ssh/**": "deny",
-          "**/.gcloud/**": "deny",
-          "**/.gnupg/**": "deny",
-          "**/.kube/**": "deny",
-          "**/secrets/**": "deny",
-          "**/.docker/config.json": "deny",
-          "**/openspec/changes/**": "allow",
-          "**/openspec/specs/**": "allow"
-        },
-        "edit": {
-          "*": "allow",
-          "*.env": "deny",
-          "*.env.*": "deny",
-          "*.pem": "deny",
-          "*.key": "deny",
-          "**/.ssh/**": "deny",
-          "**/.kube/**": "deny"
-        },
-        "bash": {
-          "*": "allow",
-          "env": "deny",
-          "env *": "deny",
-          "printenv*": "deny",
-          "export *": "deny",
-          "export": "deny",
-          "cat *.env*": "deny",
-          "cat *.pem": "deny",
-          "cat *.key": "deny",
-          "ssh *": "deny",
-          "scp *": "deny",
-          "docker *": "deny",
-          "curl *169.254.169.254*": "deny",
-          "wget *169.254.169.254*": "deny",
-          "git push*": "deny",
-          "rm -rf /": "deny",
-          "rm -rf /*": "deny",
-          "rm -rf ~": "deny",
-          "rm -rf ~/*": "deny",
-          "rm -rf .": "deny",
-          "rm -rf ./*": "deny",
-          "rm -rf /workspace*": "deny",
-          "find / -delete*": "deny",
-          "chmod -R 777 /": "deny"
-        },
-        "external_directory": {
-          "**": "allow"
-        },
-        "webfetch": "allow",
-        "websearch": "allow",
-        "task": "allow",
-        "skill": "allow",
-        "doom_loop": "deny"
-      }
+      "model": "google-vertex/claude-sonnet-5@default"
     }
   },
-  "server": {
-    "hostname": "0.0.0.0",
-    "port": 4096
-  },
-  // Only overrides relative to the base opencode.jsonc are listed here;
-  // configs are deep-merged, so unchanged permission rules are inherited.
-  "permission": {
-    "read": {
-      "*credential*": "deny",
-      "~/go/pkg/mod/**": "allow"
-    },
-    "bash": {
-      "printenv *": "deny"
-    },
-    "edit": {
-      "~/go/pkg/mod/**": "deny"
+  "mcp": {
+    "jira": {
+      "type": "remote",
+      "url": "http://opencode-mcp-jira:8000/mcp",
+      "enabled": true
     }
-  },
-  "plugin": [
-    "opencode-plugin-openspec"
-  ]
+  }
 }

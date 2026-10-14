@@ -5,8 +5,8 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    image: jira-mcp:1.0.0
-    container_name: jira-mcp
+    image: jira-mcp:1.0.2
+    container_name: opencode-mcp-jira
     env_file:
       - path: .env
         required: false
@@ -24,8 +24,6 @@ services:
       - MCP_TRANSPORT=${MCP_TRANSPORT:-streamable-http}
       - MCP_HOST=0.0.0.0
       - MCP_PORT=8000
-    ports:
-      - "${MCP_PUBLISHED_PORT:-8000}:8000"
     read_only: true
     tmpfs:
       - /tmp:size=16m
@@ -34,5 +32,11 @@ services:
     security_opt:
       - no-new-privileges:true
     pids_limit: 128
-    mem_limit: ${MCP_MEM_LIMIT:-256m}
+    mem_limit: 256m
     restart: unless-stopped
+    networks:
+      - traefik-net
+
+networks:
+  traefik-net:
+    external: true

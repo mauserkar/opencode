@@ -7,10 +7,10 @@ RUN useradd --create-home --uid 10001 --shell /usr/sbin/nologin mcp
 
 WORKDIR /app
 
-COPY mcp-jira/requirements.txt ./requirements.txt
+COPY requirements.txt ./requirements.txt
 RUN pip install --no-cache-dir -r requirements.txt
 
-COPY ira.py ./jira.py
+COPY jira.py ./jira.py
 COPY server.py ./server.py
 
 USER mcp
