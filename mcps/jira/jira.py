@@ -325,7 +325,7 @@ def _escape_jql(value: str) -> str:
 
 
 def build_search_jql(
-    project: str,
+    project: Optional[str],
     summary: Optional[str] = None,
     epic: Optional[str] = None,
     epic_field: Optional[str] = None,
@@ -335,6 +335,11 @@ def build_search_jql(
     is required. Returns `(jql, None)` on success or `(None, error)` if neither is given.
     `epic_field` defaults to the configured EPIC_FIELD (validated only if `epic` is given).
     """
+    if not project:
+        return None, (
+            "project is required but JIRA_PROJECT_ID is not set and no "
+            "project was provided."
+        )
     if not summary and not epic:
         return None, "At least one of --summary or --epic is required for search."
 
@@ -397,22 +402,32 @@ def search_issues(
     return _execute_jql_search(jql, max_results)
 
 
-def build_list_jql(project: str, status: Optional[str] = None) -> str:
+def build_list_jql(
+    project: Optional[str], status: Optional[str] = None
+) -> tuple[Optional[str], Optional[str]]:
     """Build a JQL query scoped to `project`, AND-ing in an exact `status` match when
     given. Unlike `build_search_jql`, no filter is required: `list` treats a filterless
-    request ("every issue in the project") as valid."""
+    request ("every issue in the project") as valid. Returns `(jql, None)` on success
+    or `(None, error)` if `project` is missing."""
+    if not project:
+        return None, (
+            "project is required but JIRA_PROJECT_ID is not set and no "
+            "project was provided."
+        )
     clauses = [f'project = "{_escape_jql(project)}"']
     if status:
         clauses.append(f'status = "{_escape_jql(status)}"')
-    return " AND ".join(clauses)
+    return " AND ".join(clauses), None
 
 
 def list_issues(
-    project: str,
+    project: Optional[str],
     status: Optional[str] = None,
     max_results: int = DEFAULT_MAX_RESULTS,
 ) -> Dict[str, Any]:
-    jql = build_list_jql(project, status)
+    jql, error = build_list_jql(project, status)
+    if error:
+        return {"success": False, "error": error}
     return _execute_jql_search(jql, max_results)
 
 
@@ -665,21 +680,10 @@ def main() -> None:
                     args.epic,
                 )
     except ValueError as err:
-        # e.g. --epic used without JIRA_EPIC_FIELD configured, or
-        # JIRA_BASE_URL missing: surface it through the script's normal
-        # JSON-error contract instead of a traceback, since callers only
-        # read stdout JSON + exit code.
         result = {"success": False, "error": str(err)}
     except Exception as err:
-        # Fix #2: catch-all so any unexpected failure (malformed API
-        # response, network edge case, etc.) still honors the documented
-        # "always prints one line of JSON to stdout" contract instead of
-        # leaking a raw traceback to callers that only parse stdout.
-        result = {
-            "success": False,
-            "error": f"Unexpected error: {err}",
-            "traceback": traceback.format_exc(),
-        }
+        print(traceback.format_exc(), file=sys.stderr)
+        result = {"success": False, "error": f"Unexpected error: {err}"}
 
     print(json.dumps(result))
     sys.exit(0 if result.get("success") else 1)

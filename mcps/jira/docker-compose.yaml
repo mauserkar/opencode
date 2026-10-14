@@ -1,0 +1,42 @@
+name: jira-mcp
+
+services:
+  jira-mcp:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: jira-mcp:1.0.2
+    container_name: opencode-mcp-jira
+    env_file:
+      - path: .env
+        required: false
+    environment:
+      - JIRA_TOKEN=${JIRA_TOKEN:?JIRA_TOKEN is required}
+      - JIRA_BASE_URL=${JIRA_BASE_URL:?JIRA_BASE_URL is required}
+      - JIRA_PROJECT_ID=${JIRA_PROJECT_ID:-}
+      - JIRA_ISSUE_TYPE=${JIRA_ISSUE_TYPE:-Task}
+      - JIRA_ISSUE_LABELS=${JIRA_ISSUE_LABELS:-}
+      - JIRA_ISSUE_PRIORITY=${JIRA_ISSUE_PRIORITY:-Medium}
+      - JIRA_ISSUE_EPIC=${JIRA_ISSUE_EPIC:-}
+      - JIRA_EPIC_FIELD=${JIRA_EPIC_FIELD:-}
+      - JIRA_TIMEOUT=${JIRA_TIMEOUT:-10}
+      - JIRA_MAX_RESULTS=${JIRA_MAX_RESULTS:-50}
+      - MCP_TRANSPORT=${MCP_TRANSPORT:-streamable-http}
+      - MCP_HOST=0.0.0.0
+      - MCP_PORT=8000
+    read_only: true
+    tmpfs:
+      - /tmp:size=16m
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+    pids_limit: 128
+    mem_limit: 256m
+    restart: unless-stopped
+    networks:
+      - traefik-net
+
+networks:
+  traefik-net:
+    external: true

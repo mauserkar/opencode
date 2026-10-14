@@ -9,6 +9,7 @@ Personal [OpenCode](https://opencode.ai) configuration plus a reproducible Docke
 ├── agents/              # Agent definitions (primary and subagents)
 ├── commands/            # Custom slash commands
 ├── skills/              # Reusable skills
+├── mcps/                # MCP servers (e.g. mcps/jira, dockerized)
 ├── opencode.jsonc       # OpenCode configuration (base)
 ├── profiles/            # Work/personal/unattended config profiles (one opencode.jsonc each)
 ├── Dockerfile           # Devbox image
@@ -75,14 +76,14 @@ merge ──▶ archive                            (integration)
 | `/changelog`  | Updates `CHANGELOG.md` (Keep a Changelog format), computes the SemVer bump, updates the manifest, and creates the release commit.                         |
 | `/format`     | Formats Python (`ruff`/`black`/`isort`), Terraform (`terraform fmt`), or Go (`gofmt`/`goimports`) code and shows `git diff --stat`.                       |
 | `/versioning` | Audits and implements version support (`--version`, `/version` endpoint, `__version__`, …) based on project type, integrating with OpenSpec when present. |
-| `/jira`       | Creates, gets, updates, lists, or searches Jira issues and manages their comments via `scripts/jira.py`.                                                  |
+| `/jira`       | Creates, gets, updates, lists, or searches Jira issues and manages their comments via the `jira` MCP server (`mcps/jira/`).                                |
 
 ## Skills (`skills/`)
 
 | Skill                   | Description                                                                                                                                                          |
 | ----------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `conventional-commits`  | Analyzes the `git diff` and generates commit messages following Conventional Commits (`feat`, `fix`, `refactor`, `docs`, `perf`, `chore`, `!` for breaking changes). |
-| `jira-issue-management` | Creates, updates, searches, lists, or comments on Jira issues during a session (requires `scripts/jira.py`, `JIRA_TOKEN` and `JIRA_BASE_URL`).                       |
+| `jira-issue-management` | Creates, updates, searches, lists, or comments on Jira issues during a session (requires the `jira` MCP server running, `JIRA_TOKEN` and `JIRA_BASE_URL`).           |
 | `network-proxy`         | Rules for running `curl`/`wget` behind a proxy; reads the proxy only from `HTTP_PROXY` and forbids proxy use if it isn't defined.                                    |
 
 ## OpenCode Configuration (`opencode.jsonc`)
