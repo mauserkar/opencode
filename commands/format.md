@@ -6,26 +6,26 @@ You are going to format code in the project. Argument received (file, folder, or
 
 Steps to follow:
 
-1. If no argument was passed, assume the target is the current directory (.)
+1. Resolve the target: use the argument if provided, otherwise the current directory (`.`).
 
-2. Detect which file types are present in the target ($ARGUMENTS or .) by extension:
+2. Detect which file types are present in the resolved target by extension:
    - `.py` → Python
    - `.tf`, `.tfvars` → Terraform
    - `.go` → Go
 
-3. For each file type present, run the corresponding formatter using bash:
+3. For each file type present, run the corresponding formatter with the bash tool against the resolved target:
 
    **Python:**
-   - If `ruff` is available: !ruff format $ARGUMENTS
-   - Otherwise, use black: !black $ARGUMENTS
-   - Optional, if the project uses isort for imports: !isort $ARGUMENTS
+   - If `ruff` is available: `ruff format <target>`
+   - Otherwise, use black: `black <target>`
+   - Optional, if the project uses isort for imports: `isort <target>`
 
    **Terraform:**
-   - !terraform fmt -recursive $ARGUMENTS
+   - `terraform fmt -recursive <target>`
 
    **Go:**
-   - !gofmt -w $ARGUMENTS
-   - If goimports is available (better, also sorts imports): !goimports -w $ARGUMENTS
+   - `gofmt -w <target>`
+   - If goimports is available (better, also sorts imports): `goimports -w <target>`
 
 4. After formatting, run `git diff --stat` to show a summary of which files changed.
 

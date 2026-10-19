@@ -96,6 +96,7 @@ import traceback
 import urllib.error
 import urllib.request
 from typing import Any, Dict, List, Optional
+from urllib.parse import quote
 
 
 def load_dotenv(path: str = ".env") -> None:
@@ -152,7 +153,7 @@ def _require_base_url() -> str:
             "Jira instance's base URL (e.g. "
             "'https://your-company.atlassian.net')."
         )
-    return JIRA_BASE_URL
+    return JIRA_BASE_URL.rstrip("/")
 
 
 def _require_epic_field() -> str:
@@ -226,6 +227,18 @@ def build_payload(
     return {"fields": fields}
 
 
+def _path_segment(value: str) -> str:
+    """Encode a value so it stays a single URL path segment.
+
+    Rejects separators and traversal sequences explicitly: percent-encoding
+    the slash is not enough if the server decodes it before routing.
+    """
+    value = str(value)
+    if "/" in value or "\\" in value or ".." in value:
+        raise ValueError(f"Invalid URL path value: {value!r}")
+    return quote(value, safe="")
+
+
 # --- Jira HTTP calls (stdlib urllib, no `requests` dependency) --------------
 def jira_request(
     method: str,
@@ -289,7 +302,7 @@ def create_issue(
 
     if result.get("status_code") == 201:
         key = result["response"]["key"]
-        return {"success": True, "url": f"{_require_base_url()}/browse/{key}"}
+        return {"success": True, "url": f"{_require_base_url()}/browse/{_path_segment(key)}"}
     return {"success": False, "error": result.get("error", result)}
 
 
@@ -308,12 +321,12 @@ def _format_issue(raw_issue: Dict[str, Any]) -> Dict[str, Any]:
         "priority": fields.get("priority", {}).get("name"),
         "status": fields.get("status", {}).get("name"),
         "epic": fields.get(EPIC_FIELD) if EPIC_FIELD else None,
-        "url": f"{_require_base_url()}/browse/{key}",
+        "url": f"{_require_base_url()}/browse/{_path_segment(key)}",
     }
 
 
 def get_issue(issue_key: str) -> Dict[str, Any]:
-    result = jira_request("GET", f"rest/api/2/issue/{issue_key}")
+    result = jira_request("GET", f"rest/api/2/issue/{_path_segment(issue_key)}")
     if "response" not in result:
         return {"success": False, "error": result.get("error", result)}
     return {"success": True, "issue": _format_issue(result["response"])}
@@ -445,7 +458,7 @@ def update_issue(
         # Building a full Jira payload requires project/summary/description/
         # issuetype/labels/priority/epic together. Fetch the current issue
         # first to fill in any gaps not explicitly provided.
-        current = jira_request("GET", f"rest/api/2/issue/{issue_key}")
+        current = jira_request("GET", f"rest/api/2/issue/{_path_segment(issue_key)}")
         if "response" not in current:
             return {"success": False, "error": current.get("error", current)}
         current_fields = current["response"]["fields"]
@@ -479,10 +492,10 @@ def update_issue(
             fields["description"] = description
         payload = {"fields": fields}
 
-    result = jira_request("PUT", f"rest/api/2/issue/{issue_key}", payload)
+    result = jira_request("PUT", f"rest/api/2/issue/{_path_segment(issue_key)}", payload)
 
     if result.get("status_code") == 204:
-        return {"success": True, "url": f"{_require_base_url()}/browse/{issue_key}"}
+        return {"success": True, "url": f"{_require_base_url()}/browse/{_path_segment(issue_key)}"}
     return {"success": False, "error": result.get("error", result)}
 
 
@@ -500,7 +513,7 @@ def _format_comment(raw: Dict[str, Any]) -> Dict[str, Any]:
 
 def add_comment(issue_key: str, body: str) -> Dict[str, Any]:
     result = jira_request(
-        "POST", f"rest/api/2/issue/{issue_key}/comment", {"body": body}
+        "POST", f"rest/api/2/issue/{_path_segment(issue_key)}/comment", {"body": body}
     )
     if result.get("status_code") == 201:
         return {"success": True, "comment": _format_comment(result["response"])}
@@ -508,7 +521,7 @@ def add_comment(issue_key: str, body: str) -> Dict[str, Any]:
 
 
 def list_comments(issue_key: str) -> Dict[str, Any]:
-    result = jira_request("GET", f"rest/api/2/issue/{issue_key}/comment")
+    result = jira_request("GET", f"rest/api/2/issue/{_path_segment(issue_key)}/comment")
     if "response" not in result:
         return {"success": False, "error": result.get("error", result)}
     comments = [_format_comment(c) for c in result["response"].get("comments", [])]
@@ -518,7 +531,7 @@ def list_comments(issue_key: str) -> Dict[str, Any]:
 def update_comment(issue_key: str, comment_id: str, body: str) -> Dict[str, Any]:
     result = jira_request(
         "PUT",
-        f"rest/api/2/issue/{issue_key}/comment/{comment_id}",
+        f"rest/api/2/issue/{_path_segment(issue_key)}/comment/{_path_segment(comment_id)}",
         {"body": body},
     )
     if result.get("status_code") == 200:
@@ -528,7 +541,7 @@ def update_comment(issue_key: str, comment_id: str, body: str) -> Dict[str, Any]
 
 def delete_comment(issue_key: str, comment_id: str) -> Dict[str, Any]:
     result = jira_request(
-        "DELETE", f"rest/api/2/issue/{issue_key}/comment/{comment_id}"
+        "DELETE", f"rest/api/2/issue/{_path_segment(issue_key)}/comment/{_path_segment(comment_id)}"
     )
     if result.get("status_code") == 204:
         return {"success": True}

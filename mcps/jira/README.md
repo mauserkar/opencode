@@ -36,9 +36,9 @@ cp env.sample .env
 | `JIRA_TIMEOUT` | no | `10` | HTTP request timeout (seconds). |
 | `JIRA_MAX_RESULTS` | no | `50` | Default page size for `search`/`list`. |
 
-`MCP_TRANSPORT`/`MCP_HOST`/`MCP_PORT` only matter when running
-`server.py` directly (`make run`); under Docker they're
-hardcoded/defaulted in `docker-compose.yaml` and don't need to be set.
+`MCP_TRANSPORT`/`MCP_HOST`/`MCP_PORT` are read by `server.py` (and default
+to `streamable-http`, `0.0.0.0`, `8000`). Under Docker they are set in
+`docker-compose.yaml`, so they don't need to be set on the host.
 
 Any of these (except `JIRA_TOKEN`/`JIRA_BASE_URL`) can be overridden
 per-call via CLI flags or MCP tool arguments.

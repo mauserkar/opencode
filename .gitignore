@@ -2,7 +2,14 @@ node_modules
 package.json
 package-lock.json
 bun.lock
+
+# Python
+__pycache__/
+*.py[cod]
+
 .env
+.env.*
+!.env.example
 profiles/**
 !profiles/*/
 !profiles/personal/certs/

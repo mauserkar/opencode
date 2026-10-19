@@ -4,6 +4,7 @@
   // Merged on top of the global config (~/.config/opencode/opencode.jsonc),
   // so only include the settings that differ for unattended use.
   "$schema": "https://opencode.ai/config.json",
+  "default_agent": "unattended",
   "model": "deepseek/deepseek-flash",
   "small_model": "deepseek/deepseek-flash",
   "agent": {

@@ -35,7 +35,7 @@ Use these agents deliberately:
 
 - `spec_author`
   - OpenSpec authoring (proposal → specs → design → tasks).
-  - Writes only OpenSpec docs (`openspec/**`, `specs/**`, `project.md`, `AGENTS.md`); never implementation code.
+  - Writes only OpenSpec docs (`openspec/**`, `specs/**`, including `openspec/project.md` and `openspec/AGENTS.md`); never implementation code.
   - Delegable subagent equivalent of the plugin's `openspec-plan`.
 
 - `developer`

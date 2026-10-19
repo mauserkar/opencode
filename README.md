@@ -11,7 +11,8 @@ Personal [OpenCode](https://opencode.ai) configuration plus a reproducible Docke
 ├── skills/              # Reusable skills
 ├── mcps/                # MCP servers (e.g. mcps/jira, dockerized)
 ├── opencode.jsonc       # OpenCode configuration (base)
-├── profiles/            # Work/personal/unattended config profiles (one opencode.jsonc each)
+├── AGENTS.md            # Global agent rules (language, security, worktrees)
+├── profiles/            # Work/personal/unattended profiles (copy examples to opencode.jsonc)
 ├── Dockerfile           # Devbox image
 ├── docker-compose.yaml  # Container orchestration (usually copied into the target repo as `docker-compose-devbox.yaml`)
 ├── Makefile             # Shortcuts to build/run the devbox (`make help`)
@@ -23,7 +24,7 @@ Personal [OpenCode](https://opencode.ai) configuration plus a reproducible Docke
 
 ## Agents (`agents/`)
 
-The default agent is **`resolver`** (lightweight fallback). Select a profile to use **`spec_driven`**, which orchestrates the work and delegates to subagents (it never implements code itself).
+The default agent is **`resolver`** (lightweight fallback). The **`spec_driven`** agent is available as the orchestrator and delegates to subagents (it never implements code itself); select it explicitly or via a profile's `default_agent`.
 
 ### Primary
 
@@ -88,7 +89,7 @@ merge ──▶ archive                            (integration)
 
 ## OpenCode Configuration (`opencode.jsonc`)
 
-- `default_agent: resolver` (base fallback; profiles override to `spec_driven` when needed).
+- `default_agent: resolver` (base fallback; profiles can override it, e.g. `unattended`).
 - `build` and `plan` agents disabled.
 - Server listening on `0.0.0.0:4096`.
 - Plugin: `opencode-plugin-openspec`.
@@ -100,9 +101,9 @@ Separate **work**, **personal**, and **unattended** configurations, each an `ope
 
 ```
 profiles/
-├── work/opencode.example.jsonc   # copy to opencode.jsonc (gitignored)
-├── personal/opencode.jsonc
-└── unattended/opencode.jsonc
+├── work/opencode.example.jsonc        # copy to opencode.jsonc (gitignored)
+├── personal/opencode.example.jsonc    # copy to opencode.jsonc (gitignored)
+└── unattended/opencode.example.jsonc  # copy to opencode.jsonc (gitignored)
 ```
 
 Select one with the `OPENCODE_CONFIG` environment variable:
@@ -121,14 +122,14 @@ Image based on `ubuntu:24.04` with the tooling required for the workflow:
 - **Node.js** 20
 - **Python** 3.14 (standalone, installed via `uv`)
 - **OpenTofu** 1.13.0
-- **OpenCode** 1.18.34 
+- **OpenCode** 1.18.34
 - **OpenSpec** 1.13.0
 - CLI utilities: `git`, `ripgrep`, `fd-find`, `jq`, `yq`, `curl`, `vim`, `tree`, `unzip`, `zip`, `kubectl`, `helm`, `make`, `glab` (GitLab CLI).
 
 `docker-compose.yaml` mounts:
 
 - the working repo at `/workspace/${PROJECT_NAME}` (`PROJECT_NAME` is required; the stack fails fast if unset),
-- `agents/`, `commands/`, `skills/`, `opencode.jsonc`, and `profiles/` as configuration,
+- `agents/`, `commands/`, `skills/`, `scripts/`, `opencode.jsonc`, `AGENTS.md`, and `profiles/` as configuration,
 - persistent volumes for the home directory (plugin cache, tooling, OpenCode data/state) and the workspace (so git worktrees can be created as siblings of the repo).
 
 The container runs `opencode serve` on port `4096`, reachable through the Traefik gateway, with hardening: non-root `ubuntu` user, `read_only` root filesystem (with writable volumes for home and workspace plus a `/tmp` tmpfs), `cap_drop: ALL`, `no-new-privileges`, `pids_limit`, and configurable `mem_limit`/`cpus`.
@@ -167,7 +168,7 @@ make help
 
 | Variable                   | Description                                                                        |
 | -------------------------- | ---------------------------------------------------------------------------------- |
-| `PROJECT_NAME`             | Name of the repo to mount (`$HOME/repos/<PROJECT_NAME>`).                          |
+| `PROJECT_NAME`             | Name used for the container and mount target (`/workspace/<PROJECT_NAME>`).       |
 | `OPENCODE_PROFILE`         | Config profile to load: `work`, `personal`, or `unattended` (default: `personal`). |
 | `OPENCODE_SERVER_USERNAME` | Username to authenticate with the server.                                          |
 | `OPENCODE_SERVER_PASSWORD` | Password to authenticate with the server.                                          |

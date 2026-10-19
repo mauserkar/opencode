@@ -7,8 +7,7 @@
   "default_agent": "resolver",
   "share": "disabled",
   "instructions": [
-    "AGENTS.md",
-    "SECURITY.md"
+    "AGENTS.md"
   ],
   "agent": {
     "build": {
@@ -42,7 +41,16 @@
           "openspec/**": "allow",
           "specs/**": "allow"
         },
-        "task": "deny"
+        "task": "deny",
+        "bash": {
+          "git commit*": "deny",
+          "git merge*": "deny",
+          "git push*": "deny",
+          "git worktree*": "deny",
+          "git checkout*": "deny",
+          "git switch*": "deny",
+          "git reset*": "deny"
+        }
       }
     },
     "tester": {
@@ -52,11 +60,13 @@
     },
     "resolver": {
       "permission": {
+        "edit": "deny",
         "task": "deny"
       }
     },
     "spec_driven": {
       "permission": {
+        "edit": "deny",
         "bash": {
           "git commit*": "deny",
           "git merge*": "deny",
@@ -74,7 +84,7 @@
       "*": "allow",
       "*.env": "deny",
       "*.env.*": "deny",
-      "*.env.example": "allow",
+      "*.env.example": "deny",
       "*.pem": "deny",
       "*.key": "deny",
       "*.p12": "deny",
@@ -94,10 +104,19 @@
       "*": "allow",
       "*.env": "deny",
       "*.env.*": "deny",
+      "*.env.example": "deny",
       "*.pem": "deny",
       "*.key": "deny",
+      "*.p12": "deny",
+      "*.pfx": "deny",
+      "*credentials*": "deny",
+      "*secret*": "deny",
       "**/.ssh/**": "deny",
-      "**/.kube/**": "deny"
+      "**/.kube/**": "deny",
+      "**/.gcloud/**": "deny",
+      "**/.gnupg/**": "deny",
+      "**/secrets/**": "deny",
+      "**/.docker/config.json": "deny"
     },
     "bash": {
       "*": "allow",
