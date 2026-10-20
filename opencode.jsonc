@@ -155,8 +155,8 @@
     "external_directory": {
       "/private/tmp/**": "allow",
       "/tmp/**": "allow",
-      "/workspace/*": "allow",
-      "~/.config/opencode": "allow",
+      "/workspace/**": "allow",
+      "~/.config/opencode/**": "allow",
       "~/AppData/Local/Temp/**": "allow",
       "~/go/pkg/mod/**": "allow"
     }
