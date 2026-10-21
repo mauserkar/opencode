@@ -4,7 +4,7 @@ name: opencode-devbox-${PROJECT_NAME:?PROJECT_NAME is required}
 services:
   opencode:
     build:
-      context: .
+      context: ${HOME}/.config/opencode
       dockerfile: Dockerfile
       args:
         GO_VERSION: "1.27.1"
@@ -20,7 +20,7 @@ services:
     # platform: linux/amd64
     image: opencode-devbox:2.0.2
     container_name: opencode-devbox-${PROJECT_NAME}
-    command: opencode serve --hostname 0.0.0.0 --port 4096 --log-level DEBUG --print-logs
+    command: opencode serve --hostname 0.0.0.0 --port 4096 --log-level debug --print-logs
     working_dir: /workspace
     volumes:
       # Repository Configuration (read-write: the agent works here)
@@ -76,7 +76,7 @@ services:
     environment:
       - TZ=UTC
       - OPENCODE_CONFIG=/home/ubuntu/.config/opencode/profiles/${OPENCODE_PROFILE:-personal}/opencode.jsonc
-      - OPENCODE_SERVER_PASSWORD=${OPENCODE_SERVER_PASSWORD}
+      - OPENCODE_SERVER_PASSWORD=${OPENCODE_SERVER_PASSWORD-opencode}
     read_only: true
     cap_drop:
       - ALL

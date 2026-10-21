@@ -160,6 +160,8 @@ The container runs `opencode serve` on port `4096`, reachable through the Traefi
 
 > **Naming convention:** `docker-compose.yaml` is normally copied into the target repository's path as `docker-compose-devbox.yaml` (so it doesn't collide with the repo's own `docker-compose.yaml`, if any). The `Makefile` defaults to `docker-compose.yaml`; override it with `make <target> COMPOSE_FILE=docker-compose-devbox.yaml` when using a renamed copy.
 
+> **Build context:** the image is built from `$HOME/.config/opencode`, where the `Dockerfile` lives, not from `--project-directory`. If you copy `docker-compose-devbox.yaml` into a target repo, keep `build.context: ${HOME}/.config/opencode` (or omit the `build` section in the copy and let the base file provide it).
+
 ### Usage
 
 ```bash
