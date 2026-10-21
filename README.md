@@ -22,7 +22,6 @@ Personal [OpenCode](https://opencode.ai) configuration plus a reproducible Docke
 ```
 
 > **Note:** `package.json`, `package-lock.json`, and `node_modules/` are **not versioned** (they are listed in `.gitignore`). A fresh clone will not contain them, and they are not required at runtime.
-> **Note:** `package.json`, `package-lock.json`, and `node_modules/` are **not versioned** (they are listed in `.gitignore`). A fresh clone will not contain them, and they are not required at runtime.
 
 ## Agents (`agents/`)
 
@@ -145,8 +144,6 @@ Image based on `ubuntu:24.04` with the tooling required for the workflow:
 - **OpenTofu** 1.13.0
 - **OpenCode** 2.1.2
 - **OpenSpec** 1.14.3
-- **OpenCode** 2.1.2
-- **OpenSpec** 1.14.3
 - CLI utilities: `git`, `ripgrep`, `fd-find`, `jq`, `yq`, `curl`, `vim`, `tree`, `unzip`, `zip`, `kubectl`, `helm`, `make`, `glab` (GitLab CLI).
 
 Tool and runtime versions are defined exclusively in `docker-compose.yaml` (`build.args`). The `Dockerfile` ARGs intentionally have no defaults, so every build must go through Compose (or pass the args explicitly).
@@ -157,7 +154,7 @@ Tool and runtime versions are defined exclusively in `docker-compose.yaml` (`bui
 - `agents/`, `commands/`, `skills/`, `scripts/`, `opencode.jsonc`, `AGENTS.md`, and `profiles/` as configuration,
 - persistent volumes for the home directory (tooling, OpenCode data/state) and the workspace (so git worktrees can be created as siblings of the repo).
 
-The container runs `opencode serve` on port `4096`, reachable through the Traefik gateway, with hardening: non-root `ubuntu` user, `read_only` root filesystem (with writable volumes for home and workspace plus a `/tmp` tmpfs), `cap_drop: ALL`, `no-new-privileges`, `pids_limit`, and configurable `mem_limit`/`cpus`.
+The container runs `opencode serve` on port `4096`, reachable through the Traefik gateway, with hardening: non-root `ubuntu` user, `read_only` root filesystem (with writable volumes for home and workspace plus a `/tmp` tmpfs), `cap_drop: ALL`, `no-new-privileges`, `pids_limit`, and fixed `mem_limit`/`cpus`.
 
 > **Security note:** `OPENCODE_SERVER_PASSWORD` is passed as a container environment variable and is therefore visible via `docker inspect`. OpenCode V2 uses the fixed username `opencode`; `OPENCODE_SERVER_USERNAME` is not read. Keep `.env` out of version control.
 
@@ -198,5 +195,3 @@ make build-multiarch PUSH=1     # build and push the multi-arch manifest
 | `PROJECT_NAME`             | Name used for the container and mount target (`/workspace/<PROJECT_NAME>`).       |
 | `OPENCODE_PROFILE`         | Config profile to load: `work`, `personal`, or `unattended` (default: `personal`). |
 | `OPENCODE_SERVER_PASSWORD` | Password to authenticate with the server (username is fixed to `opencode` in V2). |
-| `OPENCODE_MEM_LIMIT`       | Optional container memory limit (default: `8g`).                                   |
-| `OPENCODE_CPUS`            | Optional CPU limit (default: `4.0`).                                               |
