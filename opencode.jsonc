@@ -160,8 +160,5 @@
       "~/AppData/Local/Temp/**": "allow",
       "~/go/pkg/mod/**": "allow"
     }
-  },
-  "plugin": [
-    "opencode-plugin-openspec"
-  ]
+  }
 }

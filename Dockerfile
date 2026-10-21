@@ -1,7 +1,10 @@
-ARG GO_VERSION=1.27.1
-ARG NODE_MAJOR=20
-ARG OPENTOFU_VERSION=1.13.0
-ARG UV_VERSION=0.12.22
+# check=skip=InvalidDefaultArgInFrom
+# All package/tool versions below are intentionally declared without defaults;
+# real values are provided via docker-compose.yaml's build.args (single source of truth).
+ARG GO_VERSION
+ARG NODE_MAJOR
+ARG OPENTOFU_VERSION
+ARG UV_VERSION
 
 # ---------- Stage: Go (copy only the toolchain, no docs/tests) ----------
 FROM golang:${GO_VERSION}-bookworm AS go
@@ -9,18 +12,18 @@ RUN rm -rf /usr/local/go/test /usr/local/go/doc /usr/local/go/api
 
 # ---------- Stage: Node + npm packages (no cache) ----------
 FROM node:${NODE_MAJOR}-bookworm-slim AS node
-ARG OPENCODE_VERSION=1.18.34
-ARG OPENSPEC_VERSION=1.13.0
-RUN npm install -g opencode-ai@${OPENCODE_VERSION} @fission-ai/openspec@${OPENSPEC_VERSION} \
+ARG OPENCODE_VERSION
+ARG OPENSPEC_VERSION
+RUN npm install -g @opencode/cli@${OPENCODE_VERSION} @fission-ai/openspec@${OPENSPEC_VERSION} \
     && npm cache clean --force \
     && rm -rf /root/.npm /tmp/*
 
 # ---------- Stage: downloaded binaries (kubectl, helm, yq) ----------
 FROM ubuntu:24.04 AS tools
 ARG TARGETARCH
-ARG HELM_VERSION=4.0.0
-ARG KUBECTL_VERSION=1.37.0
-ARG YQ_VERSION=4.53.6
+ARG HELM_VERSION
+ARG KUBECTL_VERSION
+ARG YQ_VERSION
 RUN apt-get update && apt-get install -y --no-install-recommends ca-certificates curl wget \
     && rm -rf /var/lib/apt/lists/*
 
@@ -53,9 +56,9 @@ FROM ghcr.io/astral-sh/uv:${UV_VERSION} AS uv
 # ---------- Final image ----------
 FROM ubuntu:24.04
 
-ARG PYTHON_VERSION=3.14
-ARG OPENCODE_VERSION=1.18.34
-ARG GO_VERSION=1.27.1
+ARG PYTHON_VERSION
+ARG OPENCODE_VERSION
+ARG GO_VERSION
 
 LABEL org.opencontainers.image.title="opencode-devbox" \
       org.opencontainers.image.description="Dev environment: go, opentofu, node.js, python, opencode, openspec, kubectl, helm, make, glab" \
@@ -100,7 +103,7 @@ COPY --from=node /usr/local/bin/node /usr/local/bin/node
 COPY --from=node /usr/local/lib/node_modules /usr/local/lib/node_modules
 RUN ln -s ../lib/node_modules/npm/bin/npm-cli.js /usr/local/bin/npm \
     && ln -s ../lib/node_modules/npm/bin/npx-cli.js /usr/local/bin/npx \
-    && ln -s ../lib/node_modules/opencode-ai/bin/opencode.exe /usr/local/bin/opencode \
+    && ln -s ../lib/node_modules/@opencode/cli/bin/opencode.exe /usr/local/bin/opencode \
     && ln -s ../lib/node_modules/@fission-ai/openspec/bin/openspec.js /usr/local/bin/openspec
 
 # Standalone Python via uv (no deadsnakes PPA, no -dev packages, no get-pip)

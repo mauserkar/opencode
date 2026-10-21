@@ -20,7 +20,7 @@ Personal [OpenCode](https://opencode.ai) configuration plus a reproducible Docke
 └── package.json         # (gitignored) local deps for plugin development
 ```
 
-> **Note:** `package.json`, `package-lock.json`, and `node_modules/` are **not versioned** (they are listed in `.gitignore`). A fresh clone will not contain them, and they are not required at runtime: OpenCode automatically installs the `opencode-plugin-openspec` plugin declared in `opencode.jsonc` into `~/.cache/opencode/`.
+> **Note:** `package.json`, `package-lock.json`, and `node_modules/` are **not versioned** (they are listed in `.gitignore`). A fresh clone will not contain them, and they are not required at runtime.
 
 ## Agents (`agents/`)
 
@@ -92,8 +92,25 @@ merge ──▶ archive                            (integration)
 - `default_agent: resolver` (base fallback; profiles can override it, e.g. `unattended`).
 - `build` and `plan` agents disabled.
 - Server listening on `0.0.0.0:4096`.
-- Plugin: `opencode-plugin-openspec`.
 - `compaction`, `tool_output` limits and `subagent_depth` are supported but not set here; define them in `opencode.jsonc` or a profile to override the defaults.
+
+## OpenSpec Integration
+
+OpenSpec integration does **not** go through an OpenCode plugin (the third-party `opencode-plugin-openspec` package targets OpenCode's legacy V1 plugin API and does not run on OpenCode V2). Instead, OpenSpec ships native support for OpenCode through its own CLI, which generates standard skills and commands — the same mechanism used by `skills/` and `commands/` in this repo.
+
+Run once per project (the `openspec` CLI is already installed in the devbox image, see [Docker Devbox](#docker-devbox)):
+
+```bash
+openspec init --tools opencode
+```
+
+This writes:
+
+- `openspec/` at the repo root (`config.yaml`, `specs/`, `changes/`) — the OpenSpec artifact store.
+- `.opencode/skills/openspec-*/SKILL.md` — workflow skills (`openspec-explore`, `openspec-propose`, `openspec-apply-change`, `openspec-update-change`, `openspec-sync-specs`, `openspec-archive-change`, …).
+- `.opencode/commands/opsx-*.md` — the equivalent `/opsx-*` slash commands.
+
+Re-running `openspec init` (or `openspec update`) is safe and refreshes the generated files without touching `openspec/specs/` or `openspec/changes/`. Commit the generated `.opencode/skills/openspec-*` and `.opencode/commands/opsx-*` files like any other project file.
 
 ## Profiles (`profiles/`)
 
@@ -122,8 +139,8 @@ Image based on `ubuntu:24.04` with the tooling required for the workflow:
 - **Node.js** 20
 - **Python** 3.14 (standalone, installed via `uv`)
 - **OpenTofu** 1.13.0
-- **OpenCode** 1.18.34
-- **OpenSpec** 1.13.0
+- **OpenCode** 2.1.2
+- **OpenSpec** 1.14.3
 - CLI utilities: `git`, `ripgrep`, `fd-find`, `jq`, `yq`, `curl`, `vim`, `tree`, `unzip`, `zip`, `kubectl`, `helm`, `make`, `glab` (GitLab CLI).
 
 `docker-compose.yaml` mounts:
@@ -172,5 +189,3 @@ make help
 | `OPENCODE_PROFILE`         | Config profile to load: `work`, `personal`, or `unattended` (default: `personal`). |
 | `OPENCODE_SERVER_USERNAME` | Username to authenticate with the server.                                          |
 | `OPENCODE_SERVER_PASSWORD` | Password to authenticate with the server.                                          |
-| `OPENCODE_MEM_LIMIT`       | Optional container memory limit (default: `8g`).                                   |
-| `OPENCODE_CPUS`            | Optional CPU limit (default: `4.0`).                                               |

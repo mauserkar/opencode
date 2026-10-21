@@ -17,12 +17,6 @@
     "plan": {
       "disable": true
     },
-    "openspec-plan": {
-      "disable": true
-    },
-    "Openspec-Plan": {
-      "disable": true
-    },
     "developer": {
       "model": "google-vertex/claude-sonnet-5@default"
     },
