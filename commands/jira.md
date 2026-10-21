@@ -2,7 +2,7 @@
 description: Create, get, update, list, or search Jira issues, or manage their comments, using the jira MCP server
 ---
 
-Manage Jira issues and comments by calling the tools exposed by the `jira` MCP server (`mcps/jira/`), connected as `mcp.jira` in the OpenCode config. Call the tools directly — do not shell out or look for a local script. The server needs `JIRA_TOKEN` and `JIRA_BASE_URL` (required) configured on its own side (`mcps/jira/.env`), not in this project's environment.
+Manage Jira issues and comments by calling the tools exposed by the `jira` MCP server (`mcps/jira/`), connected as `mcp.servers.jira` in the OpenCode config. Call the tools directly — do not shell out or look for a local script. The server needs `JIRA_TOKEN` and `JIRA_BASE_URL` (required) configured on its own side (`mcps/jira/.env`), not in this project's environment.
 
 The following are also configurable server-side (`mcps/jira/.env`), each with a default except `JIRA_PROJECT_ID`, and each can be overridden per-call via the matching tool argument:
 

@@ -1,7 +1,6 @@
 ---
 description: Senior Software Engineer and repository explorer. Explores codebase, analyzes architecture, and writes production-grade code prioritizing correctness, clarity, simplicity, and maintainability
 mode: all
-temperature: 0.1
 steps: 30
 ---
 

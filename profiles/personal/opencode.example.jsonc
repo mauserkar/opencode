@@ -6,30 +6,30 @@
   "$schema": "https://opencode.ai/config.json",
   "model": "deepseek/deepseek-flash",
   "small_model": "deepseek/deepseek-flash",
-  "agent": {
+  "agents": {
     "spec_driven": {
-      "disable": true
+      "disabled": true
     },
     "unattended": {
       "model": "deepseek/deepseek-flash"
     },
     "researcher": {
-      "disable": true
+      "disabled": true
     },
     "spec_author": {
-      "disable": true
+      "disabled": true
     },
     "developer": {
       "model": "deepseek/deepseek-flash"
     },
     "tester": {
-      "disable": true
+      "disabled": true
     },
     "reviewer": {
-      "disable": true
+      "disabled": true
     },
     "security_reviewer": {
-      "disable": true
+      "disabled": true
     },
     "resolver": {
       "model": "deepseek/deepseek-flash"

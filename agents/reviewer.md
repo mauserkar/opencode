@@ -1,7 +1,6 @@
 ---
 description: Read-only senior code reviewer for correctness, maintainability, regressions and test coverage, with deep Go/Python audit.
 mode: subagent
-temperature: 0.1
 steps: 30
 ---
 
