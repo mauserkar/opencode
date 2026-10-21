@@ -13,7 +13,7 @@ Steps to follow:
    - `.tf`, `.tfvars` → Terraform
    - `.go` → Go
 
-3. For each file type present, run the corresponding formatter with the bash tool against the resolved target:
+3. For each file type present, run the corresponding formatter with the shell tool against the resolved target:
 
    **Python:**
    - If `ruff` is available: `ruff format <target>`

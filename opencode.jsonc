@@ -1,164 +1,146 @@
 {
   "$schema": "https://opencode.ai/config.json",
-  "server": {
-    "hostname": "0.0.0.0",
-    "port": 4096
-  },
   "default_agent": "resolver",
   "share": "disabled",
   "instructions": [
     "AGENTS.md"
   ],
-  "agent": {
+  "agents": {
     "build": {
-      "disable": true
+      "disabled": true
     },
     "plan": {
-      "disable": true
+      "disabled": true
     },
     "researcher": {
-      "permission": {
-        "edit": "deny",
-        "task": "deny"
-      }
+      "permissions": [
+        { "action": "edit", "resource": "*", "effect": "deny" },
+        { "action": "subagent", "resource": "*", "effect": "deny" }
+      ]
     },
     "reviewer": {
-      "permission": {
-        "edit": "deny",
-        "task": "deny"
-      }
+      "permissions": [
+        { "action": "edit", "resource": "*", "effect": "deny" },
+        { "action": "subagent", "resource": "*", "effect": "deny" }
+      ]
     },
     "security_reviewer": {
-      "permission": {
-        "edit": "deny",
-        "task": "deny"
-      }
+      "permissions": [
+        { "action": "edit", "resource": "*", "effect": "deny" },
+        { "action": "subagent", "resource": "*", "effect": "deny" }
+      ]
     },
     "spec_author": {
-      "permission": {
-        "edit": {
-          "*": "deny",
-          "openspec/**": "allow",
-          "specs/**": "allow"
-        },
-        "task": "deny",
-        "bash": {
-          "git commit*": "deny",
-          "git merge*": "deny",
-          "git push*": "deny",
-          "git worktree*": "deny",
-          "git checkout*": "deny",
-          "git switch*": "deny",
-          "git reset*": "deny"
-        }
-      }
+      "permissions": [
+        { "action": "edit", "resource": "*", "effect": "deny" },
+        { "action": "edit", "resource": "openspec/**", "effect": "allow" },
+        { "action": "edit", "resource": "specs/**", "effect": "allow" },
+        { "action": "subagent", "resource": "*", "effect": "deny" },
+        { "action": "shell", "resource": "git commit*", "effect": "deny" },
+        { "action": "shell", "resource": "git merge*", "effect": "deny" },
+        { "action": "shell", "resource": "git push*", "effect": "deny" },
+        { "action": "shell", "resource": "git worktree*", "effect": "deny" },
+        { "action": "shell", "resource": "git checkout*", "effect": "deny" },
+        { "action": "shell", "resource": "git switch*", "effect": "deny" },
+        { "action": "shell", "resource": "git reset*", "effect": "deny" }
+      ]
     },
     "tester": {
-      "permission": {
-        "task": "deny"
-      }
+      "permissions": [
+        { "action": "subagent", "resource": "*", "effect": "deny" }
+      ]
     },
     "resolver": {
-      "permission": {
-        "edit": "deny",
-        "task": "deny"
-      }
+      "permissions": [
+        { "action": "edit", "resource": "*", "effect": "deny" },
+        { "action": "subagent", "resource": "*", "effect": "deny" }
+      ]
     },
     "spec_driven": {
-      "permission": {
-        "edit": "deny",
-        "bash": {
-          "git commit*": "deny",
-          "git merge*": "deny",
-          "git checkout*": "deny",
-          "git switch*": "deny",
-          "git worktree add*": "deny",
-          "git worktree remove*": "deny",
-          "git reset*": "deny"
-        }
-      }
+      "permissions": [
+        { "action": "edit", "resource": "*", "effect": "deny" },
+        { "action": "shell", "resource": "git commit*", "effect": "deny" },
+        { "action": "shell", "resource": "git merge*", "effect": "deny" },
+        { "action": "shell", "resource": "git checkout*", "effect": "deny" },
+        { "action": "shell", "resource": "git switch*", "effect": "deny" },
+        { "action": "shell", "resource": "git worktree add*", "effect": "deny" },
+        { "action": "shell", "resource": "git worktree remove*", "effect": "deny" },
+        { "action": "shell", "resource": "git reset*", "effect": "deny" }
+      ]
     }
   },
-  "permission": {
-    "read": {
-      "*": "allow",
-      "*.env": "deny",
-      "*.env.*": "deny",
-      "*.env.example": "deny",
-      "*.pem": "deny",
-      "*.key": "deny",
-      "*.p12": "deny",
-      "*.pfx": "deny",
-      "*credentials*": "deny",
-      "*secret*": "deny",
-      "**/.ssh/**": "deny",
-      "**/.gcloud/**": "deny",
-      "**/.gnupg/**": "deny",
-      "**/.kube/**": "deny",
-      "**/secrets/**": "deny",
-      "**/.docker/config.json": "deny",
-      "**/openspec/changes/**": "allow",
-      "**/openspec/specs/**": "allow"
-    },
-    "edit": {
-      "*": "allow",
-      "*.env": "deny",
-      "*.env.*": "deny",
-      "*.env.example": "deny",
-      "*.pem": "deny",
-      "*.key": "deny",
-      "*.p12": "deny",
-      "*.pfx": "deny",
-      "*credentials*": "deny",
-      "*secret*": "deny",
-      "**/.ssh/**": "deny",
-      "**/.kube/**": "deny",
-      "**/.gcloud/**": "deny",
-      "**/.gnupg/**": "deny",
-      "**/secrets/**": "deny",
-      "**/.docker/config.json": "deny"
-    },
-    "bash": {
-      "*": "allow",
-      "env": "deny",
-      "env *": "deny",
-      "printenv*": "deny",
-      "export *": "deny",
-      "export": "deny",
-      "cat *.env*": "deny",
-      "cat *.pem": "deny",
-      "cat *.key": "deny",
-      "ssh *": "deny",
-      "scp *": "deny",
-      "docker *": "deny",
-      "curl *169.254.169.254*": "deny",
-      "wget *169.254.169.254*": "deny",
-      "git push*": "deny",
-      "rm -rf /": "deny",
-      "rm -rf /*": "deny",
-      "rm -rf ~": "deny",
-      "rm -rf ~/*": "deny",
-      "rm -rf .": "deny",
-      "rm -rf ./*": "deny",
-      "rm -rf /workspace*": "deny",
-      "find / -delete*": "deny",
-      "chmod -R 777 /": "deny"
-    },
-    "list": {
-      "~/go/pkg/mod/**": "allow"
-    },
-    "webfetch": "allow",
-    "websearch": "allow",
-    "task": "allow",
-    "skill": "allow",
-    "doom_loop": "deny",
-    "external_directory": {
-      "/private/tmp/**": "allow",
-      "/tmp/**": "allow",
-      "/workspace/**": "allow",
-      "~/.config/opencode/**": "allow",
-      "~/AppData/Local/Temp/**": "allow",
-      "~/go/pkg/mod/**": "allow"
-    }
-  }
+  "permissions": [
+    { "action": "read", "resource": "*", "effect": "allow" },
+    { "action": "read", "resource": "*.env", "effect": "deny" },
+    { "action": "read", "resource": "*.env.*", "effect": "deny" },
+    { "action": "read", "resource": "*.env.example", "effect": "deny" },
+    { "action": "read", "resource": "*.pem", "effect": "deny" },
+    { "action": "read", "resource": "*.key", "effect": "deny" },
+    { "action": "read", "resource": "*.p12", "effect": "deny" },
+    { "action": "read", "resource": "*.pfx", "effect": "deny" },
+    { "action": "read", "resource": "*credentials*", "effect": "deny" },
+    { "action": "read", "resource": "*secret*", "effect": "deny" },
+    { "action": "read", "resource": "**/.ssh/**", "effect": "deny" },
+    { "action": "read", "resource": "**/.gcloud/**", "effect": "deny" },
+    { "action": "read", "resource": "**/.gnupg/**", "effect": "deny" },
+    { "action": "read", "resource": "**/.kube/**", "effect": "deny" },
+    { "action": "read", "resource": "**/secrets/**", "effect": "deny" },
+    { "action": "read", "resource": "**/.docker/config.json", "effect": "deny" },
+    { "action": "read", "resource": "**/openspec/changes/**", "effect": "allow" },
+    { "action": "read", "resource": "**/openspec/specs/**", "effect": "allow" },
+
+    { "action": "edit", "resource": "*", "effect": "allow" },
+    { "action": "edit", "resource": "*.env", "effect": "deny" },
+    { "action": "edit", "resource": "*.env.*", "effect": "deny" },
+    { "action": "edit", "resource": "*.env.example", "effect": "deny" },
+    { "action": "edit", "resource": "*.pem", "effect": "deny" },
+    { "action": "edit", "resource": "*.key", "effect": "deny" },
+    { "action": "edit", "resource": "*.p12", "effect": "deny" },
+    { "action": "edit", "resource": "*.pfx", "effect": "deny" },
+    { "action": "edit", "resource": "*credentials*", "effect": "deny" },
+    { "action": "edit", "resource": "*secret*", "effect": "deny" },
+    { "action": "edit", "resource": "**/.ssh/**", "effect": "deny" },
+    { "action": "edit", "resource": "**/.kube/**", "effect": "deny" },
+    { "action": "edit", "resource": "**/.gcloud/**", "effect": "deny" },
+    { "action": "edit", "resource": "**/.gnupg/**", "effect": "deny" },
+    { "action": "edit", "resource": "**/secrets/**", "effect": "deny" },
+    { "action": "edit", "resource": "**/.docker/config.json", "effect": "deny" },
+
+    { "action": "shell", "resource": "*", "effect": "allow" },
+    { "action": "shell", "resource": "env", "effect": "deny" },
+    { "action": "shell", "resource": "env *", "effect": "deny" },
+    { "action": "shell", "resource": "printenv*", "effect": "deny" },
+    { "action": "shell", "resource": "export *", "effect": "deny" },
+    { "action": "shell", "resource": "export", "effect": "deny" },
+    { "action": "shell", "resource": "cat *.env*", "effect": "deny" },
+    { "action": "shell", "resource": "cat *.pem", "effect": "deny" },
+    { "action": "shell", "resource": "cat *.key", "effect": "deny" },
+    { "action": "shell", "resource": "ssh *", "effect": "deny" },
+    { "action": "shell", "resource": "scp *", "effect": "deny" },
+    { "action": "shell", "resource": "docker *", "effect": "deny" },
+    { "action": "shell", "resource": "curl *169.254.169.254*", "effect": "deny" },
+    { "action": "shell", "resource": "wget *169.254.169.254*", "effect": "deny" },
+    { "action": "shell", "resource": "git push*", "effect": "deny" },
+    { "action": "shell", "resource": "rm -rf /", "effect": "deny" },
+    { "action": "shell", "resource": "rm -rf /*", "effect": "deny" },
+    { "action": "shell", "resource": "rm -rf ~", "effect": "deny" },
+    { "action": "shell", "resource": "rm -rf ~/*", "effect": "deny" },
+    { "action": "shell", "resource": "rm -rf .", "effect": "deny" },
+    { "action": "shell", "resource": "rm -rf ./*", "effect": "deny" },
+    { "action": "shell", "resource": "rm -rf /workspace*", "effect": "deny" },
+    { "action": "shell", "resource": "find / -delete*", "effect": "deny" },
+    { "action": "shell", "resource": "chmod -R 777 /", "effect": "deny" },
+
+    { "action": "webfetch", "resource": "*", "effect": "allow" },
+    { "action": "websearch", "resource": "*", "effect": "allow" },
+    { "action": "subagent", "resource": "*", "effect": "allow" },
+    { "action": "skill", "resource": "*", "effect": "allow" },
+
+    { "action": "external_directory", "resource": "/private/tmp/**", "effect": "allow" },
+    { "action": "external_directory", "resource": "/tmp/**", "effect": "allow" },
+    { "action": "external_directory", "resource": "/workspace/**", "effect": "allow" },
+    { "action": "external_directory", "resource": "~/.config/opencode/**", "effect": "allow" },
+    { "action": "external_directory", "resource": "~/AppData/Local/Temp/**", "effect": "allow" },
+    { "action": "external_directory", "resource": "~/go/pkg/mod/**", "effect": "allow" }
+  ]
 }

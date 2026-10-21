@@ -1,7 +1,6 @@
 ---
 description: Principal Architect and orchestration agent. Owns the end-to-end workflow, decomposes work, delegates to specialized subagents, coordinates OpenSpec and Git worktrees, and performs the final integration decision.
 mode: primary
-temperature: 0.2
 steps: 50
 ---
 
@@ -36,7 +35,7 @@ Use these agents deliberately:
 - `spec_author`
   - OpenSpec authoring (proposal → specs → design → tasks).
   - Writes only OpenSpec docs (`openspec/**`, `specs/**`, including `openspec/project.md` and `openspec/AGENTS.md`); never implementation code.
-  - Delegable subagent equivalent of the plugin's `openspec-plan`.
+  - Native OpenSpec authoring subagent (replaces the removed V1 `openspec-plan` plugin agent).
 
 - `developer`
   - Repository reconnaissance and production implementation.

@@ -3,9 +3,8 @@
 GATEWAY_COMPOSE_FILE := docker-compose-gateway.yaml
 COMPOSE_FILE          ?= docker-compose.yaml
 COMPOSE              := $(shell docker compose version >/dev/null 2>&1 && echo "docker compose" || (command -v docker-compose >/dev/null 2>&1 && echo "docker-compose"))
-IMAGE_NAME           := opencode-devbox
-IMAGE_TAG            := $(shell grep -m1 'image: $(IMAGE_NAME):' $(COMPOSE_FILE) | sed 's/.*://')
 PLATFORMS            := linux/amd64,linux/arm64
+PUSH                 ?= 0
 PROJECT_NAME         ?= $(notdir $(CURDIR))
 
 export PROJECT_NAME
@@ -24,5 +23,12 @@ gateway-down: ## Stop the Traefik gateway
 build: ## Rebuild the opencode devbox image for the host's native arch
 	$(COMPOSE) -f $(COMPOSE_FILE) build
 
-build-multiarch: ## Build amd64+arm64 with buildx (needs --push or --load to keep the result)
-	docker buildx build --platform $(PLATFORMS) -t $(IMAGE_NAME):$(IMAGE_TAG) .
+build-multiarch: ## Build amd64+arm64 from compose config with buildx (PUSH=1 to push)
+	@docker buildx version 2>/dev/null | grep -q 'buildx' || { \
+		echo "error: docker buildx is required for multi-arch builds."; \
+		echo "Install the Docker buildx plugin: https://docs.docker.com/build/install-buildx/"; \
+		exit 1; \
+	}
+	docker buildx bake -f $(COMPOSE_FILE) \
+		--set "opencode.platform=$(PLATFORMS)" \
+		$(if $(filter 1,$(PUSH)),--push,--set "opencode.output=type=cacheonly")

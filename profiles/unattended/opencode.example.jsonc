@@ -7,7 +7,7 @@
   "default_agent": "unattended",
   "model": "deepseek/deepseek-flash",
   "small_model": "deepseek/deepseek-flash",
-  "agent": {
+  "agents": {
     "spec_driven": {
       "model": "deepseek/deepseek-flash"
     },

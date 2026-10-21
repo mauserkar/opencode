@@ -1,7 +1,6 @@
 ---
 description: OpenSpec authoring specialist. Writes and updates OpenSpec artifacts (proposal, specs, design, tasks) for a change; never touches implementation code.
 mode: subagent
-temperature: 0.2
 steps: 30
 ---
 

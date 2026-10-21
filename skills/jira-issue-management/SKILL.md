@@ -21,7 +21,7 @@ This skill says **when** to act and **which action** to pick.
 
 ### MCP server
 
-The `jira` MCP server must be connected (see `mcp.jira` in the OpenCode
+The `jira` MCP server must be connected (see `mcp.servers.jira` in the OpenCode
 config). It exposes: `jira_create_issue`, `jira_get_issue`,
 `jira_update_issue`, `jira_add_comment`, `jira_list_comments`,
 `jira_update_comment`, `jira_delete_comment`, `jira_search_issues`,
