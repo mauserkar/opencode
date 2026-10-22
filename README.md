@@ -13,7 +13,7 @@ Personal [OpenCode](https://opencode.ai) configuration plus a reproducible Docke
 ├── opencode.jsonc       # OpenCode configuration (base)
 ├── cli.json             # OpenCode V2 CLI (TUI) settings
 ├── AGENTS.md            # Global agent rules (language, security, worktrees)
-├── profiles/            # Work/personal/unattended profiles (copy examples to opencode.jsonc)
+├── profiles/            # Work/personal profiles (copy examples to opencode.jsonc)
 ├── Dockerfile           # Devbox image
 ├── docker-compose.yaml  # Container orchestration (usually copied into the target repo as `docker-compose-devbox.yaml`)
 ├── Makefile             # Shortcuts to build/run the devbox (`make help`)
@@ -117,13 +117,12 @@ Re-running `openspec init` (or `openspec update`) refreshes the generated files 
 
 ## Profiles (`profiles/`)
 
-Separate **work**, **personal**, and **unattended** configurations, each an `opencode.jsonc` that is **merged on top of** the base config (so it only needs the overrides, e.g. `model`/`small_model`):
+Separate **work**, and **personal** configurations, each an `opencode.jsonc` that is **merged on top of** the base config (so it only needs the overrides, e.g. `model`/`small_model`):
 
 ```
 profiles/
 ├── work/opencode.example.jsonc        # copy to opencode.jsonc (gitignored)
 ├── personal/opencode.example.jsonc    # copy to opencode.jsonc (gitignored)
-└── unattended/opencode.example.jsonc  # copy to opencode.jsonc (gitignored)
 ```
 
 Select one with the `OPENCODE_CONFIG` environment variable:
@@ -132,7 +131,7 @@ Select one with the `OPENCODE_CONFIG` environment variable:
 export OPENCODE_CONFIG=~/.config/opencode/profiles/work/opencode.jsonc
 ```
 
-In the Docker devbox, set `OPENCODE_PROFILE` (`work`, `personal`, or `unattended`) in `.env`; the compose file wires it to `OPENCODE_CONFIG` automatically.
+In the Docker devbox, set `OPENCODE_PROFILE` (`work`, `personal`) in `.env`; the compose file wires it to `OPENCODE_CONFIG` automatically.
 
 ## Docker Devbox
 

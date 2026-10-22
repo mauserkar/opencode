@@ -16,5 +16,4 @@ profiles/**
 !profiles/personal/docker-compose-gateway.yaml
 !profiles/personal/certs/traefik-tls.yaml
 !profiles/personal/opencode.example.jsonc
-!profiles/unattended/opencode.example.jsonc
 !profiles/work/opencode.example.jsonc

@@ -5,34 +5,41 @@
   // so only include the settings that differ for personal use.
   "$schema": "https://opencode.ai/config.json",
   "model": "deepseek/deepseek-flash",
+  "default_agent": "resolver",
   "small_model": "deepseek/deepseek-flash",
   "agents": {
     "spec_driven": {
+      "mode": "primary",
       "disabled": true
     },
     "unattended": {
-      "model": "deepseek/deepseek-flash"
+      "mode": "primary"
+    },
+    "developer": {
+      "mode": "all"
+    },
+    "resolver": {
+      "mode": "primary"
     },
     "researcher": {
+      "mode": "subagent",
       "disabled": true
     },
     "spec_author": {
+      "mode": "subagent",
       "disabled": true
     },
-    "developer": {
-      "model": "deepseek/deepseek-flash"
-    },
     "tester": {
+      "mode": "subagent",
       "disabled": true
     },
     "reviewer": {
+      "mode": "subagent",
       "disabled": true
     },
     "security_reviewer": {
+      "mode": "subagent",
       "disabled": true
-    },
-    "resolver": {
-      "model": "deepseek/deepseek-flash"
     }
   }
 }
