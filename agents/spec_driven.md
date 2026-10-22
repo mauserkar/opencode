@@ -1,6 +1,5 @@
 ---
 description: Principal Architect and orchestration agent. Owns the end-to-end workflow, decomposes work, delegates to specialized subagents, coordinates OpenSpec and Git worktrees, and performs the final integration decision.
-mode: primary
 steps: 50
 ---
 

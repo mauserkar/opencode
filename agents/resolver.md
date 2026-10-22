@@ -1,6 +1,5 @@
 ---
 description: Fast, lightweight assistant for answering quick questions and clarifying doubts about the current context (code, conversation, or already-available project files)
-mode: primary
 steps: 30
 ---
 

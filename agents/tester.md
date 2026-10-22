@@ -1,6 +1,5 @@
 ---
 description: Test and validation specialist. Runs focused tests and reports failures, regressions and validation gaps.
-mode: subagent
 steps: 30
 ---
 

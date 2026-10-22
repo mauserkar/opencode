@@ -12,25 +12,32 @@
     "plan": {
       "disabled": true
     },
+    "developer": {
+      "mode": "all"
+    },
     "researcher": {
+      "mode": "subagent",
       "permissions": [
         { "action": "edit", "resource": "*", "effect": "deny" },
         { "action": "subagent", "resource": "*", "effect": "deny" }
       ]
     },
     "reviewer": {
+      "mode": "subagent",
       "permissions": [
         { "action": "edit", "resource": "*", "effect": "deny" },
         { "action": "subagent", "resource": "*", "effect": "deny" }
       ]
     },
     "security_reviewer": {
+      "mode": "subagent",
       "permissions": [
         { "action": "edit", "resource": "*", "effect": "deny" },
         { "action": "subagent", "resource": "*", "effect": "deny" }
       ]
     },
     "spec_author": {
+      "mode": "subagent",
       "permissions": [
         { "action": "edit", "resource": "*", "effect": "deny" },
         { "action": "edit", "resource": "openspec/**", "effect": "allow" },
@@ -46,17 +53,20 @@
       ]
     },
     "tester": {
+      "mode": "subagent",
       "permissions": [
         { "action": "subagent", "resource": "*", "effect": "deny" }
       ]
     },
     "resolver": {
+      "mode": "primary",
       "permissions": [
         { "action": "edit", "resource": "*", "effect": "deny" },
         { "action": "subagent", "resource": "*", "effect": "deny" }
       ]
     },
     "spec_driven": {
+      "mode": "primary",
       "permissions": [
         { "action": "edit", "resource": "*", "effect": "deny" },
         { "action": "shell", "resource": "git commit*", "effect": "deny" },
@@ -67,6 +77,9 @@
         { "action": "shell", "resource": "git worktree remove*", "effect": "deny" },
         { "action": "shell", "resource": "git reset*", "effect": "deny" }
       ]
+    },
+    "unattended": {
+      "mode": "primary"
     }
   },
   "permissions": [

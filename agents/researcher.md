@@ -1,6 +1,5 @@
 ---
 description: Read-only technical researcher for external documentation, APIs, libraries and current best practices.
-mode: subagent
 steps: 30
 ---
 

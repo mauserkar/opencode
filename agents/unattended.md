@@ -1,6 +1,5 @@
 ---
 description: Senior Software Engineer for unattended/autonomous runs, with full write/edit tools. Runs inside an isolated Docker container.
-mode: primary
 steps: 30
 ---
 

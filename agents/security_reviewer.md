@@ -1,6 +1,5 @@
 ---
 description: Read-only security reviewer for authentication, authorization, secrets, injection, dependency and boundary issues.
-mode: subagent
 steps: 30
 ---
 
