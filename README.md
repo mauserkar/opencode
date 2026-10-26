@@ -225,6 +225,6 @@ make sbx-stop                        # stop it
 make sbx-rm                          # remove sandbox and its state
 ```
 
-The server is available at `http://localhost:4096` (username `opencode`). Override defaults with `SBX_CONFIG_DIR`, `SBX_PROFILE`, `SBX_NAME`, or `SBX=...`.
+The server is available at `http://localhost:4096` (username `opencode`). Override defaults with `SBX_CONFIG_DIR`, `SBX_PROFILE`, or `SBX=...`.
 
 > **Differences from Compose:** no Traefik gateway or `traefik-net` (publish is loopback-only; use `sbx ports`), no named volumes (the sandbox persists until `sbx rm`, the workspace is a direct host mount), and no container-level `read_only`/`cap_drop` hardening (isolation is the microVM boundary). Network egress is open (`**`) to match the Compose setup; narrow it in `sbx/opencode-devbox/opencode-devbox.yaml` if needed.

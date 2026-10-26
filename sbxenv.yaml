@@ -1,8 +1,11 @@
 schemaVersion: "1"
-name: opencode-devbox
+name: opencode-devbox-${{ env.args.projectName }}
 agent: opencode-devbox
 
 args:
+  projectName:
+    required: true
+    description: Name suffix used for the sandbox
   workspace:
     required: true
     description: Absolute path of the project to mount as the sandbox workspace

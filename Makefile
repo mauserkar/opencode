@@ -11,8 +11,8 @@ SBX                  ?= sbx
 SBX_ENV_FILE         ?= sbxenv.yaml
 SBX_CONFIG_DIR       ?= $(HOME)/.config/opencode
 SBX_PROFILE          ?= personal
-SBX_NAME             ?= opencode-devbox-$(PROJECT_NAME)
-SBX_ARGS             := --name $(SBX_NAME) \
+SBX_NAME             := opencode-devbox-$(PROJECT_NAME)
+SBX_ARGS             := --env-arg projectName=$(PROJECT_NAME) \
                         --env-arg workspace=$(CURDIR) \
                         --env-arg configDir=$(abspath $(SBX_CONFIG_DIR)) \
                         --env-arg profile=$(SBX_PROFILE)
