@@ -7,9 +7,20 @@ PLATFORMS            := linux/amd64,linux/arm64
 PUSH                 ?= 0
 PROJECT_NAME         ?= $(notdir $(CURDIR))
 
+SBX                  ?= sbx
+SBX_ENV_FILE         ?= sbxenv.yaml
+SBX_CONFIG_DIR       ?= $(HOME)/.config/opencode
+SBX_PROFILE          ?= personal
+SBX_NAME             ?= opencode-devbox-$(PROJECT_NAME)
+SBX_ARGS             := --name $(SBX_NAME) \
+                        --env-arg workspace=$(CURDIR) \
+                        --env-arg configDir=$(abspath $(SBX_CONFIG_DIR)) \
+                        --env-arg profile=$(SBX_PROFILE)
+
 export PROJECT_NAME
 
-.PHONY: help gateway-up gateway-down build build-multiarch
+.PHONY: help gateway-up gateway-down build build-multiarch \
+        sbx-plan sbx-run sbx-stop sbx-rm sbx-ports sbx-shell
 
 help: ## Show this help
 	@grep -E '^[a-zA-Z_-]+:.*## ' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*## "}; {printf "  \033[36m%-16s\033[0m %s\n", $$1, $$2}'
@@ -32,3 +43,22 @@ build-multiarch: ## Build amd64+arm64 from compose config with buildx (PUSH=1 to
 	docker buildx bake -f $(COMPOSE_FILE) \
 		--set "opencode.platform=$(PLATFORMS)" \
 		$(if $(filter 1,$(PUSH)),--push,--set "opencode.output=type=cacheonly")
+
+sbx-plan: ## Show the Docker Sandboxes environment plan
+	$(SBX) env plan $(SBX_ENV_FILE) $(SBX_ARGS)
+
+sbx-run: ## Create or attach the Docker Sandboxes devbox
+	$(SBX) env run $(SBX_ENV_FILE) $(SBX_ARGS)
+
+sbx-stop: ## Stop the Docker Sandboxes devbox
+	$(SBX) stop $(SBX_NAME)
+
+sbx-rm: ## Remove the Docker Sandboxes devbox and its state
+	$(SBX) env rm $(SBX_ENV_FILE) --force $(SBX_ARGS)
+
+sbx-ports: ## Show published ports of the Docker Sandboxes devbox
+	$(SBX) ports $(SBX_NAME)
+
+sbx-shell: ## Open a shell inside the Docker Sandboxes devbox
+	$(SBX) exec -it $(SBX_NAME) bash
+

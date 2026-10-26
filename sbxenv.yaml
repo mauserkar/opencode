@@ -1,0 +1,42 @@
+schemaVersion: "1"
+name: opencode-devbox
+agent: opencode-devbox
+
+args:
+  workspace:
+    required: true
+    description: Absolute path of the project to mount as the sandbox workspace
+  configDir:
+    required: true
+    description: Absolute path of the OpenCode configuration directory
+  profile:
+    default: personal
+    enum: [personal, work]
+    description: OpenCode profile loaded through OPENCODE_CONFIG
+  serverPassword:
+    default: opencode
+    description: Password for the OpenCode server (username is opencode)
+
+kits:
+  - source: ./sbx/opencode-devbox
+    args:
+      configDir: ${{ env.args.configDir }}
+
+workspace: ${{ env.args.workspace }}
+
+additionalWorkspaces:
+  - path: ${{ env.args.configDir }}
+    readOnly: true
+
+env:
+  TZ: UTC
+  OPENCODE_CONFIG: /home/agent/.config/opencode/profiles/${{ env.args.profile }}/opencode.jsonc
+  OPENCODE_SERVER_PASSWORD: ${{ env.args.serverPassword }}
+
+ports:
+  - sandbox: 4096
+    host: 4096
+
+sandboxOptions:
+  cpus: 4
+  memory: 8g
