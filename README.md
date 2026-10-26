@@ -14,7 +14,7 @@ Personal [OpenCode](https://opencode.ai) configuration plus a reproducible Docke
 ├── cli.json             # OpenCode V2 CLI (TUI) settings
 ├── AGENTS.md            # Global agent rules (language, security, worktrees)
 ├── profiles/            # Work/personal profiles (copy examples to opencode.jsonc)
-├── sbx/                 # Docker Sandboxes kit (v3 workload) mirroring the Compose devbox
+├── sbx/                 # Docker Sandboxes kit mirroring the Compose devbox
 ├── sbxenv.yaml          # Docker Sandboxes environment definition
 ├── Dockerfile           # Devbox image
 ├── docker-compose.yaml  # Container orchestration (usually copied into the target repo as `docker-compose-devbox.yaml`)
@@ -210,7 +210,7 @@ make build-multiarch PUSH=1     # build and push the multi-arch manifest
 An alternative to Compose, using [`sbx`](https://docs.docker.com/ai/sandboxes/) (Docker Sandboxes). Instead of a container it runs a microVM sandbox with its own Docker daemon, and it publishes the OpenCode server on a host loopback port rather than through Traefik.
 
 - `sbxenv.yaml` defines the environment: workspace, read-only config mount, profile, server password, port `4096`, and `4` CPUs / `8g` memory.
-- `sbx/opencode-devbox/` is a v3 workload kit that builds an image from `docker/sandbox-templates:opencode` and installs the same pinned toolchain as `docker-compose.yaml` (Go, OpenTofu, uv/Python, OpenCode, OpenSpec, kubectl, helm, yq, glab). It runs `opencode serve` on `0.0.0.0:4096`.
+- `sbx/opencode-devbox/` is a v2 sandbox kit (`spec.yaml`) based on `docker/sandbox-templates:opencode`. Its `setup.install` hook installs the same pinned toolchain as `docker-compose.yaml` (Go, OpenTofu, uv/Python, OpenCode, OpenSpec, kubectl, helm, yq, glab) on first sandbox creation, and it runs `opencode serve` on `0.0.0.0:4096`.
 - The config directory (`$HOME/.config/opencode` by default) is mounted read-only and linked into `/home/agent/.config/opencode` at sandbox creation, so the same `opencode.jsonc`, agents, commands, skills, and profiles are used. Changes to the config require recreating the sandbox.
 - Provider credentials are injected by the sandbox proxy. Store them on the host, for example `sbx secret set anthropic`, `sbx secret set openai`, `sbx secret set google`; every credential in the kit is optional, so the sandbox starts even without them.
 
@@ -225,6 +225,6 @@ make sbx-stop                        # stop it
 make sbx-rm                          # remove sandbox and its state
 ```
 
-The server is available at `http://localhost:4096` (username `opencode`). Override defaults with `SBX_CONFIG_DIR`, `SBX_PROFILE`, or `SBX=...`.
+The server is available at `http://localhost:4096` (username `opencode`). Keep `make sbx-run` attached: the sandbox stops after its last session disconnects. Override defaults with `SBX_CONFIG_DIR`, `SBX_PROFILE`, `SBX_SERVER_PASSWORD`, or `SBX=...`.
 
-> **Differences from Compose:** no Traefik gateway or `traefik-net` (publish is loopback-only; use `sbx ports`), no named volumes (the sandbox persists until `sbx rm`, the workspace is a direct host mount), and no container-level `read_only`/`cap_drop` hardening (isolation is the microVM boundary). Network egress is open (`**`) to match the Compose setup; narrow it in `sbx/opencode-devbox/opencode-devbox.yaml` if needed.
+> **Differences from Compose:** no Traefik gateway or `traefik-net` (publish is loopback-only; use `sbx ports`), no named volumes (the sandbox persists until `sbx rm`, the workspace is a direct host mount), and no container-level `read_only`/`cap_drop` hardening (isolation is the microVM boundary). Network egress is open (`**`) to match the Compose setup; narrow it in `sbx/opencode-devbox/spec.yaml` if needed.

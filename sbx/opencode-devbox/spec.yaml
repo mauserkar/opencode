@@ -1,0 +1,209 @@
+schemaVersion: "2"
+kind: sandbox
+name: opencode-devbox
+displayName: OpenCode Devbox
+description: OpenCode server with the same toolchain and configuration layout as the Docker devbox
+sourceURL: https://github.com/anomalyco/opencode
+licenses:
+  - MIT
+
+args:
+  configDir:
+    required: true
+    description: Host path of the OpenCode configuration directory (mounted read-only)
+  goVersion:
+    default: "1.27.1"
+    pattern: '^[0-9]+\.[0-9]+\.[0-9]+$'
+  opentofuVersion:
+    default: "1.13.0"
+    pattern: '^[0-9]+\.[0-9]+\.[0-9]+$'
+  uvVersion:
+    default: "0.12.22"
+    pattern: '^[0-9]+\.[0-9]+\.[0-9]+$'
+  opencodeVersion:
+    default: "2.1.2"
+    pattern: '^[0-9]+\.[0-9]+\.[0-9]+$'
+  openspecVersion:
+    default: "1.14.3"
+    pattern: '^[0-9]+\.[0-9]+\.[0-9]+$'
+  helmVersion:
+    default: "4.0.0"
+    pattern: '^[0-9]+\.[0-9]+\.[0-9]+$'
+  kubectlVersion:
+    default: "1.37.0"
+    pattern: '^[0-9]+\.[0-9]+\.[0-9]+$'
+  yqVersion:
+    default: "4.53.6"
+    pattern: '^[0-9]+\.[0-9]+\.[0-9]+$'
+  pythonVersion:
+    default: "3.14"
+    pattern: '^[0-9]+\.[0-9]+$'
+
+sandbox:
+  image: docker/sandbox-templates:opencode
+  entrypoint: ["opencode", "serve", "--hostname", "0.0.0.0", "--port", "4096"]
+  command:
+    default: []
+    interactive: []
+  resources:
+    cpu: 4.0
+    memory: 8g
+
+# The Compose devbox has unrestricted egress. Keep the same behavior here;
+# narrow this list to enforce a policy through the sandbox proxy.
+permissions:
+  network:
+    allow:
+      - "**"
+
+setup:
+  install:
+    - description: Install the devbox toolchain
+      user: "0"
+      command: |
+        set -eux
+
+        export DEBIAN_FRONTEND=noninteractive
+        apt-get update
+        apt-get install -y --no-install-recommends \
+          ca-certificates curl fd-find git glab jq less make ripgrep tree \
+          unzip vim-tiny wget zip
+        rm -rf /var/lib/apt/lists/* /var/cache/apt/*
+
+        ARCH="$(dpkg --print-architecture)"
+
+        # Go
+        curl -fsSL "https://go.dev/dl/go${{ kit.args.goVersion }}.linux-${ARCH}.tar.gz" -o /tmp/go.tar.gz
+        rm -rf /usr/local/go
+        tar -C /usr/local -xzf /tmp/go.tar.gz
+        ln -sf /usr/local/go/bin/go /usr/local/bin/go
+        ln -sf /usr/local/go/bin/gofmt /usr/local/bin/gofmt
+        rm -f /tmp/go.tar.gz
+
+        # OpenTofu
+        curl -fsSL https://get.opentofu.org/install-opentofu.sh -o /tmp/install-tofu.sh
+        chmod +x /tmp/install-tofu.sh
+        /tmp/install-tofu.sh --install-method standalone \
+          --opentofu-version "${{ kit.args.opentofuVersion }}"
+        rm -f /tmp/install-tofu.sh
+
+        # uv
+        curl -LsSf "https://astral.sh/uv/${{ kit.args.uvVersion }}/install.sh" \
+          | env UV_INSTALL_DIR=/usr/local/bin sh
+
+        # kubectl
+        curl -fsSLO "https://dl.k8s.io/release/v${{ kit.args.kubectlVersion }}/bin/linux/${ARCH}/kubectl"
+        curl -fsSLO "https://dl.k8s.io/release/v${{ kit.args.kubectlVersion }}/bin/linux/${ARCH}/kubectl.sha256"
+        echo "$(cat kubectl.sha256)  kubectl" | sha256sum -c -
+        install -m 0755 kubectl /usr/local/bin/kubectl
+        rm -f kubectl kubectl.sha256
+
+        # helm
+        curl -fsSLO "https://get.helm.sh/helm-v${{ kit.args.helmVersion }}-linux-${ARCH}.tar.gz"
+        curl -fsSLO "https://get.helm.sh/helm-v${{ kit.args.helmVersion }}-linux-${ARCH}.tar.gz.sha256sum"
+        sha256sum -c "helm-v${{ kit.args.helmVersion }}-linux-${ARCH}.tar.gz.sha256sum"
+        tar -xzf "helm-v${{ kit.args.helmVersion }}-linux-${ARCH}.tar.gz"
+        install -m 0755 "linux-${ARCH}/helm" /usr/local/bin/helm
+        rm -rf "linux-${ARCH}" "helm-v${{ kit.args.helmVersion }}-linux-${ARCH}.tar.gz" \
+          "helm-v${{ kit.args.helmVersion }}-linux-${ARCH}.tar.gz.sha256sum"
+
+        # yq
+        curl -fsSL -o yq "https://github.com/mikefarah/yq/releases/download/v${{ kit.args.yqVersion }}/yq_linux_${ARCH}"
+        curl -fsSL -o checksums "https://github.com/mikefarah/yq/releases/download/v${{ kit.args.yqVersion }}/checksums"
+        EXPECTED=$(awk -v f="yq_linux_${ARCH}" '$1 == f { print $19 }' checksums)
+        printf '%s' "$EXPECTED" | grep -Eq '^[0-9a-f]{64}$'
+        echo "${EXPECTED}  yq" | sha256sum -c -
+        install -m 0755 yq /usr/local/bin/yq
+        rm -f yq checksums
+
+        # OpenCode and OpenSpec
+        npm install -g \
+          "@opencode/cli@${{ kit.args.opencodeVersion }}" \
+          "@fission-ai/openspec@${{ kit.args.openspecVersion }}"
+        npm cache clean --force
+
+        # Standalone Python managed by uv
+        export UV_PYTHON_INSTALL_DIR=/opt/python UV_LINK_MODE=copy
+        uv python install "${{ kit.args.pythonVersion }}"
+        PY="$(uv python find "${{ kit.args.pythonVersion }}")"
+        ln -sf "$PY" /usr/local/bin/python3
+        ln -sf "$PY" /usr/local/bin/python
+
+        # Go workspace; the go/gofmt symlinks above keep the toolchain on PATH
+        install -d -o agent -g agent /home/agent/go/src /home/agent/go/bin
+
+    - description: Link the mounted OpenCode configuration into the agent home
+      user: "0"
+      command: |
+        rm -rf /home/agent/.config/opencode
+        ln -s "${{ kit.args.configDir }}" /home/agent/.config/opencode
+        chown -h agent:agent /home/agent/.config/opencode
+
+# Provider credentials are injected by the sandbox proxy. Each entry is
+# optional by default (required: false), so the sandbox starts even when the
+# corresponding secret is not configured.
+credentials:
+  - service: anthropic
+    description: Anthropic API access
+    apiKey:
+      name: ANTHROPIC_API_KEY
+      proxyManaged: true
+      inject:
+        - domain: api.anthropic.com
+          header: x-api-key
+          format: "%s"
+
+  - service: openai
+    description: OpenAI API access
+    apiKey:
+      name: OPENAI_API_KEY
+      proxyManaged: true
+      inject:
+        - domain: api.openai.com
+          scheme: bearer
+
+  - service: google
+    description: Google Gemini API access
+    apiKey:
+      name: GEMINI_API_KEY
+      proxyManaged: true
+      inject:
+        - domain: generativelanguage.googleapis.com
+          header: x-goog-api-key
+          format: "%s"
+
+  - service: xai
+    description: xAI API access
+    apiKey:
+      name: XAI_API_KEY
+      proxyManaged: true
+      inject:
+        - domain: api.x.ai
+          scheme: bearer
+
+  - service: groq
+    description: Groq API access
+    apiKey:
+      name: GROQ_API_KEY
+      proxyManaged: true
+      inject:
+        - domain: api.groq.com
+          scheme: bearer
+
+  - service: openrouter
+    description: OpenRouter API access
+    apiKey:
+      name: OPENROUTER_API_KEY
+      proxyManaged: true
+      inject:
+        - domain: openrouter.ai
+          scheme: bearer
+
+  - service: github
+    description: GitHub API access
+    apiKey:
+      name: GITHUB_TOKEN
+      proxyManaged: true
+      inject:
+        - domain: api.github.com
+          scheme: bearer
