@@ -1,7 +1,8 @@
 .DEFAULT_GOAL := help
 
+DEVBOX_VERSION       := $(shell cat VERSION)
 GATEWAY_COMPOSE_FILE := docker-compose-gateway.yaml
-COMPOSE_FILE          ?= docker-compose.yaml
+COMPOSE_FILE         ?= docker-compose.yaml
 COMPOSE              := $(shell docker compose version >/dev/null 2>&1 && echo "docker compose" || (command -v docker-compose >/dev/null 2>&1 && echo "docker-compose"))
 PLATFORMS            := linux/amd64,linux/arm64
 PUSH                 ?= 0
@@ -16,13 +17,14 @@ SBX_NAME             := opencode-devbox-$(PROJECT_NAME)
 SBX_ARGS             := --env-arg projectName=$(PROJECT_NAME) \
                         --env-arg workspace=$(CURDIR) \
                         --env-arg configDir=$(abspath $(SBX_CONFIG_DIR)) \
+                        --env-arg devboxVersion=$(DEVBOX_VERSION) \
                         --env-arg profile=$(SBX_PROFILE) \
                         --env-arg serverPassword=$(SBX_SERVER_PASSWORD)
 
 export PROJECT_NAME
 
 .PHONY: help gateway-up gateway-down build build-multiarch \
-        sbx-plan sbx-run sbx-stop sbx-rm sbx-ports sbx-shell
+        sbx-build sbx-plan sbx-run sbx-stop sbx-rm sbx-ports sbx-shell
 
 help: ## Show this help
 	@grep -E '^[a-zA-Z_-]+:.*## ' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*## "}; {printf "  \033[36m%-16s\033[0m %s\n", $$1, $$2}'
@@ -34,7 +36,7 @@ gateway-down: ## Stop the Traefik gateway
 	$(COMPOSE) -f $(GATEWAY_COMPOSE_FILE) down
 
 build: ## Rebuild the opencode devbox image for the host's native arch
-	$(COMPOSE) -f $(COMPOSE_FILE) build
+	DEVBOX_VERSION=$(DEVBOX_VERSION) $(COMPOSE) -f $(COMPOSE_FILE) build
 
 build-multiarch: ## Build amd64+arm64 from compose config with buildx (PUSH=1 to push)
 	@docker buildx version 2>/dev/null | grep -q 'buildx' || { \
@@ -42,9 +44,13 @@ build-multiarch: ## Build amd64+arm64 from compose config with buildx (PUSH=1 to
 		echo "Install the Docker buildx plugin: https://docs.docker.com/build/install-buildx/"; \
 		exit 1; \
 	}
-	docker buildx bake -f $(COMPOSE_FILE) \
+	DEVBOX_VERSION=$(DEVBOX_VERSION) docker buildx bake -f $(COMPOSE_FILE) \
 		--set "opencode.platform=$(PLATFORMS)" \
 		$(if $(filter 1,$(PUSH)),--push,--set "opencode.output=type=cacheonly")
+
+sbx-build: build ## Build the devbox image and load it into Docker Sandboxes
+	docker image save opencode-devbox:$(DEVBOX_VERSION) -o opencode-devbox-$(DEVBOX_VERSION).tar
+	$(SBX) template load opencode-devbox-$(DEVBOX_VERSION).tar && rm opencode-devbox-$(DEVBOX_VERSION).tar
 
 sbx-plan: ## Show the Docker Sandboxes environment plan
 	$(SBX) env plan $(SBX_ENV_FILE) $(SBX_ARGS)

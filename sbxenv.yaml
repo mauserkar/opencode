@@ -12,6 +12,9 @@ args:
   configDir:
     required: true
     description: Absolute path of the OpenCode configuration directory
+  devboxVersion:
+    required: true
+    description: Version tag of the local opencode-devbox image
   profile:
     default: personal
     enum: [personal, work]
@@ -24,6 +27,7 @@ kits:
   - source: ./sbx/opencode-devbox
     args:
       configDir: ${{ env.args.configDir }}
+      devboxVersion: ${{ env.args.devboxVersion }}
 
 workspace: ${{ env.args.workspace }}
 
@@ -41,5 +45,5 @@ ports:
     host: 4096
 
 sandboxOptions:
-  cpus: 4
-  memory: 8g
+  cpus: 2
+  memory: 4g

@@ -47,20 +47,21 @@ own root `AGENTS.md`, which is versioned with the repo.
 ## Security
 
 Security guidance for all agents. This is a reinforcement layer, not the
-enforcement mechanism: the actual technical boundaries live in each agent's
-`permission` block (`opencode.jsonc` / `profiles/*/opencode.jsonc`) and in
-`docker-compose.yaml`/`Dockerfile`. Nothing here overrides those — if this
-file and a `permission` block ever disagree, the `permission` block wins.
+enforcement mechanism: the actual technical boundaries live in the
+`permissions` rules (`opencode.jsonc` / `profiles/*/opencode.jsonc`) and in
+`docker-compose.yaml`/`Dockerfile`/`sbx/opencode-devbox/opencode-devbox.yaml`.
+Nothing here overrides those — if this file and a `permissions` rule ever
+disagree, the `permissions` rule wins.
 
 ### Secrets
 
 - Never read, print, log, quote, or reconstruct the contents of `.env`,
   `.env.*` (including `.env.example`), `*.pem`, `*.key`, `*.p12`, `*.pfx`,
-  or anything matching `*credential*` / `*secret*`, even indirectly (e.g.
-  via `cat`, `grep`, `sed`, `head`/`tail`, a heredoc, or a script that
-  shells out to print them). This applies during debugging too — report
-  that a variable is missing or looks wrong instead of dumping the file to
-  inspect it.
+  or anything matching `*credential*`, `*secret*`, or `**/secrets/**`, even
+  indirectly (e.g. via `cat`, `grep`, `sed`, `head`/`tail`, a heredoc, or a
+  script that shells out to print them). This applies during debugging too —
+  report that a variable is missing or looks wrong instead of dumping the
+  file to inspect it.
 - Never run `env`, `printenv`, or `export` to enumerate the current
   environment "just to check" a value — ask the user to confirm what's set
   instead.
@@ -97,7 +98,7 @@ file and a `permission` block ever disagree, the `permission` block wins.
 - Never target the cloud metadata endpoint (`169.254.169.254`) or attempt
   to reach it through a proxy, redirect, or SSRF-style request.
 - Do not attempt SSH (`ssh *`, `scp *`) or Docker-in-Docker (`docker *`)
-  from inside the unattended container — it has no host credentials or
+  from inside the devbox container — it has no host credentials or
   socket access, and trying to route around that is a signal to stop and
   ask, not to find another path.
 
@@ -121,6 +122,5 @@ dedicated review checklist), always flag rather than silently work around:
 
 If an action would touch a secret, a credential, a shared branch, or the
 container's security configuration, and it isn't unambiguously covered by
-an explicit `allow` in the relevant agent's `permission` block: stop and
-ask the user rather than finding an alternate command that achieves the
-same effect.
+an explicit `allow` rule in `permissions`: stop and ask the user rather than
+finding an alternate command that achieves the same effect.

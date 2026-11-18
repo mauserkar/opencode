@@ -54,7 +54,7 @@ FROM ghcr.io/opentofu/opentofu:${OPENTOFU_VERSION}-minimal AS tofu
 FROM ghcr.io/astral-sh/uv:${UV_VERSION} AS uv
 
 # ---------- Final image ----------
-FROM ubuntu:24.04
+FROM ubuntu:26.04
 
 ARG PYTHON_VERSION
 ARG OPENCODE_VERSION
@@ -65,13 +65,14 @@ LABEL org.opencontainers.image.title="opencode-devbox" \
       org.opencontainers.image.version="${OPENCODE_VERSION}"
 
 ENV DEBIAN_FRONTEND=noninteractive \
-    HOME=/home/ubuntu \
+    HOME=/home/agent \
+    BASH_ENV=/etc/sandbox-persistent.sh \
     GO_VERSION=${GO_VERSION} \
     OPENCODE_VERSION=${OPENCODE_VERSION} \
-    GOPATH=/home/ubuntu/go \
+    GOPATH=/home/agent/go \
     UV_PYTHON_INSTALL_DIR=/opt/python \
     UV_LINK_MODE=copy \
-    PATH=/usr/local/go/bin:/home/ubuntu/go/bin:${PATH}
+    PATH=/usr/local/go/bin:/home/agent/go/bin:${PATH}
 
 # Essential packages only (no software-properties-common, gnupg, python-dev, etc.)
 RUN apt-get update && apt-get install -y --no-install-recommends \
@@ -88,7 +89,14 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     unzip \
     vim-tiny \
     zip \
-    && rm -rf /var/lib/apt/lists/* /var/cache/apt/*
+    && rm -rf /var/lib/apt/lists/* /var/cache/apt/* \
+    && (userdel -r ubuntu 2>/dev/null || true) \
+    && (groupdel ubuntu 2>/dev/null || true) \
+    && groupadd -g 1000 agent \
+    && useradd -u 1000 -g 1000 -m -d /home/agent -s /bin/bash agent \
+    && touch /etc/sandbox-persistent.sh \
+    && chown agent:agent /etc/sandbox-persistent.sh \
+    && chmod 0644 /etc/sandbox-persistent.sh
 
 # Binaries copied from the other stages
 COPY --from=tools /out-kubectl /usr/local/bin/kubectl
@@ -113,7 +121,7 @@ RUN uv python install ${PYTHON_VERSION} \
     && ln -s "$PY" /usr/local/bin/python \
     && rm -rf /root/.cache ${HOME}/.cache
 
-RUN install -d -o ubuntu -g ubuntu \
+RUN install -d -o agent -g agent \
         /workspace \
         ${GOPATH}/src \
         ${GOPATH}/bin \
@@ -122,7 +130,7 @@ RUN install -d -o ubuntu -g ubuntu \
         ${HOME}/.local/share/opencode \
         ${HOME}/.local/state/opencode
 
-USER ubuntu
+USER agent
 WORKDIR /workspace
 EXPOSE 4096
 

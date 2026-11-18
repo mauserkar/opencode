@@ -1,0 +1,82 @@
+# syntax=docker/sandbox-kit:3
+schemaVersion: "3"
+kind: workload
+displayName: "Opencode Devbox ${{ kit.args.devboxVersion }}"
+description: Opencode server with the same toolchain and configuration layout as the Docker devbox
+sourceUrl: https://github.com/mauserkar/opencode
+version: "${{ kit.args.devboxVersion }}"
+
+args:
+  configDir:
+    required: true
+    description: Host path of the OpenCode configuration directory (mounted read-only)
+  devboxVersion:
+    default: "3.0.0"
+    description: Version tag of the local opencode-devbox image
+    buildArg: DEVBOX_VERSION
+
+provides:
+  - "opencode-devbox@${{ kit.args.devboxVersion }}"
+
+build: |
+  # check=skip=InvalidDefaultArgInFrom
+  ARG DEVBOX_VERSION=3.0.0
+  FROM opencode-devbox:${DEVBOX_VERSION}
+  ENV TZ=UTC \
+      OPENCODE_CONFIG=/home/agent/.config/opencode/profiles/personal/opencode.jsonc \
+      OPENCODE_SERVER_PASSWORD=opencode
+  USER agent
+  ENTRYPOINT ["opencode", "serve", "--hostname", "0.0.0.0", "--port", "4096"]
+  CMD []
+
+capabilities:
+  - type: com.docker.sandbox/sbx@1
+
+  - type: com.docker.sandbox/resources@1
+    config:
+      cpu: 2.0
+      memory: 4g
+
+  - type: com.docker.sandbox/network-policy@1
+    config:
+      runtime:
+        allow:
+          - "**"
+
+  - type: com.docker.sandbox/lifecycle@1
+    config:
+      install:
+        - description: Link the mounted OpenCode configuration into the agent home
+          user: agent
+          command: |
+            mkdir -p /home/agent/.config
+            rm -rf /home/agent/.config/opencode
+            ln -s "${{ kit.args.configDir }}" /home/agent/.config/opencode
+
+  - type: com.docker.sandbox/credential@1
+    optional: true
+    description: Anthropic API access
+    config:
+      service: anthropic
+      phase: runtime
+      apiKey:
+        name: ANTHROPIC_API_KEY
+        proxyManaged: true
+        inject:
+          - domain: api.anthropic.com
+            header: x-api-key
+            format: "%s"
+
+  - type: com.docker.sandbox/credential@1
+    optional: true
+    description: OpenAI API access
+    config:
+      service: openai
+      phase: runtime
+      apiKey:
+        name: OPENAI_API_KEY
+        proxyManaged: true
+        inject:
+          - domain: api.openai.com
+            header: Authorization
+            format: "Bearer %s"

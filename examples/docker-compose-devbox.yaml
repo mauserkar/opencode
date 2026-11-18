@@ -1,0 +1,23 @@
+# Copy this file to your target repository as `docker-compose-devbox.yaml`
+# It inherits the base devbox configuration from ~/.config/opencode/docker-compose.yaml
+# and lets you add or override only what your project needs.
+#
+# Usage:
+#   PROJECT_NAME=$(basename "$PWD") docker compose -f docker-compose-devbox.yaml up -d
+
+include:
+  - path: ${HOME}/.config/opencode/docker-compose.yaml
+    project_directory: .
+
+services:
+  opencode:
+    working_dir: /workspace/${PROJECT_NAME}
+    image: opencode-devbox:3.1.0
+    environment:
+      - OPENCODE_PROFILE=work
+      # Add project-specific environment variables here:
+      # - LOG_LEVEL=debug
+    # volumes:
+    #   - ./custom-data:/workspace/${PROJECT_NAME}/custom-data
+    # ports:
+    #   - "8080:8080"
