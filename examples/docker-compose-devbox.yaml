@@ -12,7 +12,7 @@ include:
 services:
   opencode:
     working_dir: /workspace/${PROJECT_NAME}
-    image: opencode-devbox:3.1.0
+    image: opencode-devbox:3.2.0
     environment:
       - OPENCODE_PROFILE=work
       # Add project-specific environment variables here:
