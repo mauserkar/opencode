@@ -1,6 +1,6 @@
 # check=skip=InvalidDefaultArgInFrom
 # All package/tool versions below are intentionally declared without defaults;
-# real values are provided via docker-compose.yaml's build.args (single source of truth).
+# real values are defined in VERSION and passed via Makefile / docker-compose.yaml's build.args.
 ARG GO_VERSION
 ARG NODE_MAJOR
 ARG OPENTOFU_VERSION
@@ -65,10 +65,13 @@ LABEL org.opencontainers.image.title="opencode-devbox" \
       org.opencontainers.image.version="${OPENCODE_VERSION}"
 
 ENV DEBIAN_FRONTEND=noninteractive \
+    TZ=UTC \
     HOME=/home/agent \
     BASH_ENV=/etc/sandbox-persistent.sh \
     GO_VERSION=${GO_VERSION} \
     OPENCODE_VERSION=${OPENCODE_VERSION} \
+    OPENCODE_CONFIG=/home/agent/.config/opencode/opencode.jsonc \
+    OPENCODE_SERVER_PASSWORD=opencode \
     GOPATH=/home/agent/go \
     UV_PYTHON_INSTALL_DIR=/opt/python \
     UV_LINK_MODE=copy \
@@ -134,4 +137,4 @@ USER agent
 WORKDIR /workspace
 EXPOSE 4096
 
-CMD ["opencode", "serve", "--hostname", "0.0.0.0", "--port", "4096"]
+ENTRYPOINT ["opencode", "serve", "--hostname", "0.0.0.0", "--port", "4096"]

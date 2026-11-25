@@ -1,9 +1,7 @@
-# Note: `sbxenv-devbox.yaml` has no `include:` keyword like Compose; instead, it inherits
-# image, toolchain, default env (TZ, profile, password), credentials, network policy,
-# and CPU/RAM resources directly from the v3 kit (`sbx/opencode-devbox`).
-#
 # Usage:
-#   sbx env run sbxenv-devbox.yaml --env-arg projectName="$(basename "$PWD")" --env-arg configDir="$HOME/.config/opencode"
+#   Copy this file to your target repository as `sbxenv-devbox.yaml`
+#   Run sbx env run sbxenv-devbox.yaml --env-arg projectName="$(basename "$PWD")" --env-arg configDir="$HOME/.config/opencode"
+
 schemaVersion: "1"
 name: opencode-devbox-${{ env.args.projectName }}
 agent: opencode-devbox
@@ -13,11 +11,14 @@ args:
     required: true
   configDir:
     required: true
+  devboxVersion:
+    default: "3.3.1s"
 
 kits:
   - source: ${{ env.args.configDir }}/sbx/opencode-devbox
     args:
       configDir: ${{ env.args.configDir }}
+      devboxVersion: ${{ env.args.devboxVersion }}
 
 workspace: .
 

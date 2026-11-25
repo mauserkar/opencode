@@ -1,9 +1,6 @@
-# Copy this file to your target repository as `docker-compose-devbox.yaml`
-# It inherits the base devbox configuration from ~/.config/opencode/docker-compose.yaml
-# and lets you add or override only what your project needs.
-#
 # Usage:
-#   PROJECT_NAME=$(basename "$PWD") docker compose -f docker-compose-devbox.yaml up -d
+#   Copy this file to your target repository as `docker-compose-devbox.yaml`
+#   Run PROJECT_NAME=$(basename "$PWD") docker compose -f docker-compose-devbox.yaml up -d
 
 include:
   - path: ${HOME}/.config/opencode/docker-compose.yaml
@@ -12,7 +9,7 @@ include:
 services:
   opencode:
     working_dir: /workspace/${PROJECT_NAME}
-    image: opencode-devbox:3.2.0
+    image: opencode-devbox:3.3.1
     environment:
       - OPENCODE_PROFILE=work
       # Add project-specific environment variables here:

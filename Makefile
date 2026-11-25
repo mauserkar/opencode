@@ -1,6 +1,7 @@
 .DEFAULT_GOAL := help
 
-DEVBOX_VERSION       := $(shell cat VERSION)
+include VERSION
+
 GATEWAY_COMPOSE_FILE := docker-compose-gateway.yaml
 COMPOSE_FILE         ?= docker-compose.yaml
 COMPOSE              := $(shell docker compose version >/dev/null 2>&1 && echo "docker compose" || (command -v docker-compose >/dev/null 2>&1 && echo "docker-compose"))
@@ -21,7 +22,9 @@ SBX_ARGS             := --env-arg projectName=$(PROJECT_NAME) \
                         --env-arg profile=$(SBX_PROFILE) \
                         --env-arg serverPassword=$(SBX_SERVER_PASSWORD)
 
-export PROJECT_NAME
+export DEVBOX_VERSION GO_VERSION HELM_VERSION KUBECTL_VERSION NODE_MAJOR \
+       OPENCODE_VERSION OPENSPEC_VERSION OPENTOFU_VERSION PYTHON_VERSION \
+       UV_VERSION YQ_VERSION PROJECT_NAME
 
 .PHONY: help gateway-up gateway-down build build-multiarch \
         sbx-build sbx-plan sbx-run sbx-stop sbx-rm sbx-ports sbx-shell

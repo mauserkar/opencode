@@ -11,7 +11,7 @@ args:
     required: true
     description: Host path of the OpenCode configuration directory (mounted read-only)
   devboxVersion:
-    default: "3.0.0"
+    required: true
     description: Version tag of the local opencode-devbox image
     buildArg: DEVBOX_VERSION
 
@@ -20,14 +20,8 @@ provides:
 
 build: |
   # check=skip=InvalidDefaultArgInFrom
-  ARG DEVBOX_VERSION=3.0.0
+  ARG DEVBOX_VERSION
   FROM opencode-devbox:${DEVBOX_VERSION}
-  ENV TZ=UTC \
-      OPENCODE_CONFIG=/home/agent/.config/opencode/profiles/personal/opencode.jsonc \
-      OPENCODE_SERVER_PASSWORD=opencode
-  USER agent
-  ENTRYPOINT ["opencode", "serve", "--hostname", "0.0.0.0", "--port", "4096"]
-  CMD []
 
 capabilities:
   - type: com.docker.sandbox/sbx@1

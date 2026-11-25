@@ -17,7 +17,7 @@ Personal [OpenCode](https://opencode.ai) configuration plus a reproducible Docke
 ├── profiles/                    # Work/personal profiles (copy examples to opencode.jsonc)
 ├── sbx/                         # Docker Sandboxes v3 kit (`opencode-devbox`)
 ├── sbxenv.yaml                  # Docker Sandboxes environment definition
-├── VERSION                      # Devbox image version tag (e.g. `3.1.0`)
+├── VERSION                      # Tool and devbox image versions
 ├── Dockerfile                   # Devbox image
 ├── docker-compose.yaml          # Base container orchestration (included by target repos)
 ├── docker-compose-gateway.yaml  # Traefik gateway for routing `*.docker.localhost`
@@ -144,13 +144,13 @@ Image based on `ubuntu:26.04` with the tooling required for the workflow:
 
 - **Go** 1.27.1
 - **Node.js** 20
-- **Python** 3.14 (standalone, installed via `uv` 0.12.22)
+- **Python** 3.15 (standalone, installed via `uv` 0.13.10)
 - **OpenTofu** 1.13.0
-- **OpenCode** 2.2.6
-- **OpenSpec** 1.14.3
-- CLI utilities: `git`, `ripgrep`, `fd-find`, `jq`, `yq` (4.53.6), `curl`, `less`, `vim-tiny`, `tree`, `unzip`, `zip`, `kubectl` (1.37.0), `helm` (4.0.0), `make`, `glab` (GitLab CLI).
+- **OpenCode** 2.4.1
+- **OpenSpec** 2.2.0
+- CLI utilities: `git`, `ripgrep`, `fd-find`, `jq`, `yq` (4.54.3), `curl`, `less`, `vim-tiny`, `tree`, `unzip`, `zip`, `kubectl` (1.37.2), `helm` (4.3.1), `make`, `glab` (GitLab CLI).
 
-Tool and runtime versions are defined exclusively in `docker-compose.yaml` (`build.args`), and the image tag is `opencode-devbox:${DEVBOX_VERSION}` (read from `VERSION` by the `Makefile`). The `Dockerfile` ARGs intentionally have no defaults, so every build must go through Compose / `make` (or pass the args explicitly).
+Tool and runtime versions (along with `DEVBOX_VERSION` for the image tag `opencode-devbox:${DEVBOX_VERSION}`) are defined in `VERSION` and exported by the `Makefile` into `docker-compose.yaml` (`build.args`). The `Dockerfile` ARGs intentionally have no defaults, so every build must go through Compose / `make` (or pass the args explicitly).
 
 `docker-compose.yaml` mounts:
 
@@ -188,12 +188,13 @@ PROJECT_NAME=$(basename "$PWD") docker compose -f docker-compose-devbox.yaml up 
 Or directly from this repository:
 
 ```bash
-DEVBOX_VERSION=$(cat VERSION) PROJECT_NAME=$(basename "$PWD") docker compose -f docker-compose.yaml up -d
+set -a && . ./VERSION && set +a
+PROJECT_NAME=$(basename "$PWD") docker compose -f docker-compose.yaml up -d
 ```
 
 ### Makefile
 
-Shortcuts for the commands above (defaults `PROJECT_NAME` to the current directory name and reads `DEVBOX_VERSION` from `VERSION`; override with `make <target> PROJECT_NAME=foo`):
+Shortcuts for the commands above (defaults `PROJECT_NAME` to the current directory name and reads package versions and `DEVBOX_VERSION` from `VERSION`; override with `make <target> PROJECT_NAME=foo`):
 
 | Target                 | Description                                                                                                                                 |
 | ---------------------- | ------------------------------------------------------------------------------------------------------------------------------------------- |
