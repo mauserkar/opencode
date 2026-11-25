@@ -30,7 +30,7 @@ export DEVBOX_VERSION GO_VERSION HELM_VERSION KUBECTL_VERSION NODE_MAJOR \
         sbx-build sbx-plan sbx-run sbx-stop sbx-rm sbx-ports sbx-shell
 
 help: ## Show this help
-	@grep -E '^[a-zA-Z_-]+:.*## ' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*## "}; {printf "  \033[36m%-16s\033[0m %s\n", $$1, $$2}'
+	@grep -hE '^[a-zA-Z_-]+:.*## ' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*## "}; {printf "  \033[36m%-16s\033[0m %s\n", $$1, $$2}'
 
 gateway-up: ## Start the Traefik gateway (creates the external traefik-net network)
 	$(COMPOSE) -f $(GATEWAY_COMPOSE_FILE) up -d
@@ -39,7 +39,7 @@ gateway-down: ## Stop the Traefik gateway
 	$(COMPOSE) -f $(GATEWAY_COMPOSE_FILE) down
 
 build: ## Rebuild the opencode devbox image for the host's native arch
-	DEVBOX_VERSION=$(DEVBOX_VERSION) $(COMPOSE) -f $(COMPOSE_FILE) build
+	$(COMPOSE) -f $(COMPOSE_FILE) build
 
 build-multiarch: ## Build amd64+arm64 from compose config with buildx (PUSH=1 to push)
 	@docker buildx version 2>/dev/null | grep -q 'buildx' || { \
@@ -47,7 +47,7 @@ build-multiarch: ## Build amd64+arm64 from compose config with buildx (PUSH=1 to
 		echo "Install the Docker buildx plugin: https://docs.docker.com/build/install-buildx/"; \
 		exit 1; \
 	}
-	DEVBOX_VERSION=$(DEVBOX_VERSION) docker buildx bake -f $(COMPOSE_FILE) \
+	docker buildx bake -f $(COMPOSE_FILE) \
 		--set "opencode.platform=$(PLATFORMS)" \
 		$(if $(filter 1,$(PUSH)),--push,--set "opencode.output=type=cacheonly")
 
