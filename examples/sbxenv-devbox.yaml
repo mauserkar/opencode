@@ -12,7 +12,7 @@ args:
   configDir:
     required: true
   devboxVersion:
-    default: "3.3.1s"
+    default: "3.3.1"
 
 kits:
   - source: ${{ env.args.configDir }}/sbx/opencode-devbox
@@ -33,8 +33,8 @@ ports:
 env:
   LOG_LEVEL: debug
   OPENCODE_CONFIG: /home/agent/.config/opencode/profiles/work/opencode.jsonc
-  OPENCODE_PROFIL: work
+  OPENCODE_PROFILE: work
   GOOGLE_GENAI_USE_VERTEXAI: true
   GOOGLE_CLOUD_LOCATION: eu
-  GOOGLE_APPLICATION_CREDENTIAL: ""
+  GOOGLE_APPLICATION_CREDENTIALS: ""
   GOOGLE_CLOUD_PROJECT: ""

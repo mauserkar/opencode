@@ -92,17 +92,30 @@ merge ──▶ archive                            (integration)
 | `conventional-commits`  | Analyzes the `git diff` and generates commit messages following Conventional Commits (`feat`, `fix`, `refactor`, `docs`, `perf`, `chore`, `!` for breaking changes). |
 | `jira-issue-management` | Creates, updates, searches, lists, or comments on Jira issues during a session (requires the `jira` MCP server running, `JIRA_TOKEN` and `JIRA_BASE_URL`).           |
 | `network-proxy`         | Rules for running `curl`/`wget` behind a proxy; reads the proxy only from `HTTP_PROXY` and forbids proxy use if it isn't defined.                                    |
+| `release-versioning`    | Updates `CHANGELOG.md` and SemVer bumps, audits/implements version reporting (`--version`, `/version`, `__version__`), and maintains the root `VERSION` file.        |
+
+## MCP Servers (`mcps/`)
+
+### Jira (`mcps/jira/`)
+
+FastMCP server (`server.py` over `streamable-http` on port `8000`) plus a zero-dependency standalone CLI (`jira.py`). Exposes `jira_create_issue`, `jira_get_issue`, `jira_update_issue`, `jira_add_comment`, `jira_list_comments`, `jira_update_comment`, `jira_delete_comment`, `jira_search_issues`, and `jira_list_issues`.
+
+- Configured via `mcps/jira/.env` (from `mcps/jira/env.sample`: `JIRA_TOKEN`, `JIRA_BASE_URL`, optional `JIRA_PROJECT_ID`, `JIRA_EPIC_FIELD`, etc.).
+- Runs as a hardened container (`opencode-mcp-jira`, `read_only`, `cap_drop: ALL`, `no-new-privileges`) on the external `traefik-net` network with no host-published port; reachable from the devbox at `http://opencode-mcp-jira:8000/mcp` (see `profiles/work/opencode.example.jsonc` under `mcp.servers.jira`).
+- Manage with `make -C mcps/jira build | up | down | logs | restart | clean` (or `make -C mcps/jira install | run` locally). See [`mcps/jira/README.md`](mcps/jira/README.md) for details.
 
 ## OpenCode Configuration (`opencode.jsonc`)
 
-- Uses the native OpenCode V2 schema: `agents` and an ordered `permissions` array.
+- Uses the native OpenCode V2 schema: `agents` (`mode: primary | subagent | all`) and an ordered `permissions` array.
 - `default_agent: resolver` (base fallback; profiles can override it).
 - `build` and `plan` agents disabled.
-- The server listens on `0.0.0.0:4096` via the `opencode serve --hostname 0.0.0.0 --port 4096` command in `docker-compose.yaml`; V2 does not use the deprecated `server` config key.
+- Denies reading/editing secret files (`.env*`, `*.pem`, `*.key`, `*.p12`, `*.pfx`, `*credentials*`, `*secret*`, `.ssh`, `.gcloud`, `.gnupg`, `.kube`, `.docker/config.json`) and blocks dangerous shell commands (`env`/`printenv`/`export`, `ssh`/`scp`, `docker`, cloud metadata `169.254.169.254`, `git push`, broad `rm -rf`).
+- Allows `external_directory` access for `/workspace/**`, `/tmp/**`, `/private/tmp/**`, `~/.config/opencode/**`, `~/go/pkg/mod/**`, and `~/AppData/Local/Temp/**` (supporting sibling git worktrees and toolchain caches).
+- The server listens on `0.0.0.0:4096` via the `ENTRYPOINT ["opencode", "serve", "--hostname", "0.0.0.0", "--port", "4096"]` in `Dockerfile` (with `command: ["--log-level", "debug", "--print-logs"]` in `docker-compose.yaml`); V2 does not use the deprecated `server` config key.
 - No plugins are loaded. OpenSpec integration is native (see below).
 - `compaction`, `tool_output` limits and `experimental.subagent_depth` are supported but not set here; define them in `opencode.jsonc` or a profile to override the defaults.
 
-TUI/CLI settings live in `cli.json` (V2 schema) and belong at `~/.config/opencode/cli.json`; they do not affect `opencode serve`.
+TUI/CLI settings live in `cli.json` (V2 schema: `one-dark` theme, `ctrl+x` leader, `ctrl+p` command palette, scroll, diffs, mouse, and notifications) and belong at `~/.config/opencode/cli.json`; they do not affect `opencode serve`.
 
 ## OpenSpec Integration
 
@@ -122,12 +135,15 @@ Re-running `openspec init` (or `openspec update`) refreshes the generated files 
 
 ## Profiles (`profiles/`)
 
-Separate **work**, and **personal** configurations, each an `opencode.jsonc` that is **merged on top of** the base config (so it only needs the overrides, e.g. `model`/`small_model`):
+Separate **work** and **personal** configurations, each an `opencode.jsonc` that is **merged on top of** the base config (so it only needs the overrides, e.g. `model`/`small_model`, enabled subagents, and MCP servers):
+
+- **`work`** (`profiles/work/opencode.example.jsonc`): assigns models per agent (stronger model for `spec_driven`/`developer`/`resolver`/`unattended`, fast model for `researcher`/`spec_author`/`tester`/`reviewer`/`security_reviewer`), disables `websearch` and the `opencode` provider, and wires the remote `jira` MCP server (`http://opencode-mcp-jira:8000/mcp`).
+- **`personal`** (`profiles/personal/opencode.example.jsonc`): lightweight setup that keeps `resolver`, `developer`, and `unattended` enabled while disabling the multi-agent `spec_driven` pipeline and its subagents.
 
 ```
 profiles/
 ├── work/opencode.example.jsonc        # copy to opencode.jsonc (gitignored)
-├── personal/opencode.example.jsonc    # copy to opencode.jsonc (gitignored)
+└── personal/opencode.example.jsonc    # copy to opencode.jsonc (gitignored)
 ```
 
 Select one with the `OPENCODE_CONFIG` environment variable:
@@ -233,9 +249,9 @@ An alternative to Compose, using [`sbx`](https://docs.docker.com/ai/sandboxes/) 
 - `sbxenv.yaml` defines the environment: `projectName`, `workspace`, `configDir`, `devboxVersion` (from `VERSION`), `profile` (`personal`/`work`), `serverPassword`, port `4096`, and `2` CPUs / `4g` memory (`sandboxOptions`).
 - `sbx/opencode-devbox/opencode-devbox.yaml` is a v3 sandbox kit (`schemaVersion: "3"`, `kind: workload`) that builds on top of the local `opencode-devbox:${DEVBOX_VERSION}` image (`FROM opencode-devbox:${DEVBOX_VERSION}`), reusing the exact same pre-baked toolchain as the Compose devbox, and runs `opencode serve` on `0.0.0.0:4096`.
 - Run `make sbx-build` on first setup (and after `VERSION`/image updates) to build `opencode-devbox:<VERSION>` and load it into Docker Sandboxes via `sbx template load`.
-- The config directory (`$HOME/.config/opencode` by default) is mounted read-only via `additionalWorkspaces` and symlinked into `/home/agent/.config/opencode` by the kit's `lifecycle@1` `install` hook, so the same `opencode.jsonc`, agents, commands, skills, and profiles are used. Changes to the config require recreating the sandbox.
-- Provider credentials (`com.docker.sandbox/credential@1`) are injected by the sandbox proxy. Store them on the host with `sbx secret set anthropic` or `sbx secret set openai`; every credential in the kit is optional, so the sandbox starts even without them.
-- For target repositories, copy `examples/sbxenv-devbox.yaml` as `sbxenv.yaml` (unlike Compose, `sbxenv.yaml` has no `include:` keyword, so it points directly to the v3 kit at `${{ env.args.configDir }}/sbx/opencode-devbox` and inherits image, toolchain, default env, credentials, network policy, and CPU/RAM resources).
+- The config directory (`$HOME/.config/opencode` by default) is mounted read-only via `additionalWorkspaces` and copied into `/home/agent/.config/opencode/` by the kit's `lifecycle@1` `install` hook (`cp -a`), so the same `opencode.jsonc`, agents, commands, skills, and profiles are used. Changes to the config require recreating the sandbox.
+- Provider credentials (`com.docker.sandbox/credential@1`) can be enabled in `sbx/opencode-devbox/opencode-devbox.yaml` (includes a commented template for OpenAI) so they are injected by the sandbox proxy (`sbx secret set openai`).
+- For target repositories, copy `examples/sbxenv-devbox.yaml` as `sbxenv-devbox.yaml` (unlike Compose, `sbxenv.yaml` has no `include:` keyword, so it points directly to the v3 kit at `${{ env.args.configDir }}/sbx/opencode-devbox` and inherits image, toolchain, default env, credentials, network policy, and CPU/RAM resources).
 
 Prerequisites: `sbx` installed and signed in (`sbx login`). On Linux, local sandboxes also need KVM and membership in the `kvm` group; see the [installation guide](https://docs.docker.com/ai/sandboxes/install/).
 
